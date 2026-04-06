@@ -1,0 +1,185 @@
+# LLM Assignment Matrix — Vorea Studio
+# Fecha: 2026-04-05
+# Propósito: Asignación formal de cada bloque del backlog a un LLM líder, apoyo y restricciones.
+# Este archivo reemplaza la delegación narrativa dispersa en roadmaps y handoffs.
+
+assignments:
+
+  # ═══════════════════════════════════════════
+  # P0 — Monetización y Seguridad
+  # ═══════════════════════════════════════════
+
+  BG-006:
+    title: Monetización hardening (reservation→capture→release)
+    leader: claude
+    support: [gemini]
+    reason: Contrato financiero, idempotencia, refund consistente — territorio de seguridad/compliance
+    subagent: subagent-fullstack-ts-services
+    skill: ai-orchestration
+
+  BG-007:
+    title: PayPal production certification
+    leader: claude
+    support: [codex]
+    reason: Webhooks criptográficos, validación de pagos, smoke en entorno real
+    subagent: subagent-fullstack-ts-services
+
+  BG-008:
+    title: Suite de tests monetización
+    leader: codex
+    support: [claude]
+    reason: Escribir/integrar tests es implementación real; Claude valida invariantes
+    subagent: subagent-fullstack-ts-services
+
+  # ═══════════════════════════════════════════
+  # P1 — Motor 3D y Relief
+  # ═══════════════════════════════════════════
+
+  BG-109:
+    title: Relief mejoras (tolerancia por color, previsualización)
+    leader: gemini
+    support: []
+    reason: Geometría computacional, mesh, FDM, tolerancias — backend 3D puro
+    subagent: subagent-parametric-math-fdm
+    skill: advanced-3d-parametric-math-fdm
+
+  BG-110:
+    title: QA Relief y export 3MF
+    leader: codex
+    support: [gemini]
+    reason: Ejecución real de smoke tests CLI, validación práctica en slicers
+    subagent: subagent-parametric-math-fdm
+
+  BG-205:
+    title: text() + Minkowski mejoras geométricas
+    leader: gemini
+    support: []
+    reason: Extrusión, threading, geometría avanzada — backend 3D profundo
+    subagent: subagent-parametric-math-fdm
+    skill: advanced-3d-parametric-math-fdm
+
+  BG-203:
+    title: Refactor intérprete SCAD por módulos
+    leader: gemini
+    support: [claude]
+    reason: Separation parser/runtime/evaluator (Gemini) + diseño arquitectónico (Claude)
+    subagent: subagent-parametric-math-fdm
+
+  # ═══════════════════════════════════════════
+  # P1 — Motor IA
+  # ═══════════════════════════════════════════
+
+  BG-301:
+    title: Motor IA contrato end-to-end (reservation→capture→release + idempotencia)
+    leader: claude
+    support: [gemini]
+    reason: Contrato API estricto, persistencia server-side, ownership validation — seguridad de datos
+    subagent: subagent-ai-orchestrator
+    skill: ai-orchestration
+
+  scad-self-healing:
+    title: Self-healing loop para SCAD generado por IA
+    leader: claude
+    support: [gemini]
+    reason: Diseño del contrato de validación semántica (Claude) + pipeline de re-prompt (Gemini)
+    subagent: subagent-ai-orchestrator
+
+  # ═══════════════════════════════════════════
+  # Growth, Marketing, Estrategia
+  # ═══════════════════════════════════════════
+
+  BG-114:
+    title: SEO técnico + Analytics
+    leader: openai-gpt
+    support: [codex]
+    reason: Copy, metadata, señal de marca — territorio de producto/marketing
+    subagent: subagent-ux-ui-layout
+
+  BG-116:
+    title: Growth y adquisición (landings, retargeting, leads)
+    leader: openai-gpt
+    support: []
+    reason: Funnels, copy cultural, estrategia de mercado
+    skill: global-localization-growth-strategy
+
+  BG-117.3:
+    title: FODA + roadmap 6 meses
+    leader: openai-gpt
+    support: []
+    reason: Síntesis estratégica y visión de mercado
+
+  BG-117.4:
+    title: Dashboard financiero (KPIs, revenue, AI spend)
+    leader: openai-gpt
+    support: [codex]
+    reason: Diseño UX del dashboard (GPT) + implementación (Codex)
+    subagent: subagent-ux-ui-layout
+
+  # ═══════════════════════════════════════════
+  # Expansión Global
+  # ═══════════════════════════════════════════
+
+  global-identity-payments:
+    title: Identidad regional y checkout (social login, pagos, OTP)
+    leader: claude
+    support: [gemini, openai-gpt]
+    reason: Auth multi-provider, webhooks, compliance (Claude) + DB/migration (Gemini) + UX de fricción (GPT)
+    skill: global-identity-payments-strategy
+
+  global-architecture-scale:
+    title: Escala, storage, costos, latencia multi-región
+    leader: gemini
+    support: [claude]
+    reason: Modelado de costos, infra, storage, bandwidth — territorio de Gemini
+    skill: global-market-platform-strategy
+
+  global-localization-marketing:
+    title: Localización, growth y marketing por región
+    leader: openai-gpt
+    support: [codex]
+    reason: Copy cultural, CRM, messaging por idioma/región
+    skill: global-localization-growth-strategy
+
+  # ═══════════════════════════════════════════
+  # Infraestructura
+  # ═══════════════════════════════════════════
+
+  rate-limiting-distributed:
+    title: Migrar rate limiting de in-memory a PostgreSQL/Redis
+    leader: gemini
+    support: [claude]
+    reason: Infra + backend profundo (Gemini) + revisión de invariantes de seguridad (Claude)
+    subagent: subagent-fullstack-ts-services
+
+# ═══════════════════════════════════════════
+# Restricciones negativas por LLM
+# ═══════════════════════════════════════════
+
+restrictions:
+  codex:
+    never_touch:
+      - server/app.ts (auth routes, middleware)
+      - server/auth.ts
+      - server/paypal-subscriptions.ts
+      - server/credit-ledger.ts
+      - package.json (dependencies section)
+      - prisma/schema.prisma
+    reason: "Historial de incidentes: eliminación de Google OAuth, movimiento de React a peerDeps (2026-04-03)"
+
+  openai-gpt:
+    never_touch:
+      - server/app.ts (core routes)
+      - server/middleware/**
+      - prisma/migrations/**
+    reason: "Mismo equipo que Codex. Backend profundo y migraciones deben ser lideradas por Gemini o Claude"
+
+  gemini:
+    avoid_leading:
+      - copy visible al usuario final
+      - pricing/marketing claims
+      - i18n text content
+    reason: "Gemini es fuerte en backend/infra pero el copy visible requiere sensibilidad de producto"
+
+  claude:
+    restrictions: none
+    note: "Mejor track record de seguridad en este proyecto. Sin restricciones de zona."

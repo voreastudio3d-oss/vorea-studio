@@ -1,0 +1,29 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>VoreaStudio-3d-parametrics</title>
+    </head>
+
+    <body>
+      <!-- PayPal return URL fix: redirect query params to the clean profile route -->
+      <script>
+        (function() {
+          var params = new URLSearchParams(window.location.search);
+          if (params.has('subscription_id') || params.has('ba_token')) {
+            var subId = params.get('subscription_id') || '';
+            var cancelled = params.has('token') && !params.has('subscription_id');
+            var dest = cancelled
+              ? '/perfil?sub=cancelled'
+              : '/perfil?sub=success&subscription_id=' + encodeURIComponent(subId);
+            window.location.replace(window.location.origin + dest);
+          }
+        })();
+      </script>
+      <div id="root"></div>
+      <script type="module" src="/src/main.tsx"></script>
+    </body>
+  </html>
+  

@@ -1,0 +1,24 @@
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+Datasource "db": PostgreSQL database "vorea_studio", schema "public" at "localhost:5432"
+
+Error: 
+⚠️ We found changes that cannot be executed:
+
+  • Added the required column `canonicalUrl` to the `news_articles` table without a default value. There are 111 rows in this table, it is not possible to execute this step.
+  • Added the required column `dedupeHash` to the `news_articles` table without a default value. There are 111 rows in this table, it is not possible to execute this step.
+  • Added the required column `detailEs` to the `news_articles` table without a default value. There are 111 rows in this table, it is not possible to execute this step.
+  • Added the required column `expiresAt` to the `news_articles` table without a default value. There are 111 rows in this table, it is not possible to execute this step.
+  • Added the required column `sourceId` to the `news_articles` table without a default value. There are 111 rows in this table, it is not possible to execute this step.
+  • Added the required column `summaryEs` to the `news_articles` table without a default value. There are 111 rows in this table, it is not possible to execute this step.
+  • Added the required column `titleDisplayEs` to the `news_articles` table without a default value. There are 111 rows in this table, it is not possible to execute this step.
+  • Added the required column `titleOriginal` to the `news_articles` table without a default value. There are 111 rows in this table, it is not possible to execute this step.
+  • Added the required column `updatedAt` to the `news_articles` table without a default value. There are 111 rows in this table, it is not possible to execute this step.
+  • Added the required column `baseUrl` to the `news_sources` table without a default value. There are 25 rows in this table, it is not possible to execute this step.
+  • Added the required column `fetchMode` to the `news_sources` table without a default value. There are 25 rows in this table, it is not possible to execute this step.
+  • Added the required column `updatedAt` to the `news_sources` table without a default value. There are 25 rows in this table, it is not possible to execute this step.
+
+You may use the --force-reset flag to drop the database before push like prisma db push --force-reset
+All data will be lost.
+      

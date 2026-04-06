@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build output
+dist/
+build/
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache
+.cache/
+*.tsbuildinfo
+
+coverage/
+.playwright-cli/
+.agents/runtime/current_block.yaml
+.agent/
+worktrees/
+.vite/
+
+# Obsidian local state (auto-generated, causes conflicts on pull)
+.obsidian/
+.agents/.obsidian/workspace.json
+.agents/.obsidian/workspace-mobile.json
+
+# Temp/editor scratch files
+Untitled.*
+/env
+
+# Local scratch and transient test artifacts
+.scratch/
+preflight_error.txt
+test_dump_governance.txt
+test_results.json
+test_results.tap
+test_results.txt

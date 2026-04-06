@@ -1,0 +1,137 @@
+import type { ReactNode } from "react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { I18nProvider } from "../../services/i18n-context";
+import { NavProvider } from "../../nav";
+import { NewsList } from "../NewsList";
+import { NewsDetail } from "../NewsDetail";
+
+const apiMocks = vi.hoisted(() => ({
+  list: vi.fn(),
+  getBySlug: vi.fn(),
+}));
+
+vi.mock("../../services/api-client", () => ({
+  NewsApi: apiMocks,
+}));
+
+function renderWithProviders(node: ReactNode) {
+  return render(
+    <I18nProvider>
+      <NavProvider>{node}</NavProvider>
+    </I18nProvider>
+  );
+}
+
+describe("news pages", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.setItem("vorea-locale", "es");
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("renders the news list with fetched articles", async () => {
+    window.history.replaceState({}, "", "/noticias");
+    localStorage.setItem("vorea-locale", "en");
+    apiMocks.list.mockResolvedValue({
+      articles: [
+        {
+          id: "nar_1",
+          slug: "nota-demo",
+          source: { id: "ns_3dprint", slug: "3dprint", name: "3DPrint.com", type: "news", language: "en" },
+          canonicalUrl: "https://3dprint.com/demo",
+          titleOriginal: "Original title",
+          titleDisplayEs: "Nueva noticia demo",
+          summaryEs: "Resumen de prueba para la nota.",
+          detailEs: "Detalle",
+          titleDisplayEn: "New demo story",
+          summaryEn: "English summary for the story.",
+          detailEn: "Expanded English detail.",
+          titleDisplay: "New demo story",
+          summary: "English summary for the story.",
+          detail: "Expanded English detail.",
+          sourceExcerpt: "Extracto",
+          imageUrl: null,
+          author: null,
+          category: "Industria",
+          tags: ["impresion"],
+          sourceLanguage: "en",
+          publishedAt: new Date().toISOString(),
+          fetchedAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 1000).toISOString(),
+          status: "published",
+          editorialTier: "indexable",
+          indexable: true,
+          requestedLanguage: "en",
+          availableLanguages: ["es", "en"],
+        },
+      ],
+      total: 1,
+      page: 1,
+      limit: 12,
+    });
+
+    renderWithProviders(<NewsList />);
+
+    expect(await screen.findByText("New demo story")).toBeInTheDocument();
+    expect(screen.getByText("News")).toBeInTheDocument();
+    expect(screen.getByText("English summary for the story.")).toBeInTheDocument();
+    expect(screen.getAllByText("Editorial analysis").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: /Read analysis/i })).toBeInTheDocument();
+    expect(screen.getAllByText("Open original").length).toBeGreaterThan(0);
+    expect(apiMocks.list).toHaveBeenCalledWith({ limit: 12, lang: "en", sourceLanguage: undefined });
+
+    fireEvent.click(screen.getByRole("button", { name: "Spanish sources" }));
+    await waitFor(() =>
+      expect(apiMocks.list).toHaveBeenLastCalledWith({ limit: 12, lang: "en", sourceLanguage: "es" })
+    );
+  });
+
+  it("renders the news detail with attribution footer", async () => {
+    window.history.replaceState({}, "", "/noticias/nota-demo");
+    apiMocks.getBySlug.mockResolvedValue({
+      id: "nar_1",
+      slug: "nota-demo",
+      sourceId: "ns_3dprint",
+      source: { id: "ns_3dprint", slug: "3dprint", name: "3DPrint.com", type: "news", language: "en" },
+      canonicalUrl: "https://3dprint.com/demo",
+      titleOriginal: "New demo story",
+      titleDisplayEs: "Nueva noticia demo",
+      summaryEs: "Resumen de prueba para la nota.",
+      detailEs: "Detalle ampliado de la noticia.",
+      titleDisplayEn: "New demo story",
+      summaryEn: "English summary for the story.",
+      detailEn: "Expanded English detail.",
+      titleDisplay: "New demo story",
+      summary: "English summary for the story.",
+      detail: "Expanded English detail.",
+      sourceExcerpt: "Extracto",
+      imageUrl: null,
+      author: null,
+      category: "Industria",
+      tags: ["impresion"],
+      sourceLanguage: "en",
+      publishedAt: new Date().toISOString(),
+      fetchedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 1000).toISOString(),
+      status: "published",
+      editorialTier: "indexable",
+      indexable: true,
+      whyItMatters: "Importa porque acelera la adopción industrial.",
+      requestedLanguage: "en",
+      availableLanguages: ["es", "en"],
+    });
+    localStorage.setItem("vorea-locale", "en");
+
+    renderWithProviders(<NewsDetail />);
+
+    expect(await screen.findByText("New demo story")).toBeInTheDocument();
+    expect(screen.getByText("Attribution")).toBeInTheDocument();
+    expect(screen.getByText("Source and editorial notes")).toBeInTheDocument();
+    expect(screen.getByText(/Summary generated by Vorea/)).toBeInTheDocument();
+    expect(screen.getByText("Expanded English detail.")).toBeInTheDocument();
+    expect(screen.getByText("Editorial analysis")).toBeInTheDocument();
+    expect(screen.queryByText("Original title")).not.toBeInTheDocument();
+    expect(apiMocks.getBySlug).toHaveBeenCalledWith("nota-demo", { lang: "en" });
+  });
+});

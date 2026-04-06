@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+.npm
+
+# Build output (will be rebuilt in container)
+dist
+
+# Development files
+.env
+.env.local
+.env.*.local
+.git
+.gitignore
+.vscode
+.idea
+.cursor
+
+# Docker files (avoid recursive context)
+docker-compose*.yml
+Dockerfile
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tests & dev tools
+coverage
+*.test.ts
+__tests__
+.vitest
+
+# Docs and artifacts
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+
+# Prisma migrations (keep schema, skip dev artifacts)
+prisma/migrations/*/migration_lock.toml
+
+# Gemini / AI artifacts
+.gemini
+.agent
+.agents

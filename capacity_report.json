@@ -1,0 +1,69 @@
+{
+  "executedAt": "2026-04-03T02:10:18.304Z",
+  "testInput": "Genera un llavero rectangular imprimible en FDM de 40 mm x 20 mm x 3 mm con esquinas suavemente redondeadas, un agujero de 5 mm en la esquina superior izquierda y el texto 'VOREA' en relieve centrado. Mantenlo simple, limpio y totalmente compilable en OpenSCAD.",
+  "validations": [
+    {
+      "provider": "gemini",
+      "ok": false,
+      "detail": "fetch failed",
+      "latencyMs": 0
+    },
+    {
+      "provider": "openai",
+      "ok": true,
+      "detail": "OpenAI models endpoint respondió OK",
+      "latencyMs": 1044
+    },
+    {
+      "provider": "anthropic",
+      "ok": false,
+      "detail": "fetch failed",
+      "latencyMs": 0
+    },
+    {
+      "provider": "deepseek",
+      "ok": true,
+      "detail": "DeepSeek models endpoint respondió OK",
+      "latencyMs": 3341
+    },
+    {
+      "provider": "kimi",
+      "ok": false,
+      "detail": "fetch failed",
+      "latencyMs": 0
+    }
+  ],
+  "generations": [
+    {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "ok": false,
+      "latencyMs": 1864,
+      "error": "Error del servicio de IA 'openai' (400). Intenta de nuevo."
+    },
+    {
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "ok": false,
+      "latencyMs": 1303,
+      "error": "Error del servicio de IA 'openai' (400). Intenta de nuevo."
+    },
+    {
+      "provider": "deepseek",
+      "model": "deepseek-chat",
+      "ok": true,
+      "latencyMs": 22430,
+      "modelName": "benchmark_keychain_vorea",
+      "scadLength": 995,
+      "parameterCount": 6,
+      "reasoningPreview": "Diseñé un llavero rectangular con esquinas redondeadas usando hull() y cilindros para suavidad, con un agujero de 5 mm en la esquina superio"
+    },
+    {
+      "provider": "deepseek",
+      "model": "deepseek-reasoner",
+      "ok": false,
+      "latencyMs": 115935,
+      "error": "La IA 'deepseek' no generó una respuesta válida. Intenta reformular tu prompt."
+    }
+  ]
+}

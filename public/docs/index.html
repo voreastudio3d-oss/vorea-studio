@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vorea Studio Docs</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #121a33;
+        --panel-2: #172145;
+        --text: #e5ecff;
+        --muted: #9fb0df;
+        --accent: #39d98a;
+        --warning: #ffd166;
+        --danger: #ff6b6b;
+        --border: #24325f;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Inter", Arial, sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at top right, #1e2b57, var(--bg) 38%);
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      h1, h2, h3 { margin: 0 0 12px; }
+      .panel {
+        background: color-mix(in srgb, var(--panel), transparent 8%);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+      }
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 900px) {
+        .grid-2 {
+          grid-template-columns: 1.5fr 1fr;
+        }
+      }
+      .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      .input, .select {
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+      .input { min-width: 260px; width: 100%; }
+      .token { width: 100%; }
+      .badge {
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 4px 10px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .badge.auth { color: var(--accent); border-color: color-mix(in srgb, var(--accent), var(--border) 55%); }
+      .badge.admin { color: var(--warning); border-color: color-mix(in srgb, var(--warning), var(--border) 55%); }
+      details {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--panel), black 8%);
+        margin-bottom: 10px;
+      }
+      summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      summary::-webkit-details-marker { display: none; }
+      .method {
+        min-width: 62px;
+        text-align: center;
+        border-radius: 8px;
+        padding: 4px 8px;
+        font-weight: 700;
+        font-size: 12px;
+      }
+      .m-get { background: #244a88; }
+      .m-post { background: #1f7a46; }
+      .m-put, .m-patch { background: #8b6b1e; }
+      .m-delete { background: #8a2f3a; }
+      .path {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 13px;
+        word-break: break-word;
+      }
+      .content { padding: 0 14px 14px; color: var(--muted); font-size: 14px; }
+      pre {
+        background: #0f1630;
+        color: #dbe6ff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px;
+        overflow: auto;
+      }
+      .tag-title {
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #c7d5ff;
+      }
+      .links-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      @media (min-width: 900px) {
+        .links-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .mini-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        background: color-mix(in srgb, var(--panel-2), transparent 6%);
+      }
+      .mini-card p {
+        margin: 0 0 10px;
+        color: var(--muted);
+      }
+      .mini-card ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .mini-card li {
+        margin-bottom: 6px;
+      }
+      .muted { color: var(--muted); }
+      .warn { color: var(--warning); }
+      .danger { color: var(--danger); }
+      .quickstart li { margin-bottom: 6px; }
+      a { color: #8bb7ff; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="panel">
+        <h1>Vorea Studio Docs — Portal técnico y operativo</h1>
+        <p class="muted">
+          Fuente: <code>/openapi.json</code>. Estado de pagos actual: <strong>PayPal operativo</strong>.
+          Stripe no está implementado en backend en este ciclo.
+        </p>
+        <p class="muted">
+          Este portal está orientado a superadmin, desarrollo, QA técnico y operación interna.
+          Combina referencia API, perfiles de uso y guías operativas.
+        </p>
+      </div>
+
+      <section class="panel" style="margin-top: 16px;">
+        <h2>Accesos rápidos</h2>
+        <div class="links-grid">
+          <div class="mini-card">
+            <h3>API</h3>
+            <p>Referencia viva de endpoints, contratos y ejemplos de consumo.</p>
+            <ul>
+              <li><a href="/docs/api/endpoint-matrix.md">Matriz de endpoints</a></li>
+              <li><a href="/docs/api/inconsistencies.md">Inconsistencias API</a></li>
+              <li><a href="/openapi.json">OpenAPI JSON</a></li>
+            </ul>
+          </div>
+          <div class="mini-card">
+            <h3>Operaciones</h3>
+            <p>Guías de smoke, despliegue, validación manual, flujos de producto y soporte interno.</p>
+            <ul>
+              <li><a href="/docs/operations/README.md">Índice operativo</a></li>
+              <li><a href="/docs/operations/product-business-flows.md">Flujos de producto y negocio</a></li>
+              <li><a href="/docs/operations/playwright-cli-skill.md">Playwright CLI (`pwcli`)</a></li>
+            </ul>
+          </div>
+          <div class="mini-card">
+            <h3>Perfiles</h3>
+            <p>Documentación orientada a desarrolladores, creativos y admins de contenido.</p>
+            <ul>
+              <li><a href="/docs/profiles/desarrolladores.md">Perfil desarrolladores</a></li>
+              <li><a href="/docs/profiles/creativos.md">Perfil creativos</a></li>
+              <li><a href="/docs/profiles/administradores-contenido.md">Perfil admins</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid grid-2" style="margin-top: 16px;">
+        <section class="panel">
+          <h2>Quickstarts</h2>
+          <div id="quickstarts"></div>
+        </section>
+        <section class="panel">
+          <h2>Estado</h2>
+          <p class="muted" id="stats">Cargando especificación...</p>
+          <p class="warn">Si cambian rutas en backend, correr: <code>npm run docs:api:generate</code> + <code>npm run docs:api:check</code>.</p>
+          <p class="muted">Índice general docs: <a href="/docs/README.md">/docs/README.md</a></p>
+          <p class="muted">Matriz operativa: <a href="/docs/api/endpoint-matrix.md">/docs/api/endpoint-matrix.md</a></p>
+          <p class="muted">Inconsistencias: <a href="/docs/api/inconsistencies.md">/docs/api/inconsistencies.md</a></p>
+          <p class="muted">Índice operaciones: <a href="/docs/operations/README.md">/docs/operations/README.md</a></p>
+          <p class="muted">Flujos de producto y negocio: <a href="/docs/operations/product-business-flows.md">/docs/operations/product-business-flows.md</a></p>
+          <p class="muted">Perfil Dev: <a href="/docs/profiles/desarrolladores.md">/docs/profiles/desarrolladores.md</a></p>
+          <p class="muted">Playwright CLI (`pwcli`): <a href="/docs/operations/playwright-cli-skill.md">/docs/operations/playwright-cli-skill.md</a></p>
+          <p class="muted">Perfil Creativos: <a href="/docs/profiles/creativos.md">/docs/profiles/creativos.md</a></p>
+          <p class="muted">Perfil Admin Contenido: <a href="/docs/profiles/administradores-contenido.md">/docs/profiles/administradores-contenido.md</a></p>
+          <p class="muted">Manual usuarios: <a href="/docs/manual-usuario.md">/docs/manual-usuario.md</a></p>
+        </section>
+      </div>
+      <div class="panel">
+        <div class="row">
+          <input id="search" class="input" type="search" placeholder="Buscar endpoint, path o resumen..." />
+        </div>
+        <div class="row" style="margin-top: 10px;">
+          <input id="token" class="input token" type="text" placeholder="Bearer token (opcional para generar cURL)" />
+        </div>
+      </div>
+      <section class="panel" style="margin-top: 16px;">
+        <h2>Endpoints</h2>
+        <div id="endpoints"></div>
+      </section>
+    </div>
+
+    <script>
+      const methodClass = (method) => {
+        const m = method.toLowerCase();
+        return `m-${m}`;
+      };
+
+      const authBadge = (meta) => {
+        const auth = meta?.authPolicy || "public";
+        if (auth === "superadmin") return '<span class="badge admin">superadmin</span>';
+        if (auth === "authenticated") return '<span class="badge auth">bearer</span>';
+        if (auth === "optional-auth") return '<span class="badge">optional auth</span>';
+        return '<span class="badge">public</span>';
+      };
+
+      const sampleBody = (op) => {
+        const content = op.requestBody?.content?.["application/json"];
+        if (!content) return null;
+        if (content.example) return content.example;
+        return { note: "body requerido" };
+      };
+
+      const makeCurl = (method, path, operation, token) => {
+        const headers = ['-H "Accept: application/json"'];
+        const requiresAuth = Array.isArray(operation.security) && operation.security.length > 0;
+        if (requiresAuth && token) headers.push(`-H "Authorization: Bearer ${token}"`);
+        if (sampleBody(operation)) headers.push('-H "Content-Type: application/json"');
+        const body = sampleBody(operation)
+          ? ` \\\n  --data '${JSON.stringify(sampleBody(operation), null, 2)}'`
+          : "";
+        return `curl -X ${method.toUpperCase()} "http://localhost:5173${path}" \\\n  ${headers.join(" \\\n  ")}${body}`;
+      };
+
+      const buildOperationCard = (path, method, op, token) => {
+        const responses = Object.entries(op.responses || {})
+          .map(([code, data]) => `<li><code>${code}</code> — ${data.description || ""}</li>`)
+          .join("");
+
+        const deps = op["x-vorea-meta"]?.dependencies?.join(", ") || "—";
+        const source = op["x-vorea-meta"]?.source || "n/a";
+        const status = op["x-vorea-meta"]?.status || "active";
+        const curl = makeCurl(method, path, op, token);
+
+        return `
+          <details>
+            <summary>
+              <span class="method ${methodClass(method)}">${method.toUpperCase()}</span>
+              <span class="path">${path}</span>
+              ${authBadge(op["x-vorea-meta"])}
+            </summary>
+            <div class="content">
+              <p><strong>${op.summary || "Sin resumen"}</strong></p>
+              <p>${(op.description || "").replace(/\n/g, "<br/>")}</p>
+              <p><strong>Dependencias:</strong> ${deps}</p>
+              <p><strong>Estado:</strong> ${status}</p>
+              <p><strong>Fuente:</strong> <code>${source}</code></p>
+              <p><strong>Respuestas:</strong></p>
+              <ul>${responses || "<li>Sin respuestas declaradas</li>"}</ul>
+              <p><strong>Ejemplo cURL:</strong></p>
+              <pre>${curl}</pre>
+            </div>
+          </details>
+        `;
+      };
+
+      const renderQuickstarts = (spec) => {
+        const holder = document.getElementById("quickstarts");
+        const quick = spec["x-quickstarts"] || [];
+        holder.innerHTML = quick
+          .map((q) => {
+            const steps = (q.steps || []).map((step) => `<li>${step}</li>`).join("");
+            return `
+              <div style="margin-bottom: 14px;">
+                <h3>${q.title}</h3>
+                <ol class="quickstart">${steps}</ol>
+              </div>
+            `;
+          })
+          .join("");
+      };
+
+      const flattenOperations = (spec) => {
+        const list = [];
+        for (const [p, methods] of Object.entries(spec.paths || {})) {
+          for (const [m, op] of Object.entries(methods || {})) {
+            list.push({
+              path: p,
+              method: m,
+              op,
+              tag: (op.tags && op.tags[0]) || "Misc",
+              key: `${m.toUpperCase()} ${p}`.toLowerCase(),
+            });
+          }
+        }
+        return list.sort((a, b) => a.path.localeCompare(b.path) || a.method.localeCompare(b.method));
+      };
+
+      const renderEndpoints = (spec) => {
+        const searchInput = document.getElementById("search");
+        const tokenInput = document.getElementById("token");
+        const holder = document.getElementById("endpoints");
+        const stats = document.getElementById("stats");
+
+        const operations = flattenOperations(spec);
+        const byTag = {};
+        operations.forEach((item) => {
+          if (!byTag[item.tag]) byTag[item.tag] = [];
+          byTag[item.tag].push(item);
+        });
+
+        stats.textContent = `${operations.length} operaciones documentadas · ${Object.keys(byTag).length} dominios`;
+
+        const draw = () => {
+          const q = (searchInput.value || "").toLowerCase().trim();
+          const token = tokenInput.value || "";
+          const sections = [];
+
+          for (const tag of Object.keys(byTag).sort()) {
+            const filtered = byTag[tag].filter((item) => {
+              if (!q) return true;
+              const haystack = `${item.method} ${item.path} ${(item.op.summary || "")} ${(item.op.description || "")}`.toLowerCase();
+              return haystack.includes(q);
+            });
+            if (!filtered.length) continue;
+
+            const cards = filtered
+              .map((item) => buildOperationCard(item.path, item.method, item.op, token))
+              .join("");
+            sections.push(`<h3 class="tag-title">${tag} <span class="muted">(${filtered.length})</span></h3>${cards}`);
+          }
+
+          holder.innerHTML = sections.length ? sections.join("") : "<p class='danger'>Sin resultados para la búsqueda actual.</p>";
+        };
+
+        searchInput.addEventListener("input", draw);
+        tokenInput.addEventListener("input", draw);
+        draw();
+      };
+
+      async function init() {
+        try {
+          const res = await fetch("/openapi.json", { cache: "no-store" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const spec = await res.json();
+          renderQuickstarts(spec);
+          renderEndpoints(spec);
+        } catch (error) {
+          document.getElementById("stats").innerHTML =
+            `<span class="danger">No se pudo cargar /openapi.json: ${String(error.message || error)}</span>`;
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
+
+

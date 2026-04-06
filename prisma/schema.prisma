@@ -1,0 +1,522 @@
+// Prisma Schema for Vorea Studio — Codex Parametric 3D
+// This schema models all entities currently stored in the Supabase KV store.
+// It provides a proper relational structure for migration from KV to
+// PostgreSQL tables, usable both with Supabase (hosted) and local Docker.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+enum MembershipTier {
+  FREE
+  PRO
+  STUDIO_PRO
+}
+
+enum UserRole {
+  user
+  admin
+  superadmin
+}
+
+model User {
+  id          String         @id @default(uuid())
+  email       String         @unique
+  displayName String
+  username    String         @unique
+  tier        MembershipTier @default(FREE)
+  role        UserRole       @default(user)
+  avatarUrl   String?
+  banned      Boolean        @default(false)
+  lastLoginAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  // Relations
+  models             Model[]
+  gcodeItems         GCodeItem[]
+  credits            ExportCredits?
+  feedback           Feedback[]
+  paypalOrders       PayPalOrder[]
+  // subscriptions managed via auth_users, not Prisma User
+  activityLogs       ActivityLog[]
+  vaultEntries       ApiKeyVault[]
+  aiStudioRecipes    AiStudioRecipe[]
+  aiGenerationTraces AiGenerationTrace[]
+  telemetryEvents    TelemetryEvent[]
+
+  @@map("users")
+}
+
+// ─── Models / Projects ────────────────────────────────────────────────────────
+
+enum ModelStatus {
+  Draft
+  Published
+  Archived
+}
+
+model Model {
+  id           String      @id @default(uuid())
+  userId       String
+  title        String
+  scadSource   String?     @db.Text
+  status       ModelStatus @default(Draft)
+  params       Json        @default("{}")
+  wireframe    Boolean     @default(false)
+  likes        Int         @default(0)
+  downloads    Int         @default(0)
+  thumbnailUrl String?
+  tags         String[]    @default([])
+  featured     Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("models")
+}
+
+// ─── GCode Collection ─────────────────────────────────────────────────────────
+
+model GCodeItem {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  gcode     String   @db.Text
+  config    Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("gcode_items")
+}
+
+// ─── Export Credits ───────────────────────────────────────────────────────────
+
+model ExportCredits {
+  userId           String    @id
+  freeUsed         Int       @default(0)
+  purchasedCredits Int       @default(0)
+  totalExported    Int       @default(0)
+  lastExportAt     DateTime?
+  updatedAt        DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("export_credits")
+}
+
+// ─── Feedback ─────────────────────────────────────────────────────────────────
+
+model Feedback {
+  id            String    @id @default(uuid())
+  userId        String?
+  type          String    @default("bug")
+  message       String    @db.Text
+  screenshot    String?   @db.Text
+  stateSnapshot String?   @db.Text
+  userEmail     String?
+  status        String    @default("open")
+  aiReview      Json?
+  aiReviewedAt  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@map("feedback")
+}
+
+// ─── Membership Plans ─────────────────────────────────────────────────────────
+
+model MembershipPlan {
+  id           String         @id @default(uuid())
+  tier         MembershipTier @unique
+  name         String
+  monthlyPrice Float          @default(0)
+  yearlyPrice  Float          @default(0)
+  features     Json           @default("[]")
+  highlighted  Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@map("membership_plans")
+}
+
+// ─── PayPal Orders ────────────────────────────────────────────────────────────
+
+model PayPalOrder {
+  id         String    @id @default(uuid())
+  orderId    String    @unique
+  userId     String
+  packId     String
+  price      Float
+  status     String    @default("CREATED")
+  capturedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("paypal_orders")
+}
+
+// ─── PayPal Subscriptions ─────────────────────────────────────────────────────
+
+model PayPalSubscription {
+  id               String         @id @default(uuid())
+  subscriptionId   String         @unique
+  userId           String
+  planId           String
+  tier             MembershipTier
+  status           String         @default("APPROVAL_PENDING") // ACTIVE, SUSPENDED, CANCELLED, EXPIRED
+  currentPeriodEnd DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  // userId references auth_users table (managed outside Prisma)
+
+  @@index([userId])
+  @@index([subscriptionId])
+  @@map("paypal_subscriptions")
+}
+
+// ─── Activity Log ─────────────────────────────────────────────────────────────
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String
+  userId    String?
+  details   Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// ─── Admin Alerts (Singleton Config) ──────────────────────────────────────────
+
+model AdminConfig {
+  id        String   @id @default("singleton")
+  alerts    Json     @default("{}")
+  settings  Json     @default("{}")
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_config")
+}
+
+// ─── KV Store (replaces Supabase kv_store_214a83d7) ───────────────────────────
+
+model KvStore {
+  key       String   @id
+  value     Json     @default("{}")
+  updatedAt DateTime @updatedAt
+
+  @@map("kv_store")
+}
+
+// ─── API Key Vault (BYOK – Bring Your Own Key) ──────────────────────────────
+
+model ApiKeyVault {
+  id           String    @id @default(uuid())
+  userId       String
+  provider     String // e.g. "tripo", "meshy", "hitem3d", "openai", "gemini"
+  encryptedKey String    @db.Text
+  iv           String // hex-encoded 16-byte IV
+  authTag      String // hex-encoded GCM auth tag
+  label        String? // user-friendly label, e.g. "My Tripo Key"
+  lastUsedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@map("api_key_vault")
+}
+
+// ─── News / Editorial Feed ───────────────────────────────────────────────────
+
+model NewsSource {
+  id         String             @id
+  slug       String             @unique
+  name       String
+  type       String
+  language   String             @default("en")
+  baseUrl    String
+  feedUrl    String?
+  listingUrl String?
+  fetchMode  String
+  enabled    Boolean            @default(true)
+  priority   Int                @default(100)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  articles   NewsArticle[]
+  runs       NewsIngestionRun[]
+
+  @@index([enabled, priority])
+  @@map("news_sources")
+}
+
+model NewsArticle {
+  id             String     @id
+  slug           String     @unique
+  sourceId       String
+  canonicalUrl   String
+  titleOriginal  String
+  titleDisplayEs String
+  summaryEs      String     @db.Text
+  detailEs       String     @db.Text
+  titleDisplayEn String?
+  summaryEn      String?    @db.Text
+  detailEn       String?    @db.Text
+  sourceExcerpt  String?    @db.Text
+  imageUrl       String?
+  author         String?
+  category       String?
+  tags           String[]   @default([])
+  sourceLanguage String?
+  publishedAt    DateTime?
+  fetchedAt      DateTime   @default(now())
+  expiresAt      DateTime
+  status         String     @default("published")
+  dedupeHash     String     @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  source         NewsSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, canonicalUrl])
+  @@index([status, publishedAt])
+  @@index([expiresAt])
+  @@index([sourceId, publishedAt])
+  @@map("news_articles")
+}
+
+model NewsIngestionRun {
+  id            String      @id
+  sourceId      String?
+  startedAt     DateTime    @default(now())
+  finishedAt    DateTime?
+  status        String      @default("running")
+  fetchedCount  Int         @default(0)
+  insertedCount Int         @default(0)
+  updatedCount  Int         @default(0)
+  skippedCount  Int         @default(0)
+  error         String?     @db.Text
+  source        NewsSource? @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@index([startedAt])
+  @@index([sourceId, startedAt])
+  @@map("news_ingestion_runs")
+}
+
+model AiStudioRecipe {
+  id                 String   @id @default(uuid())
+  userId             String // Identificador del owner (User.id)
+  name               String
+  engine             String // ej: 'fdm'
+  familyHint         String // ej: 'storage-box'
+  quality            String // ej: 'draft'
+  prompt             String   @db.Text
+  parameterOverrides Json     @default("{}")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("ai_studio_recipes")
+}
+
+// ─── AI Studio CMS ────────────────────────────────────────────────────────────
+
+model AiStudioFamily {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  engine        String // "fdm" | "organic"
+  nameEs        String
+  nameEn        String
+  descriptionEs String?  @db.Text
+  descriptionEn String?  @db.Text
+  imageUrl      String?
+  scadTemplate  String   @db.Text
+  parameters    Json     @default("[]")
+  status        String   @default("active") // active, draft, archived
+  priority      Int      @default(100)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  presets AiStudioPreset[]
+
+  @@index([status, engine])
+  @@map("ai_studio_families")
+}
+
+model AiStudioPreset {
+  id             String   @id @default(uuid())
+  familyId       String
+  slug           String   @unique
+  labelEs        String
+  labelEn        String
+  promptEs       String   @db.Text
+  promptEn       String   @db.Text
+  imageUrl       String?
+  overrideValues Json     @default("{}")
+  priority       Int      @default(100)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  family AiStudioFamily @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@map("ai_studio_presets")
+}
+
+model AiGenerationTrace {
+  id                  String   @id @default(uuid())
+  userId              String
+  tier                String
+  promptRawEncrypted  Json?
+  promptNormalized    String   @db.Text
+  attemptHistory      Json?
+  intent              String
+  riskFlags           String[] @default([])
+  familySlugRequested String
+  familySlugResolved  String
+  engine              String
+  quality             String
+  provider            String
+  model               String
+  lane                String
+  manualMode          Boolean  @default(false)
+  creditCost          Int      @default(0)
+  estimatedUsd        Float    @default(0)
+  status              String
+  failureCode         String?
+  routingReason       String?  @db.Text
+  selfHealed          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([provider, model, createdAt])
+  @@index([status, createdAt])
+  @@map("ai_generation_traces")
+}
+
+model AiGenerationDailyAggregate {
+  id                String   @id @default(uuid())
+  day               DateTime
+  provider          String
+  model             String
+  tier              String
+  quality           String
+  totalRequests     Int      @default(0)
+  totalSuccess      Int      @default(0)
+  totalFailures     Int      @default(0)
+  totalCredits      Int      @default(0)
+  totalEstimatedUsd Float    @default(0)
+  updatedAt         DateTime @updatedAt
+
+  @@unique([day, provider, model, tier, quality])
+  @@index([day, provider])
+  @@map("ai_generation_daily_aggregates")
+}
+
+model RegionalStorageDailyAggregate {
+  id             String   @id @default(uuid())
+  day            DateTime
+  regionCode     String
+  aiStorageBytes BigInt   @default(0)
+  aiImageBytes   BigInt   @default(0)
+  updatedAt      DateTime @updatedAt
+
+  @@unique([day, regionCode])
+  @@index([day, regionCode])
+  @@map("regional_storage_daily_aggregates")
+}
+
+// ─── Engine Telemetry ─────────────────────────────────────────────────────────
+// Dedicated analytics table for 3D engine events.
+// Captures generation, export, warning, and crash events with typed columns
+// for direct SQL queries. Binary snapshots stored in KV, referenced by ID.
+
+model TelemetryEvent {
+  id        String  @id @default(uuid())
+  sessionId String // Groups events by browser session
+  userId    String? // null if anonymous
+  trigger   String // "generation" | "export_3mf" | "export_stl" | "warning" | "crash" | "user_feedback"
+  page      String  @default("relief") // "relief" | "editor" | "organic"
+
+  // ── 3D Engine params ──────────────────
+  surfaceMode   String? // "plane" | "cylinder" | "box" | "polygon" | "lampshade" | "geodesic" | "stl"
+  subdivisions  Int?
+  maxHeight     Float?
+  smoothing     Int?
+  colorZones    Int?
+  invert        Boolean?
+  solid         Boolean?
+  baseThickness Float?
+
+  // ── Dimensions (vary by surfaceMode) ──
+  plateWidth     Float?
+  plateDepth     Float?
+  cylinderRadius Float?
+  cylinderHeight Float?
+  polygonSides   Int?
+  polygonRadius  Float?
+
+  // ── Image input ──
+  imageFormat    String? // "png" | "jpeg" | "webp" | "stl" | "svg"
+  imageScale     Float?
+  imageScaleMode String? // "clamp" | "wrap"
+
+  // ── Export ──
+  exportFormat     String? // "3mf" | "stl" | null
+  threeMfColorMode String? // "hybrid" | "slic3r-strict" | "split-objects"
+
+  // ── Mesh health (from mesh-inspector) ──
+  meshScore        String? // "printable" | "warnings" | "not-printable"
+  meshFaces        Int?
+  meshVertices     Int?
+  boundaryEdges    Int?
+  nonManifoldEdges Int?
+  meshVolume       Float?
+
+  // ── Visual snapshot ──
+  snapshotId String? // KV key: telemetry:snapshot:{id}
+
+  // ── Error / overflow ──
+  errorMessage String? @db.Text
+  extraParams  Json?   @default("{}")
+
+  // ── Durations (ms) ──
+  generationTimeMs Int?
+  exportTimeMs     Int?
+
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([trigger, createdAt])
+  @@index([surfaceMode, createdAt])
+  @@index([userId, createdAt])
+  @@index([meshScore, createdAt])
+  @@map("telemetry_events")
+}

@@ -1,0 +1,2463 @@
+{
+  "generatedAt": "2026-04-02T19:21:48.839Z",
+  "totals": {
+    "routeDefinitions": 144,
+    "uniqueRoutes": 140,
+    "duplicatedDefinitions": 4
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/activity",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Activity",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:2051",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/activity/:userId",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:2064",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/ai-budget",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3548",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/ai-budget",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:3570",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/alerts",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:5144",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/alerts",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:5161",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/analytics",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:4746",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/analytics-insights",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:2871",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/check",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:2954",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/community/cleanup",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin Community",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:7687",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/community/models",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin Community",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:7597",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/contributors/:userId",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:6150",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/credit-packs",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3424",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/credit-packs",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:3435",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/donations",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:5997",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/email",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:5173",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/emails",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:5218",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/expenses",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:5126",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/image-limits",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:4395",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/image-limits",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:4406",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/init",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:2797",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/kpi",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:2076",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/limits",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3462",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/limits",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3482",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/logs",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:5232",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/news/ingest",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "paypal"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:7999",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/news/source-stats",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:7990",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/news/sources",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:7945",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/news/sources",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [],
+      "errorCodes": [
+        "201",
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:7966",
+      "duplicates": 1
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/news/sources/:id",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7979",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/news/sources/:id",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7954",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/plans",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3160",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/plans",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:3175",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/promotions",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:4788",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/promotions",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:4799",
+      "duplicates": 1
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/promotions/:id",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:4833",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/reports/revenue",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:4911",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/reports/usage",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:4854",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/reset-owner-password",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:2705",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/tool-credits",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3507",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/tool-credits",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:3518",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/tool-credits/legacy-migrate",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3146",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/tool-credits/legacy-status",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3135",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/users",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:2964",
+      "duplicates": 1
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/users/:id",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:3036",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/admin/users/:id",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:2994",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/users/cleanup-duplicates",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Admin",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3066",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/budget-status",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "AI",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:4277",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/history",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "AI",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:4134",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/history",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "AI",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:4151",
+      "duplicates": 1
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/history/:id",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "AI",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:4210",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/quick-fix",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "AI",
+      "dependencies": [],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:4306",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/recipes",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "AI",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:4043",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/recipes",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "AI",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:4058",
+      "duplicates": 1
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/ai/recipes/:id",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "AI",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:4111",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/track-spend",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "AI",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:4345",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/google",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "duplicated_definition",
+      "tag": "Auth",
+      "dependencies": [
+        "external_http",
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:1847",
+      "duplicates": 2
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/google",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "duplicated_definition",
+      "tag": "Auth",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "500",
+        "503"
+      ],
+      "source": "server/app.ts:5478",
+      "duplicates": 2
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/google/config",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "duplicated_definition",
+      "tag": "Auth",
+      "dependencies": [],
+      "errorCodes": [],
+      "source": "server/app.ts:1838",
+      "duplicates": 2
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/google/config",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "duplicated_definition",
+      "tag": "Auth",
+      "dependencies": [],
+      "errorCodes": [],
+      "source": "server/app.ts:5591",
+      "duplicates": 2
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:1500",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/auth/me",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "404",
+        "409",
+        "500"
+      ],
+      "source": "server/app.ts:1781",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/auth/me/password",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:1534",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/refresh",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [],
+      "errorCodes": [
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:1482",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/request-email-verification",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:1331",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/request-reset",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:1181",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/reset-password",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:1262",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/signin",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:1125",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/signout",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [],
+      "source": "server/app.ts:5598",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/signup",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:1054",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/social-providers",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [],
+      "errorCodes": [],
+      "source": "server/app.ts:2690",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/verify-email",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Auth",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:1411",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/community/models",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:6878",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/community/models",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "201",
+        "400",
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7033",
+      "duplicates": 1
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/community/models/:id",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [],
+      "errorCodes": [
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7290",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/community/models/:id",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:6977",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/community/models/:id",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7194",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/community/models/:id/comments",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7733",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/community/models/:id/comments",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7750",
+      "duplicates": 1
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/community/models/:id/comments/:commentId",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7800",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/community/models/:id/download",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7386",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/community/models/:id/feature",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [],
+      "errorCodes": [
+        "400",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7560",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/community/models/:id/forks",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7436",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/community/models/:id/like",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7329",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/community/tags",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:7462",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/community/users/:id",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Community",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:7490",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/config/business",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:3380",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/contact",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:2286",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/content/hero-banner",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Content",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:7901",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/content/hero-banner",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Content",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:7911",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/contributors",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:6187",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/credits",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Credits",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:2158",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/credits/consume",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Credits",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "401",
+        "402",
+        "500"
+      ],
+      "source": "server/app.ts:2196",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/credits/purchase",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Credits",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "400",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:2244",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/donations/capture-order",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "500"
+      ],
+      "source": "server/app.ts:6356",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/donations/create-order",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:6275",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/donations/me",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:6219",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/donations/me",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:6238",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/feedback",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Feedback",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:2397",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/feedback",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Feedback",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:2359",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/feedback/:id/status",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Feedback",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "400",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:2621",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/feedback/ai-review",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Feedback",
+      "dependencies": [
+        "external_http",
+        "kv"
+      ],
+      "errorCodes": [
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:2417",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/feedback/ai-stats",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Feedback",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:2567",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/gcode",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "GCode",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:1970",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/gcode",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "GCode",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:1987",
+      "duplicates": 1
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/gcode/:id",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "GCode",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:2032",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Health",
+      "dependencies": [],
+      "errorCodes": [],
+      "source": "server/app.ts:952",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/internal/mcp/tool/:tool",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [],
+      "errorCodes": [
+        "400",
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:1014",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/internal/news/cleanup",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Internal News",
+      "dependencies": [],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/news-routes.ts:70",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/internal/news/ingest",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Internal News",
+      "dependencies": [],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/news-routes.ts:51",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/news",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "News",
+      "dependencies": [],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/news-routes.ts:22",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/news/:slug",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "News",
+      "dependencies": [],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/news-routes.ts:38",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/paypal/capture-order",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "PayPal Orders",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "404",
+        "409",
+        "500"
+      ],
+      "source": "server/app.ts:5843",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/paypal/client-id",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "duplicated_definition",
+      "tag": "PayPal Orders",
+      "dependencies": [
+        "paypal"
+      ],
+      "errorCodes": [],
+      "source": "server/app.ts:2681",
+      "duplicates": 2
+    },
+    {
+      "method": "GET",
+      "path": "/api/paypal/client-id",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "duplicated_definition",
+      "tag": "PayPal Orders",
+      "dependencies": [
+        "paypal"
+      ],
+      "errorCodes": [
+        "503"
+      ],
+      "source": "server/app.ts:5745",
+      "duplicates": 2
+    },
+    {
+      "method": "POST",
+      "path": "/api/paypal/create-order",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "PayPal Orders",
+      "dependencies": [
+        "kv",
+        "paypal"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "409",
+        "500"
+      ],
+      "source": "server/app.ts:5752",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/promotions/redeem",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Promotions",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:4471",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/promotions/validate",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Promotions",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:4425",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/rewards/:userId",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Rewards",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:4613",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/rewards/leaderboard",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Rewards",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/app.ts:7862",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/rewards/me",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "duplicated_definition",
+      "tag": "Rewards",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:4587",
+      "duplicates": 2
+    },
+    {
+      "method": "GET",
+      "path": "/api/rewards/me",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "duplicated_definition",
+      "tag": "Rewards",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:7842",
+      "duplicates": 2
+    },
+    {
+      "method": "POST",
+      "path": "/api/rewards/trigger",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Rewards",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:4634",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/subscriptions/client-id",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "PayPal Subscriptions",
+      "dependencies": [
+        "paypal"
+      ],
+      "errorCodes": [],
+      "source": "server/paypal-subscriptions.ts:137",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/subscriptions/create",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "PayPal Subscriptions",
+      "dependencies": [
+        "paypal",
+        "prisma"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/paypal-subscriptions.ts:142",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/subscriptions/my-subscription",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "PayPal Subscriptions",
+      "dependencies": [
+        "paypal",
+        "prisma"
+      ],
+      "errorCodes": [
+        "500"
+      ],
+      "source": "server/paypal-subscriptions.ts:261",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/subscriptions/plans",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "PayPal Subscriptions",
+      "dependencies": [
+        "paypal"
+      ],
+      "errorCodes": [],
+      "source": "server/paypal-subscriptions.ts:132",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/subscriptions/webhook",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "PayPal Subscriptions",
+      "dependencies": [
+        "kv",
+        "paypal",
+        "prisma"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/paypal-subscriptions.ts:286",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/telemetry/batch",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Telemetry",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "500"
+      ],
+      "source": "server/app.ts:4699",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/tool-actions/consume",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Tool Actions",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:6994",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/tool-credits/me",
+      "authPolicy": "optional-auth",
+      "role": "public_or_authenticated",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:2178",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/community-image",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Uploads",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "500"
+      ],
+      "source": "server/app.ts:6668",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/uploads/community-image/:id",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Uploads",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:6725",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/thumbnail",
+      "authPolicy": "authenticated",
+      "role": "authenticated_user",
+      "status": "active",
+      "tag": "Uploads",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "401",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:6615",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/uploads/thumbnail/:id",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Uploads",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:6716",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/vault/keys",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Vault",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:5253",
+      "duplicates": 1
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/vault/keys/:provider",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Vault",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:5343",
+      "duplicates": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/vault/keys/:provider",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Vault",
+      "dependencies": [
+        "kv"
+      ],
+      "errorCodes": [
+        "400",
+        "403",
+        "500"
+      ],
+      "source": "server/app.ts:5285",
+      "duplicates": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/vault/keys/:provider/test",
+      "authPolicy": "superadmin",
+      "role": "superadmin",
+      "status": "active",
+      "tag": "Vault",
+      "dependencies": [
+        "external_http",
+        "kv"
+      ],
+      "errorCodes": [
+        "403",
+        "404",
+        "500"
+      ],
+      "source": "server/app.ts:5369",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/og/:slug",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [],
+      "errorCodes": [
+        "200"
+      ],
+      "source": "server/app.ts:995",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/og/default.svg",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [],
+      "errorCodes": [
+        "200"
+      ],
+      "source": "server/app.ts:987",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/robots.txt",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [],
+      "errorCodes": [
+        "200"
+      ],
+      "source": "server/app.ts:957",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [],
+      "errorCodes": [
+        "200"
+      ],
+      "source": "server/app.ts:966",
+      "duplicates": 1
+    },
+    {
+      "method": "GET",
+      "path": "/sitemaps/:section.xml",
+      "authPolicy": "public",
+      "role": "public",
+      "status": "active",
+      "tag": "Misc",
+      "dependencies": [],
+      "errorCodes": [
+        "200",
+        "404"
+      ],
+      "source": "server/app.ts:974",
+      "duplicates": 1
+    }
+  ],
+  "inconsistencies": {
+    "duplicateRoutes": [
+      {
+        "routeKey": "POST /api/auth/google",
+        "sources": [
+          "server/app.ts:1847",
+          "server/app.ts:5478"
+        ]
+      },
+      {
+        "routeKey": "GET /api/auth/google/config",
+        "sources": [
+          "server/app.ts:1838",
+          "server/app.ts:5591"
+        ]
+      },
+      {
+        "routeKey": "GET /api/paypal/client-id",
+        "sources": [
+          "server/app.ts:2681",
+          "server/app.ts:5745"
+        ]
+      },
+      {
+        "routeKey": "GET /api/rewards/me",
+        "sources": [
+          "server/app.ts:4587",
+          "server/app.ts:7842"
+        ]
+      }
+    ],
+    "stripeMentions": [],
+    "paymentGatewayState": {
+      "paypalImplemented": true,
+      "stripeImplemented": false
+    }
+  }
+}

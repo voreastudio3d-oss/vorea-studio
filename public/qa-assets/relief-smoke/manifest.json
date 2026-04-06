@@ -1,0 +1,98 @@
+{
+  "generatedAt": "2026-04-03T15:31:52.882Z",
+  "sourceFixtureSvg": "public/qa-assets/relief-smoke-four-zones.svg",
+  "rasterizedFixture": {
+    "size": "96x96",
+    "note": "Synthetic raster approximating the four-quadrant SVG plus central blue circle and gold frame."
+  },
+  "outputDirectory": "public/qa-assets/relief-smoke",
+  "cases": [
+    {
+      "id": "plane-hybrid",
+      "presetId": "plane-balanced",
+      "description": "Plano balanceado en 3MF hybrid para Orca/Bambu.",
+      "surfaceMode": "plane",
+      "colorEncodingMode": "hybrid",
+      "file3mf": "public/qa-assets/relief-smoke/relief-plane-hybrid.3mf",
+      "fileStl": "public/qa-assets/relief-smoke/relief-plane-hybrid.stl",
+      "faceCount": 37632,
+      "generationTimeMs": 73.6249,
+      "palette": [
+        "#21594b",
+        "#d9342b",
+        "#f0c94c",
+        "#f5f5f5"
+      ],
+      "bounds": {
+        "min": [
+          -50,
+          -2,
+          -50
+        ],
+        "max": [
+          50,
+          1.12,
+          50
+        ]
+      }
+    },
+    {
+      "id": "cylinder-slic3r-strict",
+      "presetId": "cylinder-bambu",
+      "description": "Cilindro Bambu/Orca en 3MF slic3r-strict.",
+      "surfaceMode": "cylinder",
+      "colorEncodingMode": "slic3r-strict",
+      "file3mf": "public/qa-assets/relief-smoke/relief-cylinder-slic3r-strict.3mf",
+      "fileStl": "public/qa-assets/relief-smoke/relief-cylinder-slic3r-strict.stl",
+      "faceCount": 37248,
+      "generationTimeMs": 93.9388,
+      "palette": [
+        "#21594b",
+        "#d9342b",
+        "#f0c94c",
+        "#f5f5f5"
+      ],
+      "bounds": {
+        "min": [
+          -140.848,
+          -100,
+          -140.848
+        ],
+        "max": [
+          140.9333,
+          100,
+          140.848
+        ]
+      }
+    },
+    {
+      "id": "plane-split-objects",
+      "presetId": "plane-balanced",
+      "description": "Plano balanceado en 3MF split-objects como fallback.",
+      "surfaceMode": "plane",
+      "colorEncodingMode": "split-objects",
+      "file3mf": "public/qa-assets/relief-smoke/relief-plane-split-objects.3mf",
+      "fileStl": "public/qa-assets/relief-smoke/relief-plane-split-objects.stl",
+      "faceCount": 37632,
+      "generationTimeMs": 103.1016,
+      "palette": [
+        "#21594b",
+        "#d9342b",
+        "#f0c94c",
+        "#f5f5f5"
+      ],
+      "bounds": {
+        "min": [
+          -50,
+          -2,
+          -50
+        ],
+        "max": [
+          50,
+          1.12,
+          50
+        ]
+      }
+    }
+  ]
+}

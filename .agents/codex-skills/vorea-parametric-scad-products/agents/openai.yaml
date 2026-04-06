@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vorea SCAD Products"
+  short_description: "Productos FDM parametrico con OpenSCAD y BOSL2"
+  default_prompt: "Usa $vorea-parametric-scad-products para definir o implementar familias de producto SCAD parametrico para Vorea Studio, usando scad-library como semilla y aplicando heuristicas de diseno industrial, OpenSCAD y BOSL2."

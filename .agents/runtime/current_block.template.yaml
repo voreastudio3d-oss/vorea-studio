@@ -1,0 +1,17 @@
+goal: <describe-goal>
+scope:
+  - <fill-scope>
+expected_files:
+  - <expected-files>
+validations:
+  - npm run test
+risks:
+  - <fill-risks>
+next_step: <fill-next-step>
+selected_workflows: []
+selected_skills: []
+selected_subagents: []
+docs_to_update:
+  - ai_shared_plan.md
+  - project_backlog.md
+  - ai_handoff_YYYY-MM-DD.md

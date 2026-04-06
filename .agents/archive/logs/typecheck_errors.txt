@@ -1,0 +1,70 @@
+scripts/test-ai-review.ts(1,24): error TS2307: Cannot find module '../src/utils/config/info' or its corresponding type declarations.
+server/__tests__/app-monetization.integration.test.ts(830,9): error TS2322: Type '{ tier: string; billing: string; count: number; monthlyEquivalent: number; annualizedValue: number; }' is not assignable to type 'never'.
+server/__tests__/app-monetization.integration.test.ts(831,9): error TS2322: Type '{ tier: string; billing: string; count: number; monthlyEquivalent: number; annualizedValue: number; }' is not assignable to type 'never'.
+server/__tests__/news-service.test.ts(248,50): error TS2345: Argument of type '{ id: string; slug: string; name: string; type: string; language: string; baseUrl: string; feedUrl: string; listingUrl: string; fetchMode: "listing"; enabled: boolean; priority: number; editorialPolicy: "standard"; editorialNotes: null; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'NewsSourceRecord'.
+  Types of property 'language' are incompatible.
+    Type 'string' is not assignable to type '"es" | "en"'.
+server/__tests__/news-service.test.ts(263,50): error TS2345: Argument of type '{ id: string; slug: string; name: string; type: string; language: string; baseUrl: string; feedUrl: string; listingUrl: string; fetchMode: "listing"; enabled: boolean; priority: number; editorialPolicy: "standard"; editorialNotes: null; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'NewsSourceRecord'.
+  Types of property 'language' are incompatible.
+    Type 'string' is not assignable to type '"es" | "en"'.
+server/__tests__/news-service.test.ts(278,50): error TS2345: Argument of type '{ id: string; slug: string; name: string; type: string; language: string; baseUrl: string; feedUrl: string; listingUrl: string; fetchMode: "listing"; enabled: boolean; priority: number; editorialPolicy: "standard"; editorialNotes: null; createdAt: string; updatedAt: string; }' is not assignable to parameter of type 'NewsSourceRecord'.
+  Types of property 'language' are incompatible.
+    Type 'string' is not assignable to type '"es" | "en"'.
+server/__tests__/news-service.test.ts(296,54): error TS2345: Argument of type '{ id: string; slug: string; sourceId: string; canonicalUrl: string; titleOriginal: string; titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; ... 16 more ...; source: { ...; }; }' is not assignable to parameter of type 'NewsArticleRecord'.
+  Type '{ id: string; slug: string; sourceId: string; canonicalUrl: string; titleOriginal: string; titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; ... 16 more ...; source: { ...; }; }' is missing the following properties from type 'NewsArticleRecord': ctaTextEs, ctaTextEn, ctaUrl, editorialContext
+server/__tests__/news-service.test.ts(417,7): error TS2345: Argument of type '{ titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; detailEn: string; }' is not assignable to parameter of type 'EditorialResult'.
+  Type '{ titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; detailEn: string; }' is missing the following properties from type 'EditorialResult': ctaTextEs, ctaTextEn, ctaUrl, editorialContext
+server/__tests__/news-service.test.ts(456,7): error TS2345: Argument of type '{ titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; detailEn: string; }' is not assignable to parameter of type 'EditorialResult'.
+  Type '{ titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; detailEn: string; }' is missing the following properties from type 'EditorialResult': ctaTextEs, ctaTextEn, ctaUrl, editorialContext
+server/__tests__/news-service.test.ts(501,7): error TS2345: Argument of type '{ titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; detailEn: string; }' is not assignable to parameter of type 'EditorialResult'.
+  Type '{ titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; detailEn: string; }' is missing the following properties from type 'EditorialResult': ctaTextEs, ctaTextEn, ctaUrl, editorialContext
+server/__tests__/news-service.test.ts(525,7): error TS2345: Argument of type '{ id: string; slug: string; sourceId: string; canonicalUrl: string; titleOriginal: string; titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: null; summaryEn: null; detailEn: null; ... 15 more ...; source: { ...; }; }' is not assignable to parameter of type 'NewsArticleRecord'.
+  Type '{ id: string; slug: string; sourceId: string; canonicalUrl: string; titleOriginal: string; titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: null; summaryEn: null; detailEn: null; ... 15 more ...; source: { ...; }; }' is missing the following properties from type 'NewsArticleRecord': ctaTextEs, ctaTextEn, ctaUrl, editorialContext
+server/__tests__/news-service.test.ts(586,7): error TS2345: Argument of type '{ id: string; slug: string; sourceId: string; canonicalUrl: string; titleOriginal: string; titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; ... 16 more ...; source: { ...; }; }' is not assignable to parameter of type 'NewsArticleRecord'.
+  Type '{ id: string; slug: string; sourceId: string; canonicalUrl: string; titleOriginal: string; titleDisplayEs: string; summaryEs: string; detailEs: string; titleDisplayEn: string; summaryEn: string; ... 16 more ...; source: { ...; }; }' is missing the following properties from type 'NewsArticleRecord': ctaTextEs, ctaTextEn, ctaUrl, editorialContext
+server/donations.ts(74,23): error TS2345: Argument of type 'string' is not assignable to parameter of type 'DonationTierId'.
+server/donations.ts(75,23): error TS2345: Argument of type 'string' is not assignable to parameter of type 'DonationTierId'.
+server/mcp-tools.ts(65,9): error TS2322: Type 'string | undefined' is not assignable to type 'ParametricFamily | undefined'.
+  Type 'string' is not assignable to type 'ParametricFamily | undefined'.
+server/news-routes.ts(53,54): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(object: { error: string | undefined; }, status?: ContentfulStatusCode | undefined, headers?: HeaderRecord | undefined): JSONRespondReturn<{ error: string | undefined; }, ContentfulStatusCode>', gave the following error.
+    Argument of type 'number' is not assignable to parameter of type 'ContentfulStatusCode | undefined'.
+  Overload 2 of 2, '(object: { error: string | undefined; }, init?: ResponseOrInit<ContentfulStatusCode> | undefined): JSONRespondReturn<{ error: string | undefined; }, ContentfulStatusCode>', gave the following error.
+    Argument of type 'number' is not assignable to parameter of type 'ResponseOrInit<ContentfulStatusCode> | undefined'.
+server/news-routes.ts(72,54): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(object: { error: string | undefined; }, status?: ContentfulStatusCode | undefined, headers?: HeaderRecord | undefined): JSONRespondReturn<{ error: string | undefined; }, ContentfulStatusCode>', gave the following error.
+    Argument of type 'number' is not assignable to parameter of type 'ContentfulStatusCode | undefined'.
+  Overload 2 of 2, '(object: { error: string | undefined; }, init?: ResponseOrInit<ContentfulStatusCode> | undefined): JSONRespondReturn<{ error: string | undefined; }, ContentfulStatusCode>', gave the following error.
+    Argument of type 'number' is not assignable to parameter of type 'ResponseOrInit<ContentfulStatusCode> | undefined'.
+server/news-service.ts(520,37): error TS2339: Property 'editorialNotes' does not exist on type 'never'.
+server/news-service.ts(994,29): error TS2339: Property 'name' does not exist on type 'never'.
+server/news-service.ts(995,29): error TS2339: Property 'type' does not exist on type 'never'.
+server/news-service.ts(996,79): error TS2339: Property 'language' does not exist on type 'never'.
+server/news-service.ts(997,32): error TS2339: Property 'baseUrl' does not exist on type 'never'.
+server/news-service.ts(1002,33): error TS2339: Property 'priority' does not exist on type 'never'.
+server/news-service.ts(1004,39): error TS2339: Property 'editorialNotes' does not exist on type 'never'.
+server/news-service.ts(1042,31): error TS2339: Property 'name' does not exist on type 'never'.
+server/news-service.ts(1043,31): error TS2339: Property 'type' does not exist on type 'never'.
+server/news-service.ts(1045,34): error TS2339: Property 'baseUrl' does not exist on type 'never'.
+server/news-service.ts(1050,35): error TS2339: Property 'priority' does not exist on type 'never'.
+server/news-service.ts(1052,41): error TS2339: Property 'editorialNotes' does not exist on type 'never'.
+server/news-service.ts(1087,31): error TS2339: Property 'name' does not exist on type 'never'.
+server/news-service.ts(1088,31): error TS2339: Property 'type' does not exist on type 'never'.
+server/news-service.ts(1090,34): error TS2339: Property 'baseUrl' does not exist on type 'never'.
+server/news-service.ts(1095,35): error TS2339: Property 'priority' does not exist on type 'never'.
+server/news-service.ts(1097,41): error TS2339: Property 'editorialNotes' does not exist on type 'never'.
+server/news-service.ts(1121,29): error TS2339: Property 'name' does not exist on type 'never'.
+server/news-service.ts(1122,29): error TS2339: Property 'type' does not exist on type 'never'.
+server/news-service.ts(1124,32): error TS2339: Property 'baseUrl' does not exist on type 'never'.
+server/news-service.ts(1129,33): error TS2339: Property 'priority' does not exist on type 'never'.
+server/news-service.ts(1131,39): error TS2339: Property 'editorialNotes' does not exist on type 'never'.
+server/news-service.ts(1166,29): error TS2339: Property 'name' does not exist on type 'never'.
+server/news-service.ts(1167,29): error TS2339: Property 'type' does not exist on type 'never'.
+server/news-service.ts(1169,32): error TS2339: Property 'baseUrl' does not exist on type 'never'.
+server/news-service.ts(1174,33): error TS2339: Property 'priority' does not exist on type 'never'.
+server/news-service.ts(1176,39): error TS2339: Property 'editorialNotes' does not exist on type 'never'.
+server/subscription-billing-map.ts(39,3): error TS2322: Type '{ planId: string; tier: string; billing: string; }[]' is not assignable to type 'EnvPlanEntry[]'.
+  Type '{ planId: string; tier: string; billing: string; }' is not assignable to type 'EnvPlanEntry'.
+    Types of property 'billing' are incompatible.
+      Type 'string' is not assignable to type 'SubscriptionBillingCycle'.
+server/tests/circuit-breaker.test.ts(2,10): error TS2305: Module '"../kv.js"' has no exported member 'kv'.

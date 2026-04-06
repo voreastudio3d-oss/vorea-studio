@@ -1,0 +1,16 @@
+
+server\app.ts:112:const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+server\app.ts:114:function rateLimit(key: string, maxRequests: number, windowMs: number): boolean {
+server\app.ts:116:  const entry = rateLimitStore.get(key);
+server\app.ts:118:    rateLimitStore.set(key, { count: 1, resetAt: now + windowMs });
+server\app.ts:129:  for (const [key, entry] of rateLimitStore) {
+server\app.ts:130:    if (now > entry.resetAt) rateLimitStore.delete(key);
+server\app.ts:1020:    if (rateLimit(`signup:${ip}`, 5, 15 * 60 * 1000)) {
+server\app.ts:1083:    if (rateLimit(`signin:${ip}`, 10, 5 * 60 * 1000)) {
+server\app.ts:1129:    if (rateLimit(`request-reset:${ip}`, 3, 15 * 60 * 1000)) {
+server\app.ts:1200:    if (rateLimit(`reset-password:${ip}`, 5, 15 * 60 * 1000)) {
+server\app.ts:1355:    if (rateLimit(`google-login:${ip}`, 10, 5 * 60 * 1000)) {
+server\app.ts:2210:    if (rateLimit(`pwd-reset:${ip}`, 3, 60 * 60 * 1000)) {
+server\app.ts:3812:    // We already have rateLimit(ip).
+server\app.ts:3814:    if (rateLimit(`ai_quick_fix_${ip}`, 10, 60 * 1000)) { // 10 requests per minute per IP
+

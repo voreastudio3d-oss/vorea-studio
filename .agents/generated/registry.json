@@ -1,0 +1,2458 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "frontmatter",
+  "entries": [
+    {
+      "id": "admin-panel-ux-patterns",
+      "kind": "workflow",
+      "title": "Patrones UX del panel admin",
+      "description": "Patrones UX obligatorios para el Admin Panel (SuperAdmin, FeedbackAdmin, Content Manager)",
+      "when_to_use": [
+        "Cuando se creen o modifiquen vistas del panel de administración."
+      ],
+      "inputs": [
+        "src/app/pages/**/Admin*.tsx",
+        "src/app/components/**"
+      ],
+      "outputs": [
+        "UI admin consistente con lista-detalle, preview y reuso del sistema UI."
+      ],
+      "validations": [
+        "npm run test",
+        "Revisar desktop, mobile y preview del flujo admin impactado."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "ui",
+        "admin"
+      ],
+      "applies_to": [
+        "src/app/pages/**/*Admin*.tsx",
+        "src/app/pages/SuperAdmin.tsx",
+        "src/app/components/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/admin_panel_ux_patterns.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "advanced-3d-parametric-math-fdm",
+      "kind": "skill",
+      "title": "Matemáticas 3D paramétricas y FDM avanzadas",
+      "description": "Skill experta para geometría computacional, transformaciones paramétricas, validez de malla y fabricabilidad FDM.",
+      "when_to_use": [
+        "Cuando el bloque toque geometría, topología, exportadores o edge cases de fabricación."
+      ],
+      "inputs": [
+        "src/app/engine/**",
+        "src/app/parametric/**"
+      ],
+      "outputs": [
+        "Decisiones geométricas y de fabricabilidad seguras para el pipeline 3D."
+      ],
+      "validations": [
+        "npx vitest run src/app/engine/__tests__/"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "3d",
+        "math",
+        "fdm"
+      ],
+      "applies_to": [
+        "src/app/engine/**",
+        "src/app/parametric/**",
+        "public/scad-library/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/skills_catalog/advanced-3d-parametric-math-fdm.md",
+      "source_group": "skills_catalog",
+      "adapter": null
+    },
+    {
+      "id": "agent-handoff-evidence",
+      "kind": "workflow",
+      "title": "Cierre documental y evidencia para IAs",
+      "description": "Workflow obligatorio de evidencia y handoff para que otras IAs/agentes continúen sin pérdida de contexto",
+      "when_to_use": [
+        "Al cerrar cualquier bloque con impacto funcional o técnico relevante."
+      ],
+      "inputs": [
+        "ai_handoff_YYYY-MM-DD.md",
+        "ai_shared_plan.md",
+        "project_backlog.md"
+      ],
+      "outputs": [
+        "Handoff reutilizable por otras IAs o agentes sin pérdida de contexto."
+      ],
+      "validations": [
+        "Confirmar que el handoff incluya cambios, validaciones, riesgos y siguiente paso."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "base-required",
+        "docs",
+        "governance"
+      ],
+      "applies_to": [
+        "src/**",
+        "server/**",
+        "scripts/**",
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/agent_handoff_evidence_workflow.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "ai-orchestration",
+      "kind": "skill",
+      "title": "Orquestación de IA, costos y fallback",
+      "description": "Skill experta para routing de IA, control de presupuesto, trazabilidad, seguridad y fallback operativo.",
+      "when_to_use": [
+        "Cuando cambien endpoints IA, budgets, vaults o políticas de fallback/costo."
+      ],
+      "inputs": [
+        "server/**",
+        "src/app/services/**"
+      ],
+      "outputs": [
+        "Flujo de IA gobernado por costos, límites y fallback observable."
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "ai",
+        "orchestration",
+        "backend",
+        "governance"
+      ],
+      "applies_to": [
+        ".agents/**",
+        "scripts/agents/**",
+        "server/**/*ai*",
+        "server/**/*vault*",
+        "src/app/services/**/*ai*"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/skills_catalog/ai-orchestration.md",
+      "source_group": "skills_catalog",
+      "adapter": null
+    },
+    {
+      "id": "ai-traceability",
+      "kind": "rule",
+      "title": "Trazabilidad y handoff entre IAs",
+      "description": "Regla obligatoria de trazabilidad entre IAs y agentes para cambios funcionales o de comportamiento",
+      "when_to_use": [
+        "Cuando el cambio tenga impacto funcional, de comportamiento, API o flujo de usuario."
+      ],
+      "inputs": [
+        "ai_shared_plan.md",
+        "project_backlog.md",
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "outputs": [
+        "Trazabilidad mínima consistente entre plan activo, backlog y handoff."
+      ],
+      "validations": [
+        "Revisar que las tres superficies estén alineadas sin duplicación obvia."
+      ],
+      "docs_to_update": [
+        "ai_shared_plan.md",
+        "project_backlog.md",
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "base-required",
+        "governance",
+        "docs"
+      ],
+      "applies_to": [
+        "src/**",
+        "server/**",
+        "scripts/**",
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/rules/ai_traceability_rule.md",
+      "source_group": "rules",
+      "adapter": null
+    },
+    {
+      "id": "api-docs-route-sync",
+      "kind": "rule",
+      "title": "Paridad de documentación API y rutas",
+      "description": "Regla obligatoria para sincronizar documentación API cuando cambian rutas o contratos backend",
+      "when_to_use": [
+        "Cuando cambien rutas, contratos, payloads o respuestas públicas del backend."
+      ],
+      "inputs": [
+        "server/**",
+        "public/openapi.json",
+        "docs/api/**"
+      ],
+      "outputs": [
+        "OpenAPI y paridad de rutas sincronizadas con el código real."
+      ],
+      "validations": [
+        "npm run docs:api:generate",
+        "npm run docs:api:check"
+      ],
+      "docs_to_update": [
+        "public/openapi.json",
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "backend",
+        "api",
+        "docs"
+      ],
+      "applies_to": [
+        "server/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/rules/api_docs_route_sync_rule.md",
+      "source_group": "rules",
+      "adapter": null
+    },
+    {
+      "id": "auth-security",
+      "kind": "workflow",
+      "title": "Seguridad de autenticación y datos",
+      "description": "Reglas de seguridad obligatorias para autenticación, sesiones y datos de usuario",
+      "when_to_use": [
+        "Cuando cambien auth, sesiones, roles o flujos con datos sensibles."
+      ],
+      "inputs": [
+        "server/**",
+        "src/app/components/AuthDialog.tsx",
+        "src/app/services/auth-context.tsx"
+      ],
+      "outputs": [
+        "Endurecimiento de auth y protección de datos de usuario."
+      ],
+      "validations": [
+        "npm run test",
+        "Revisar protección de secretos, expiración de tokens y validación server-side."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "security",
+        "auth",
+        "backend"
+      ],
+      "applies_to": [
+        "server/**/auth*",
+        "server/**/session*",
+        "server/**/*token*",
+        "src/app/components/AuthDialog.tsx",
+        "src/app/services/auth-context.tsx"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/auth_security_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "backend-orm-auth-guidelines",
+      "kind": "rule",
+      "title": "Lineamientos Críticos de Backend (Prisma, Auth y CMS Storage)",
+      "description": "Regla de autoaprendizaje y prevención de anomalías comprobadas en ORM, Autorización y desacople de Endpoints de Storage.",
+      "when_to_use": [
+        "Al desarrollar, modificar o depurar rutas del backend (Hono/Express).",
+        "Al interactuar con operaciones de guardado en Prisma (`.update`, `.create`).",
+        "Al crear middlewares de seguridad o validación de JWT (`requireAdmin`)."
+      ],
+      "inputs": [
+        "server/**/*.ts"
+      ],
+      "outputs": [
+        "Código de backend resiliente a mutaciones estáticas, errores de 500 silenciosos y bloqueos de seguridad en cuentas elevadas."
+      ],
+      "validations": [
+        "Confirmar que los endpoints `PUT` filtran campos inmutables antes de usar Prisma.",
+        "Comprobar que middlewares de autorización consideren fallbacks por DB o Email contra latencia de JWTs."
+      ],
+      "docs_to_update": [],
+      "tags": [
+        "backend",
+        "prisma",
+        "auth",
+        "security"
+      ],
+      "applies_to": [
+        "server/**",
+        "src/app/services/api-client.ts"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]"
+      ],
+      "path": ".agents/rules/backend_orm_auth_rule.md",
+      "source_group": "rules",
+      "adapter": null
+    },
+    {
+      "id": "change-quality-gate",
+      "kind": "rule",
+      "title": "Gate de calidad mínimo por cambio",
+      "description": "Gate central bloqueante para calidad mínima obligatoria en cada cambio de código",
+      "when_to_use": [
+        "Ante cualquier cambio de código, configuración, contenido UI o locales."
+      ],
+      "inputs": [
+        "src/**",
+        "server/**",
+        "scripts/**"
+      ],
+      "outputs": [
+        "Matriz mínima de validación obligatoria por tipo de cambio."
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "base-required",
+        "validation",
+        "governance"
+      ],
+      "applies_to": [
+        "src/**",
+        "server/**",
+        "scripts/**",
+        "utils/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/rules/change_quality_gate_rule.md",
+      "source_group": "rules",
+      "adapter": null
+    },
+    {
+      "id": "change-validation-master",
+      "kind": "workflow",
+      "title": "Workflow maestro de validación por tipo de cambio",
+      "description": "Workflow maestro bloqueante para seleccionar y ejecutar validaciones por tipo de cambio",
+      "when_to_use": [
+        "En todo bloque antes de decidir qué checks y workflows correr."
+      ],
+      "inputs": [
+        "src/**",
+        "server/**",
+        "scripts/**"
+      ],
+      "outputs": [
+        "Matriz consistente de validaciones según el tipo de cambio."
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "base-required",
+        "validation",
+        "governance"
+      ],
+      "applies_to": [
+        "src/**",
+        "server/**",
+        "scripts/**",
+        "utils/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/change_validation_master_workflow.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "codebase-architecture-boundaries",
+      "kind": "workflow",
+      "title": "Reglas de arquitectura y boundaries del codebase",
+      "description": "Reglas obligatorias de estructura, imports, dependencias y convenciones de código que toda IA/agente/LLM debe respetar al modificar el proyecto Vorea.",
+      "when_to_use": [
+        "SIEMPRE que se modifique cualquier archivo en src/, server/, scripts/ o package.json",
+        "SIEMPRE que se conecte un nuevo agente o LLM al proyecto"
+      ],
+      "inputs": [
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts",
+        "server/server.ts"
+      ],
+      "outputs": [
+        "Código que compila y respeta las boundaries sin errores de import"
+      ],
+      "validations": [
+        "npm run dev:all (ambos servidores levantan)",
+        "npx prisma generate (si se tocó schema)"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "base-required",
+        "architecture",
+        "governance",
+        "llm-safety"
+      ],
+      "applies_to": [
+        "src/**",
+        "server/**",
+        "scripts/**",
+        "package.json"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini",
+        "paperclip"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/codebase_architecture_boundaries_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "db-migration-safety",
+      "kind": "rule",
+      "title": "Seguridad y trazabilidad para migraciones de datos",
+      "description": "Regla de seguridad y procedimiento obligatorio para aplicar migraciones en la Base de Datos",
+      "when_to_use": [
+        "Cuando cambien schema, migraciones, backfills o resets de datos persistentes."
+      ],
+      "inputs": [
+        "prisma/**",
+        "server/**/*",
+        "scripts/**/*community*"
+      ],
+      "outputs": [
+        "Estrategia segura para cambios de datos y evidencia de impacto."
+      ],
+      "validations": [
+        "npm run test",
+        "npm run db:generate"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "backend",
+        "data",
+        "safety"
+      ],
+      "applies_to": [
+        "prisma/**",
+        "server/**/*migration*",
+        "server/**/*backfill*",
+        "scripts/**/*backfill*",
+        "scripts/**/*reset*"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/rules/db_migration_rule.md",
+      "source_group": "rules",
+      "adapter": null
+    },
+    {
+      "id": "design-tokens-rule",
+      "kind": "workflow",
+      "title": "Regla obligatoria de design tokens — prohibido hex hardcodeado",
+      "description": "Todo color en className de componentes React DEBE usar tokens del tema Tailwind. Prohibido usar hex, rgba o cualquier valor de color literal en className.",
+      "when_to_use": [
+        "Siempre que se cree o modifique un componente React (.tsx)",
+        "Antes de hacer code review o merge de cualquier PR con cambios de UI"
+      ],
+      "inputs": [
+        "src/**/*.tsx",
+        "src/styles/theme.css"
+      ],
+      "outputs": [
+        "Componentes sin colores hex hardcodeados en className"
+      ],
+      "validations": [
+        "grep -rn \"text-\\[#\" src/ --include=\"*.tsx\" (debe dar 0 resultados en archivos nuevos)"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "design-system",
+        "tokens",
+        "css",
+        "frontend",
+        "ui"
+      ],
+      "applies_to": [
+        "src/**/*.tsx",
+        "src/**/*.jsx"
+      ],
+      "llm_support": [
+        "codex",
+        "gemini",
+        "claude",
+        "openai"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/design_tokens_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "docs-update-sync",
+      "kind": "workflow",
+      "title": "Sincronización de documentación visible",
+      "description": "Regla obligatoria para mantener la documentación del proyecto sincronizada con los cambios del código",
+      "when_to_use": [
+        "Cuando cambien funcionalidades visibles para usuario final o contratos públicos."
+      ],
+      "inputs": [
+        "docs/**",
+        "public/docs/**",
+        "public/openapi.json"
+      ],
+      "outputs": [
+        "Documentación de producto y API alineada con el comportamiento real."
+      ],
+      "validations": [
+        "Revisar manuales y perfiles impactados antes de cerrar la tarea."
+      ],
+      "docs_to_update": [
+        "docs/manual-usuario.md",
+        "docs/profiles/**",
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "docs",
+        "ui",
+        "backend"
+      ],
+      "applies_to": [
+        "src/app/pages/**",
+        "src/app/components/**",
+        "server/**",
+        "docs/**",
+        "public/docs/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/docs_update_sync_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "endpoint-security-validation",
+      "kind": "workflow",
+      "title": "Validación de endpoints y seguridad",
+      "description": "Workflow obligatorio para validar endpoints, seguridad y contrato API en cambios backend",
+      "when_to_use": [
+        "Cuando cambien endpoints, handlers o capas que impacten el backend HTTP."
+      ],
+      "inputs": [
+        "server/**"
+      ],
+      "outputs": [
+        "Contrato de endpoint, seguridad y errores revisados antes del cierre."
+      ],
+      "validations": [
+        "npm run test",
+        "npm run docs:api:generate",
+        "npm run docs:api:check"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "backend",
+        "api",
+        "security"
+      ],
+      "applies_to": [
+        "server/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/endpoint_security_validation_workflow.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "engine-testing",
+      "kind": "workflow",
+      "title": "Testing obligatorio para el engine 3D",
+      "description": "Regla obligatoria de testing para el motor 3D (src/app/engine/)",
+      "when_to_use": [
+        "Cuando cambien módulos del engine, exporters, parsers o workers geométricos."
+      ],
+      "inputs": [
+        "src/app/engine/**"
+      ],
+      "outputs": [
+        "Cobertura mínima del engine y no regresión en edge cases geométricos."
+      ],
+      "validations": [
+        "npx vitest run src/app/engine/__tests__/"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "3d",
+        "engine",
+        "validation"
+      ],
+      "applies_to": [
+        "src/app/engine/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/engine_testing_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "git-branching",
+      "kind": "workflow",
+      "title": "Ciclo de ramas y commits por bloque",
+      "description": "Regla obligatoria de commits y ramas al cambiar de tarea",
+      "when_to_use": [
+        "Al iniciar o cerrar un bloque de trabajo con código o documentación relevante."
+      ],
+      "inputs": [
+        "git status --short",
+        "git branch --show-current",
+        "git fetch origin"
+      ],
+      "outputs": [
+        "Rama de trabajo limpia y ciclo sincronizar-trabajar-commitear-push documentado."
+      ],
+      "validations": [
+        "git status --short",
+        "git branch --show-current"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "git",
+        "governance"
+      ],
+      "applies_to": [
+        "src/**",
+        "server/**",
+        "scripts/**",
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/git_branching_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "git-hygiene-recovery",
+      "kind": "workflow",
+      "title": "Limpieza segura de ramas, worktrees y bloqueos git",
+      "description": "Workflow operativo para limpiar ramas en curso, resolver bloqueos de git y sincronizar `develop` sin perder avances",
+      "when_to_use": [
+        "Cuando git pull, merge o switch fallen por cambios locales o worktrees mezclados."
+      ],
+      "inputs": [
+        "git status --short",
+        "git branch -vv",
+        "git worktree list"
+      ],
+      "outputs": [
+        "Plan seguro para proteger WIP, sincronizar develop y rescatar cambios útiles."
+      ],
+      "validations": [
+        "git status --short",
+        "git worktree list"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "git",
+        "governance",
+        "safety"
+      ],
+      "applies_to": [
+        "src/**",
+        "server/**",
+        "scripts/**",
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/git_hygiene_recovery_workflow.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "global-architecture-scale",
+      "kind": "workflow",
+      "title": "Arquitectura global, escala y costo operativo",
+      "description": "Workflow para evaluar y endurecer Vorea Studio cuando el alcance deja de ser local y pasa a mercados globales, multi-región y con presión real de costo/latencia.",
+      "when_to_use": [
+        "Cuando el bloque trate expansión global, latencia multi-región, storage, big data, costos de hosting, dominios o riesgo operativo por crecimiento."
+      ],
+      "inputs": [
+        "server/**",
+        "prisma/**",
+        "src/app/services/**",
+        "docs/**"
+      ],
+      "outputs": [
+        "Decisiones trazables sobre arquitectura regional, almacenamiento, costos, observabilidad y defensa ante abuso a escala."
+      ],
+      "validations": [
+        "Revisar que timestamps, storage, ancho de banda y costos por request estén modelados para crecimiento global.",
+        "Documentar impacto estimado en base de datos, imágenes, IA y tráfico."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "architecture",
+        "scale",
+        "cost",
+        "global"
+      ],
+      "applies_to": [
+        "server/**",
+        "prisma/**",
+        "src/app/services/**",
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {
+        "gemini": [
+          "Lider recomendado para modelado de costos, latencia multi-región, storage, bandwidth y capacidad operativa."
+        ],
+        "claude": [
+          "Revisor fuerte para invariantes de seguridad, modelos de datos y riesgos de escalado."
+        ],
+        "openai": [
+          "Fuerte para síntesis de estrategia de producto/plataforma y priorización ejecutiva."
+        ],
+        "codex": [
+          "Ideal para aterrizar la estrategia en cambios concretos de repo y documentación gobernada."
+        ]
+      },
+      "related": [
+        "[object Object]",
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/global_architecture_scale_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "global-identity-payments",
+      "kind": "workflow",
+      "title": "Identidad regional, pagos y verificación reforzada",
+      "description": "Workflow para planificar o implementar login social, credenciales, verificación y pagos multi-región sin comprometer seguridad ni conversión.",
+      "when_to_use": [
+        "Cuando el bloque trate social login, OTP, biometría, wallets, billing, tarjetas, vaults o expansión de medios de pago por región."
+      ],
+      "inputs": [
+        "server/**/auth*",
+        "server/**/*payment*",
+        "server/**/*paypal*",
+        "src/app/components/AuthDialog.tsx",
+        "src/app/pages/Profile.tsx",
+        "src/app/pages/Membership.tsx"
+      ],
+      "outputs": [
+        "Estrategia trazable de identidad y pagos por región con límites claros sobre qué se guarda localmente y qué se delega a terceros."
+      ],
+      "validations": [
+        "Revisar separación user/account/provider, protección de credenciales y estado real de los procesadores activos.",
+        "Verificar que no se guarden PAN/CVC/expiración en crudo."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "auth",
+        "identity",
+        "payments",
+        "global"
+      ],
+      "applies_to": [
+        "server/**/auth*",
+        "server/**/*payment*",
+        "server/**/*paypal*",
+        "src/app/components/AuthDialog.tsx",
+        "src/app/pages/Profile.tsx",
+        "src/app/pages/Membership.tsx"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {
+        "claude": [
+          "Lider recomendado para modelado riguroso de identidad, auth multi-provider, webhooks, seguridad de pagos y compliance."
+        ],
+        "gemini": [
+          "Muy fuerte para dependencias backend, tablas, migraciones y continuidad operativa del flujo auth/payment."
+        ],
+        "openai": [
+          "Útil para evaluar fricción de conversión, UX de checkout y priorización de providers por mercado."
+        ],
+        "codex": [
+          "Ideal para aterrizar los flujos en código real y tipos compartidos."
+        ]
+      },
+      "related": [
+        "[object Object]",
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/global_identity_payments_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "global-identity-payments-strategy",
+      "kind": "skill",
+      "title": "Estrategia global de identidad, pagos y verificación",
+      "description": "Skill para planificar autenticación multi-provider, medios de pago regionales, OTP/biometría y datos de perfil/billing sin comprometer seguridad.",
+      "when_to_use": [
+        "Cuando el pedido trate social login adicional, pagos por región, billing, verificación de identidad, OTP o datos de perfil/facturación."
+      ],
+      "inputs": [
+        "server/**/auth*",
+        "server/**/*payment*",
+        "src/app/components/AuthDialog.tsx",
+        "src/app/pages/Profile.tsx",
+        "src/app/pages/Membership.tsx"
+      ],
+      "outputs": [
+        "Estrategia clara de providers de identidad/pago por región y backlog técnico para implementarlos."
+      ],
+      "validations": [
+        "Verificar que los datos sensibles queden delegados a vault/tokenización de tercero cuando corresponda."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "auth",
+        "identity",
+        "payments",
+        "otp"
+      ],
+      "applies_to": [
+        "server/**/auth*",
+        "server/**/*payment*",
+        "src/app/components/AuthDialog.tsx",
+        "src/app/pages/Profile.tsx",
+        "src/app/pages/Membership.tsx"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {
+        "claude": [
+          "Lider recomendado para decisiones de auth multi-provider, compliance, OTP y flujos de pago seguros."
+        ],
+        "gemini": [
+          "Muy bueno para impacto backend, esquema de cuentas y rollout técnico."
+        ],
+        "openai": [
+          "Útil para balance entre conversión, fricción y cobertura regional."
+        ],
+        "codex": [
+          "Ideal para aterrizar los flujos en código real y tipos compartidos."
+        ]
+      },
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/skills_catalog/global-identity-payments-strategy.md",
+      "source_group": "skills_catalog",
+      "adapter": null
+    },
+    {
+      "id": "global-localization-growth-strategy",
+      "kind": "skill",
+      "title": "Estrategia global de localización, marketing y growth",
+      "description": "Skill para alinear Vorea Studio con idiomas, culturas y mercados distintos, incluyendo copy, toolstack de growth y señal analítica.",
+      "when_to_use": [
+        "Cuando el pedido trate marketing por región, localización profunda, campañas por idioma, CRM o analítica de crecimiento."
+      ],
+      "inputs": [
+        "src/app/locales/**",
+        "src/app/pages/**/*Landing*.tsx",
+        "docs/**",
+        ".agents/runtime/**"
+      ],
+      "outputs": [
+        "Marco claro para adaptar copy, funnels y tooling de marketing a mercados globales."
+      ],
+      "validations": [
+        "Revisar consistencia entre el producto real y el copy antes de proponer campañas o claims."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "i18n",
+        "growth",
+        "marketing",
+        "global"
+      ],
+      "applies_to": [
+        "src/app/locales/**",
+        "src/app/pages/**/*Landing*.tsx",
+        "docs/**",
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {
+        "openai": [
+          "Lider recomendado para copy semántico, segmentación por mercado y estrategia de messaging."
+        ],
+        "codex": [
+          "Muy bueno para convertir la estrategia en i18n real, componentes y docs."
+        ],
+        "claude": [
+          "Fuerte para consistencia, claims y reducción de ambigüedad comercial."
+        ],
+        "gemini": [
+          "Útil para conectar growth con datos, eventos y señales operativas."
+        ]
+      },
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/skills_catalog/global-localization-growth-strategy.md",
+      "source_group": "skills_catalog",
+      "adapter": null
+    },
+    {
+      "id": "global-localization-marketing",
+      "kind": "workflow",
+      "title": "Localización, growth y marketing por región",
+      "description": "Workflow para alinear i18n, copy, cultura, analytics y growth cuando Vorea se proyecta a múltiples mercados.",
+      "when_to_use": [
+        "Cuando el bloque trate expansión geográfica, marketing por idioma, copy comercial, pricing visible, landings o tooling de crecimiento."
+      ],
+      "inputs": [
+        "src/app/locales/**",
+        "src/app/pages/**/*Landing*.tsx",
+        "src/app/pages/Landing.tsx",
+        "docs/**"
+      ],
+      "outputs": [
+        "Estrategia trazable de localización y marketing que respeta idioma, cultura, promesas comerciales y analítica."
+      ],
+      "validations": [
+        "Revisar que no haya strings hardcodeados visibles y que el copy no prometa capacidades no soportadas.",
+        "Verificar consistencia mínima entre es/en/pt en superficies críticas."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "i18n",
+        "marketing",
+        "growth",
+        "global"
+      ],
+      "applies_to": [
+        "src/app/locales/**",
+        "src/app/pages/**/*Landing*.tsx",
+        "src/app/pages/Landing.tsx",
+        "docs/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {
+        "openai": [
+          "Lider recomendado para estrategia de mercados, copy semántico, priorización comercial y síntesis multicultural."
+        ],
+        "codex": [
+          "Muy bueno para aterrizar la estrategia en i18n real, componentes y docs."
+        ],
+        "claude": [
+          "Buen revisor para consistencia, cumplimiento y precisión de claims visibles."
+        ],
+        "gemini": [
+          "Útil para conectar growth con datos, eventos y señales operativas."
+        ]
+      },
+      "related": [
+        "[object Object]",
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/global_localization_marketing_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "global-market-platform-strategy",
+      "kind": "skill",
+      "title": "Estrategia global de plataforma, datos y costos",
+      "description": "Skill para evaluar Vorea Studio como producto global, incluyendo arquitectura regional, storage, big data, costos de hosting/IA, dominios y riesgo operativo.",
+      "when_to_use": [
+        "Cuando el pedido trate mercados globales, multi-región, storage de imágenes, crecimiento de base de datos, costos de IA o dominios."
+      ],
+      "inputs": [
+        "server/**",
+        "prisma/**",
+        "src/app/services/**",
+        ".agents/runtime/**"
+      ],
+      "outputs": [
+        "Diagnóstico y backlog ejecutable para escalar Vorea Studio fuera del contexto local."
+      ],
+      "validations": [
+        "Documentar supuestos de costo y cuellos de botella antes de recomendar escala global."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "global",
+        "platform",
+        "scale",
+        "cost"
+      ],
+      "applies_to": [
+        "server/**",
+        "prisma/**",
+        "src/app/services/**",
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {
+        "gemini": [
+          "Mejor candidato para modelado de infraestructura, storage, throughput, costos y latencia."
+        ],
+        "claude": [
+          "Excelente revisor de riesgos, contratos de datos y hardening arquitectónico."
+        ],
+        "openai": [
+          "Fuerte para síntesis estratégica, trade-offs y narrativa ejecutiva."
+        ],
+        "codex": [
+          "Ideal para traducir la estrategia en cambios concretos de repo, schemas y docs."
+        ]
+      },
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/skills_catalog/global-market-platform-strategy.md",
+      "source_group": "skills_catalog",
+      "adapter": null
+    },
+    {
+      "id": "i18n-admin-content",
+      "kind": "workflow",
+      "title": "Contenido administrable con i18n",
+      "description": "Directriz obligatoria de contenido administrable con internacionalización (i18n)",
+      "when_to_use": [
+        "Cuando un contenido de marketing o negocio deba ser editable desde admin."
+      ],
+      "inputs": [
+        "src/app/pages/**",
+        "src/app/components/**",
+        "src/app/locales/**"
+      ],
+      "outputs": [
+        "Contenido visible no hardcodeado, administrable y con claves i18n desde origen."
+      ],
+      "validations": [
+        "npm run test",
+        "Revisar que el contenido quede administrable y con claves sincronizadas."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "ui",
+        "admin",
+        "i18n"
+      ],
+      "applies_to": [
+        "src/app/pages/**",
+        "src/app/components/**",
+        "src/app/locales/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/i18n_admin_content_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "i18n-locale-sync",
+      "kind": "workflow",
+      "title": "Sincronización obligatoria de locales i18n",
+      "description": "Regla de sincronización obligatoria para archivos de internacionalización (i18n locales)",
+      "when_to_use": [
+        "Cuando se agreguen, modifiquen o eliminen claves en locales o UI visible."
+      ],
+      "inputs": [
+        "src/app/locales/**"
+      ],
+      "outputs": [
+        "Ocho locales alineados con las claves del bloque."
+      ],
+      "validations": [
+        "npm run test",
+        "node scripts/i18n-sync-check.mjs"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [
+        "src/app/locales/**",
+        "src/app/pages/**",
+        "src/app/components/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/i18n_locale_sync_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "llm-safe-operating-protocol",
+      "kind": "workflow",
+      "title": "Protocolo de operación segura multi-LLM",
+      "description": "Reglas operativas para que GPT, Claude, Gemini, Codex, Paperclip y cualquier otro agente trabajen sin romper el trabajo de los demás.",
+      "when_to_use": [
+        "SIEMPRE al conectar un nuevo agente o LLM al proyecto",
+        "SIEMPRE antes de ejecutar cambios automáticos o con bypass de aprobación"
+      ],
+      "inputs": [
+        ".agents/workflows/codebase_architecture_boundaries_rule.md",
+        ".agents/🧠_Cerebro_Vorea.md"
+      ],
+      "outputs": [
+        "Cambios compatibles entre LLMs sin regresiones"
+      ],
+      "validations": [
+        "npm run dev:all",
+        "Checklist pre-commit de codebase_architecture_boundaries_rule.md"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "governance",
+        "llm-safety",
+        "multi-agent"
+      ],
+      "applies_to": [
+        "**/*"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini",
+        "paperclip"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/llm_safe_operating_protocol.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "multi-llm-specialization-routing",
+      "kind": "workflow",
+      "title": "Routing de tareas por especialización LLM",
+      "description": "Workflow para asignar bloques a Gemini, Claude, OpenAI/GPT y Codex según tipo de problema, evidencia requerida y nivel de implementación.",
+      "when_to_use": [
+        "Cuando un bloque combine estrategia, backend, seguridad, i18n, marketing o análisis multi-área y haya que decidir qué LLM lidera cada parte."
+      ],
+      "inputs": [
+        ".agents/runtime/**",
+        ".agents/skills_catalog/**",
+        ".agents/workflows/**"
+      ],
+      "outputs": [
+        "Asignación explícita por LLM con líder, apoyo y criterio de handoff."
+      ],
+      "validations": [
+        "Confirmar un líder por bloque y una razón explícita basada en fortalezas reales del LLM."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "governance",
+        "llm",
+        "routing"
+      ],
+      "applies_to": [
+        ".agents/**",
+        "src/**",
+        "server/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/multi_llm_specialization_routing.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "post-commit-review",
+      "kind": "workflow",
+      "title": "Revisión post-commit y sincronización documental",
+      "description": "Regla obligatoria de revisión post-commit para mantener trazabilidad, docs y ramas sincronizadas",
+      "when_to_use": [
+        "Después de cada commit antes de abrir PR o pasar a otro bloque."
+      ],
+      "inputs": [
+        "git status --short",
+        "ai_shared_plan.md",
+        "project_backlog.md",
+        "ai_handoff_YYYY-MM-DD.md",
+        "project_health_report.md",
+        "project_pending.md"
+      ],
+      "outputs": [
+        "Bloque validado, trazabilidad actualizada y docs sincronizadas tras el commit."
+      ],
+      "validations": [
+        "git status --short",
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_shared_plan.md",
+        "project_backlog.md",
+        "ai_handoff_YYYY-MM-DD.md",
+        "project_health_report.md",
+        "project_pending.md"
+      ],
+      "tags": [
+        "git",
+        "docs",
+        "governance"
+      ],
+      "applies_to": [
+        "src/**",
+        "server/**",
+        "scripts/**",
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/post_commit_review_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "prisma-migration-pipeline-rule",
+      "kind": "workflow",
+      "title": "Regla obligatoria de migraciones Prisma",
+      "description": "Todo LLM/agente que modifique el schema de base de datos DEBE usar el pipeline de migraciones Prisma (migrate dev → commit → deploy), NUNCA prisma db push en producción.",
+      "when_to_use": [
+        "SIEMPRE que se modifique prisma/schema.prisma",
+        "SIEMPRE que se agreguen, eliminen o modifiquen modelos, campos o índices",
+        "SIEMPRE que se haga deploy a Railway relacionado con cambios de DB"
+      ],
+      "inputs": [
+        "prisma/schema.prisma",
+        "prisma/migrations/"
+      ],
+      "outputs": [
+        "Archivo SQL en prisma/migrations/XXXX_nombre/migration.sql",
+        "DB local y Railway sincronizadas con historial versionado"
+      ],
+      "validations": [
+        "npx prisma migrate status (debe decir \"Database schema is up to date!\")",
+        "npx prisma migrate diff --from-migrations ./prisma/migrations --to-schema ./prisma/schema.prisma --exit-code"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "base-required",
+        "database",
+        "governance",
+        "llm-safety",
+        "migrations"
+      ],
+      "applies_to": [
+        "prisma/**",
+        "Dockerfile",
+        ".github/workflows/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini",
+        "paperclip"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]",
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/prisma_migration_pipeline_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "rollback-branch-protection",
+      "kind": "rule",
+      "title": "Protección de ramas rollback",
+      "description": "Proteccion obligatoria de ramas de rollback para evitar trabajo accidental en puntos de retorno",
+      "when_to_use": [
+        "Antes de bloques de alto impacto o al recuperar trabajo desde ramas backup/rollback."
+      ],
+      "inputs": [
+        "git status --short",
+        "git branch -vv",
+        "git worktree list"
+      ],
+      "outputs": [
+        "Uso seguro de ramas rollback como checkpoints inmutables."
+      ],
+      "validations": [
+        "git branch --list codex/rollback/*"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "base-required",
+        "git",
+        "safety"
+      ],
+      "applies_to": [
+        ".agents/**",
+        "src/**",
+        "server/**",
+        "scripts/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/rules/rollback_branch_protection_rule.md",
+      "source_group": "rules",
+      "adapter": null
+    },
+    {
+      "id": "service-abuse-hardening",
+      "kind": "workflow",
+      "title": "Hardening de abuso de servicios",
+      "description": "Checklist operativo para endurecer endpoints contra saturación, spam, drenaje de costo y abuso automatizado",
+      "when_to_use": [
+        "Cuando se agreguen endpoints con costo, fan-out externo, escritura intensiva o riesgo de abuso.",
+        "Cuando una ruta acepte tráfico público o autenticado fácil de automatizar."
+      ],
+      "inputs": [
+        "server/**",
+        "Dockerfile"
+      ],
+      "outputs": [
+        "Endpoints endurecidos contra abuso y evidencias mínimas de validación."
+      ],
+      "validations": [
+        "npm run typecheck",
+        "npm run test",
+        "npm run docs:api:generate",
+        "npm run docs:api:check"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md",
+        ".agents/runtime/security_abuse_audit_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "security",
+        "abuse",
+        "backend",
+        "operations"
+      ],
+      "applies_to": [
+        "server/**",
+        "Dockerfile"
+      ],
+      "llm_support": [
+        "claude",
+        "gemini",
+        "openai",
+        "generic"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/service_abuse_hardening_runbook.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "skill-review-upgrade",
+      "kind": "workflow",
+      "title": "Revisión y mejora de skills, adapters y subagentes",
+      "description": "Workflow para revisar, validar y mejorar skills, catalogos y subagentes del proyecto para Codex, otras LLMs y agentes auxiliares",
+      "when_to_use": [
+        "Cuando cambie el sistema de skills, subagentes, adapters o gobernanza agentica."
+      ],
+      "inputs": [
+        ".agents/**"
+      ],
+      "outputs": [
+        "Superficies de instrucciones alineadas entre Codex, otras LLMs y subagentes."
+      ],
+      "validations": [
+        "pnpm agent:sync",
+        "pnpm agent:governance:check"
+      ],
+      "docs_to_update": [
+        ".agents/skills",
+        "ai_shared_plan.md",
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "governance",
+        "skills",
+        "docs"
+      ],
+      "applies_to": [
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/skill_review_upgrade_workflow.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "subagent-ai-orchestrator",
+      "kind": "subagent",
+      "title": "Subagente de orquestación IA",
+      "description": "Especialista en costos, budget gates, routing por proveedor y fallback de IA.",
+      "when_to_use": [
+        "Cuando cambien proveedores IA, presupuestos, límites o tracking de costo."
+      ],
+      "inputs": [
+        "server/**/*ai*",
+        "server/**/*vault*"
+      ],
+      "outputs": [
+        "Diagnóstico y decisiones de orquestación IA con fallback y seguridad."
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "ai",
+        "orchestration",
+        "subagent",
+        "governance"
+      ],
+      "applies_to": [
+        ".agents/**",
+        "scripts/agents/**",
+        "server/**/*ai*",
+        "server/**/*vault*",
+        "src/app/services/**/*ai*"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/subagents/subagent-ai-orchestrator.md",
+      "source_group": "subagents",
+      "adapter": null
+    },
+    {
+      "id": "subagent-fullstack-ts-services",
+      "kind": "subagent",
+      "title": "Subagente fullstack TS y servicios",
+      "description": "Líder técnico para cambios frontend/backend TypeScript, servicios y contratos API.",
+      "when_to_use": [
+        "Cuando el bloque toque flujo completo cliente-servidor o contratos compartidos."
+      ],
+      "inputs": [
+        "server/**",
+        "src/app/services/**"
+      ],
+      "outputs": [
+        "Integración fullstack consistente entre request, response y tipos compartidos."
+      ],
+      "validations": [
+        "npm run test",
+        "npm run docs:api:generate",
+        "npm run docs:api:check"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "fullstack",
+        "backend",
+        "subagent"
+      ],
+      "applies_to": [
+        "server/**",
+        "src/app/services/**",
+        "prisma/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/subagents/subagent-fullstack-ts-services.md",
+      "source_group": "subagents",
+      "adapter": null
+    },
+    {
+      "id": "subagent-mcp-headless-integration",
+      "kind": "subagent",
+      "title": "Subagente MCP y operación headless",
+      "description": "Especialista en contratos de herramientas MCP e integraciones headless.",
+      "when_to_use": [
+        "Cuando cambien tools MCP, contratos machine-to-machine o integraciones headless."
+      ],
+      "inputs": [
+        "server/**/*mcp*",
+        "scripts/**"
+      ],
+      "outputs": [
+        "Contratos MCP y runbook mínimo de operación/fallback."
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "mcp",
+        "headless",
+        "subagent"
+      ],
+      "applies_to": [
+        "server/**/*mcp*",
+        "scripts/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/subagents/subagent-mcp-headless-integration.md",
+      "source_group": "subagents",
+      "adapter": null
+    },
+    {
+      "id": "subagent-parametric-math-fdm",
+      "kind": "subagent",
+      "title": "Subagente de matemáticas paramétricas FDM",
+      "description": "Especialista en geometría, transformaciones paramétricas y compatibilidad de export FDM.",
+      "when_to_use": [
+        "Cuando cambien geometría, precisión, exportadores o topología del pipeline 3D."
+      ],
+      "inputs": [
+        "src/app/engine/**",
+        "src/app/parametric/**"
+      ],
+      "outputs": [
+        "Análisis geométrico y validación de fabricabilidad FDM."
+      ],
+      "validations": [
+        "npx vitest run src/app/engine/__tests__/"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "3d",
+        "math",
+        "fdm",
+        "subagent"
+      ],
+      "applies_to": [
+        "src/app/engine/**",
+        "src/app/parametric/**",
+        "public/scad-library/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/subagents/subagent-parametric-math-fdm.md",
+      "source_group": "subagents",
+      "adapter": null
+    },
+    {
+      "id": "subagent-routing",
+      "kind": "workflow",
+      "title": "Selección y coordinación de subagentes",
+      "description": "Workflow para seleccionar, coordinar y consolidar subagentes por dominio tecnico",
+      "when_to_use": [
+        "Cuando una tarea cruce varios dominios técnicos o requiera delegación controlada."
+      ],
+      "inputs": [
+        ".agents/subagents/**",
+        ".agents/skills_catalog/**"
+      ],
+      "outputs": [
+        "Lead subagent, colaboradores y paquete de handoff bien definido."
+      ],
+      "validations": [
+        "Confirmar un líder y un paquete de handoff por subagente."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "governance",
+        "routing"
+      ],
+      "applies_to": [
+        "src/**",
+        "server/**",
+        "scripts/**",
+        ".agents/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/subagent_routing_workflow.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "subagent-ux-ui-layout",
+      "kind": "subagent",
+      "title": "Subagente UX/UI y layout",
+      "description": "Especialista en UX/UI, CSS, accesibilidad y maquetación multi-dispositivo.",
+      "when_to_use": [
+        "Cuando cambien páginas, componentes, estilos o contenido visible."
+      ],
+      "inputs": [
+        "src/app/pages/**",
+        "src/app/components/**",
+        "src/styles/**"
+      ],
+      "outputs": [
+        "Validación visual y estructural del flujo UI impactado."
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "ui",
+        "css",
+        "subagent"
+      ],
+      "applies_to": [
+        "src/app/pages/**",
+        "src/app/components/**",
+        "src/styles/**",
+        "src/app/locales/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/subagents/subagent-ux-ui-layout.md",
+      "source_group": "subagents",
+      "adapter": null
+    },
+    {
+      "id": "subagent-webgl-three-rendering",
+      "kind": "subagent",
+      "title": "Subagente WebGL y Three.js",
+      "description": "Especialista en renderizado WebGL/Canvas/Three.js y estabilidad del pipeline gráfico.",
+      "when_to_use": [
+        "Cuando cambien renderers, materiales, cámara, preview o performance visual."
+      ],
+      "inputs": [
+        "src/app/engine/**/*render*",
+        "src/app/engine/**/*worker*"
+      ],
+      "outputs": [
+        "Diagnóstico y corrección del pipeline gráfico con foco en no regresión visual."
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "webgl",
+        "threejs",
+        "subagent"
+      ],
+      "applies_to": [
+        "src/app/engine/**/*render*",
+        "src/app/engine/**/*worker*",
+        "src/app/pages/Editor.tsx",
+        "src/app/pages/Relief.tsx"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/subagents/subagent-webgl-three-rendering.md",
+      "source_group": "subagents",
+      "adapter": null
+    },
+    {
+      "id": "ui-state-sync",
+      "kind": "workflow",
+      "title": "Reglas de transferencia de estado UI y persistencia entre vistas React",
+      "description": "Reglas obligatorias para la transferencia de estado UI y persistencia entre vistas de React (AI Studio a Editor)",
+      "when_to_use": [
+        "Cuando se modifique la navegación entre AI Studio y Editor",
+        "Cuando se cambie la persistencia local o el estado global de React para modelos SCAD"
+      ],
+      "inputs": [
+        "src/app/pages/AIStudio.tsx",
+        "src/app/pages/Editor.tsx",
+        "src/app/services/model-context.ts"
+      ],
+      "outputs": [
+        "Estado UI consistente entre vistas sin pérdida de datos del usuario"
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "frontend",
+        "state-management",
+        "ux"
+      ],
+      "applies_to": [
+        "src/app/pages/AIStudio.tsx",
+        "src/app/pages/Editor.tsx",
+        "src/app/services/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/ui_state_sync_rule.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "ux-ui-css-layout",
+      "kind": "skill",
+      "title": "UX/UI, CSS y maquetación",
+      "description": "Skill experta para layout responsive, accesibilidad, estados de interfaz y disciplina de contenido visible.",
+      "when_to_use": [
+        "Cuando cambien páginas, componentes, estilos o contenido visible del frontend."
+      ],
+      "inputs": [
+        "src/app/pages/**",
+        "src/app/components/**",
+        "src/styles/**"
+      ],
+      "outputs": [
+        "UX/UI consistente, accesible y responsive."
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "ui",
+        "css",
+        "layout"
+      ],
+      "applies_to": [
+        "src/app/pages/**",
+        "src/app/components/**",
+        "src/styles/**",
+        "src/app/locales/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/skills_catalog/ux-ui-css-layout.md",
+      "source_group": "skills_catalog",
+      "adapter": null
+    },
+    {
+      "id": "ux-ui-review",
+      "kind": "workflow",
+      "title": "Revisión UX/UI obligatoria",
+      "description": "Workflow obligatorio de revisión UX/UI para cambios frontend con cobertura desktop, mobile y accesibilidad básica",
+      "when_to_use": [
+        "Cuando cambien vistas, componentes o interacciones visibles de frontend."
+      ],
+      "inputs": [
+        "src/app/pages/**",
+        "src/app/components/**"
+      ],
+      "outputs": [
+        "Validación visual y de interacción para desktop, mobile y estados clave."
+      ],
+      "validations": [
+        "npm run test",
+        "Smoke visual desktop/mobile de la vista impactada."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "ui",
+        "validation"
+      ],
+      "applies_to": [
+        "src/app/pages/**",
+        "src/app/components/**",
+        "src/styles/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/ux_ui_review_workflow.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "vorea-monetization-strategy",
+      "kind": "workflow",
+      "title": "Estrategia de monetización y límites administrables",
+      "description": "Documento guía de referencia para monetización, créditos, límites y presupuesto IA administrable en Vorea Studio",
+      "when_to_use": [
+        "Cuando cambien pricing, packs, top-ups, membresías, presupuestos IA o admin financiero."
+      ],
+      "inputs": [
+        "server/**",
+        "src/app/pages/SuperAdmin.tsx",
+        "src/app/services/business-config.ts"
+      ],
+      "outputs": [
+        "Referencia estratégica alineada para decisiones de monetización y admin-editability."
+      ],
+      "validations": [
+        "npm run test",
+        "Revisar KPIs, top-ups, créditos y presupuesto IA contra la estrategia vigente."
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "backend",
+        "monetization",
+        "strategy"
+      ],
+      "applies_to": [
+        "server/**",
+        "src/app/pages/SuperAdmin.tsx",
+        "src/app/services/business-config.ts"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/workflows/vorea_monetization_strategy.md",
+      "source_group": "workflows",
+      "adapter": null
+    },
+    {
+      "id": "vorea-parametric-scad-products",
+      "kind": "skill",
+      "title": "Vorea SCAD product families",
+      "description": "Repo-specific skill for designing printable SCAD product families for Vorea Studio. Use when Codex must research, define, or implement product-oriented parametric templates backed by `public/scad-library`, OpenSCAD, BOSL2, and FDM product heuristics across `src/app/parametric/*`, `src/app/pages/AIStudio.tsx`, `src/app/pages/Editor.tsx`, and `public/scad-library/*`.",
+      "when_to_use": [
+        "Cuando el pedido sea diseñar o implementar familias de producto SCAD orientadas a Studio/FDM."
+      ],
+      "inputs": [
+        "src/app/parametric/**",
+        "src/app/pages/AIStudio.tsx",
+        "src/app/pages/Editor.tsx",
+        "public/scad-library/**"
+      ],
+      "outputs": [
+        "Familias de producto imprimible parametrizadas y templates reutilizables para Studio."
+      ],
+      "validations": [
+        "npm run test",
+        "pnpm typecheck"
+      ],
+      "docs_to_update": [
+        "ai_shared_plan.md",
+        "project_backlog.md",
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "3d",
+        "parametric",
+        "products",
+        "bosl2"
+      ],
+      "applies_to": [
+        "src/app/parametric/**",
+        "src/app/models/**",
+        "src/app/pages/AIStudio.tsx",
+        "src/app/pages/Editor.tsx",
+        "public/scad-library/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/codex-skills/vorea-parametric-scad-products/SKILL.md",
+      "source_group": "codex_skills",
+      "adapter": {
+        "provider": "openai",
+        "path": ".agents/codex-skills/vorea-parametric-scad-products/agents/openai.yaml",
+        "interface": {
+          "display_name": "Vorea SCAD Products",
+          "short_description": "Productos FDM parametrico con OpenSCAD y BOSL2",
+          "default_prompt": "Usa $vorea-parametric-scad-products para definir o implementar familias de producto SCAD parametrico para Vorea Studio, usando scad-library como semilla y aplicando heuristicas de diseno industrial, OpenSCAD y BOSL2."
+        },
+        "valid": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "vorea-parametric-scad-surface",
+      "kind": "skill",
+      "title": "Vorea SCAD surfaces and fabrication",
+      "description": "Repo-specific skill for advanced parametric SCAD authoring, mathematical 3D surface deformation, raster `surface()` and relief workflows, FDM-oriented export/slicing, and Three.js/WebGL preview code in `E:\\__Vorea-Studio\\__3D_parametrics\\Vorea-Paramentrics-3D`. Use when Codex must create, review, or extend complex parametric objects such as vases, organic towers, Voronoi-like patterns, wood-grain or image-driven surfaces, fabrication outputs (`SCAD`, `STL`, `3MF`, `GCODE`), or rendering/tooling across `src/app/parametric/`, `src/app/engine/`, `src/app/pages/Editor.tsx`, `src/app/pages/Relief.tsx`, `src/app/pages/Organic.tsx`, and `server/mcp-tools.ts`.",
+      "when_to_use": [
+        "Cuando el bloque toque relief, surface, deformaciones geométricas, export FDM o preview Three.js."
+      ],
+      "inputs": [
+        "src/app/parametric/**",
+        "src/app/engine/**",
+        "src/app/pages/Editor.tsx",
+        "src/app/pages/Relief.tsx",
+        "src/app/pages/Organic.tsx",
+        "server/mcp-tools.ts"
+      ],
+      "outputs": [
+        "Cambios seguros en el núcleo SCAD/relief/render/export del repo."
+      ],
+      "validations": [
+        "npm run test",
+        "pnpm typecheck"
+      ],
+      "docs_to_update": [
+        "ai_shared_plan.md",
+        "project_backlog.md",
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "3d",
+        "parametric",
+        "relief",
+        "render"
+      ],
+      "applies_to": [
+        "src/app/parametric/**",
+        "src/app/engine/**",
+        "src/app/pages/Editor.tsx",
+        "src/app/pages/Relief.tsx",
+        "src/app/pages/Organic.tsx",
+        "server/mcp-tools.ts"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/codex-skills/vorea-parametric-scad-surface/SKILL.md",
+      "source_group": "codex_skills",
+      "adapter": {
+        "provider": "openai",
+        "path": ".agents/codex-skills/vorea-parametric-scad-surface/agents/openai.yaml",
+        "interface": {
+          "display_name": "Vorea SCAD Surface 3D",
+          "short_description": "SCAD avanzado, superficies 3D y FDM Vorea",
+          "default_prompt": "Usa $vorea-parametric-scad-surface para crear SCAD parametrico complejo, deformaciones 3D, relieves raster y exportes FDM/WebGL en este repositorio."
+        },
+        "valid": true,
+        "errors": []
+      }
+    },
+    {
+      "id": "web-ts-services-postgres-headless-mcp",
+      "kind": "skill",
+      "title": "Fullstack TS, servicios, Postgres y MCP",
+      "description": "Skill experta para frontend/backend TypeScript, servicios, PostgreSQL, servidores headless y contratos MCP.",
+      "when_to_use": [
+        "Cuando el bloque cruce cliente-servidor, contratos API, Postgres o MCP."
+      ],
+      "inputs": [
+        "server/**",
+        "src/app/services/**",
+        "prisma/**"
+      ],
+      "outputs": [
+        "Contratos consistentes y capas de servicio alineadas entre frontend y backend."
+      ],
+      "validations": [
+        "npm run test",
+        "npm run docs:api:generate",
+        "npm run docs:api:check"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "fullstack",
+        "backend",
+        "postgres",
+        "mcp"
+      ],
+      "applies_to": [
+        "server/**",
+        "src/app/services/**",
+        "prisma/**",
+        "scripts/**"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/skills_catalog/web-ts-services-postgres-headless-mcp.md",
+      "source_group": "skills_catalog",
+      "adapter": null
+    },
+    {
+      "id": "webgl-canvas-threejs",
+      "kind": "skill",
+      "title": "Render WebGL, Canvas y Three.js",
+      "description": "Skill experta para renderizado 2D/3D, workers y rendimiento visual con WebGL, Canvas y Three.js.",
+      "when_to_use": [
+        "Cuando cambien renderers, previews o problemas de performance gráfica."
+      ],
+      "inputs": [
+        "src/app/engine/**",
+        "src/app/pages/**"
+      ],
+      "outputs": [
+        "Pipeline visual estable y fiel entre preview y export."
+      ],
+      "validations": [
+        "npm run test"
+      ],
+      "docs_to_update": [
+        "ai_handoff_YYYY-MM-DD.md"
+      ],
+      "tags": [
+        "webgl",
+        "threejs",
+        "render"
+      ],
+      "applies_to": [
+        "src/app/engine/**/*render*",
+        "src/app/engine/**/*worker*",
+        "src/app/pages/Editor.tsx",
+        "src/app/pages/Relief.tsx",
+        "src/app/pages/MakerWorld.tsx"
+      ],
+      "llm_support": [
+        "codex",
+        "openai",
+        "claude",
+        "gemini"
+      ],
+      "cross_llm_notes": {},
+      "related": [
+        "[object Object]",
+        "[object Object]"
+      ],
+      "path": ".agents/skills_catalog/webgl-canvas-threejs.md",
+      "source_group": "skills_catalog",
+      "adapter": null
+    }
+  ]
+}

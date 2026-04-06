@@ -1,0 +1,277 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+
+  /* ── Base palette ─────────────────────────────────────────────────────── */
+  --background: #0d1117;       /* page background */
+  --foreground: #ffffff;
+
+  /* ── Surface scale (elevación sobre background) ───────────────────────── */
+  --surface: #131829;          /* panel / card elevated — use bg-surface */
+  --surface-raised: #1a1f36;   /* modal / popover / dropdown — use bg-surface-raised */
+
+  /* ── Component tokens ─────────────────────────────────────────────────── */
+  --card: rgba(168,187,238,0.03);
+  --card-foreground: #ffffff;
+  --popover: var(--surface-raised);
+  --popover-foreground: #ffffff;
+  --primary: #C6E36C;
+  --primary-foreground: #000000;
+  --secondary: var(--surface-raised);
+  --secondary-foreground: #ffffff;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --muted-surface: #3a4555;    /* scrollbar, disabled switches — use bg-muted-surface */
+  --accent: #C6E36C;
+  --accent-foreground: #000000;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* ── Border scale ─────────────────────────────────────────────────────── */
+  --border: rgba(168,187,238,0.12);        /* normal border — border-border */
+  --border-subtle: rgba(168,187,238,0.08); /* soft panel/nav border — border-border-subtle */
+  --border-faint: rgba(168,187,238,0.06);  /* very soft inner borders — border-border-faint */
+  --divider: rgba(168,187,238,0.05);       /* list dividers — divide-divider */
+
+  /* ── Form tokens ──────────────────────────────────────────────────────── */
+  --input: var(--surface-raised);
+  --input-background: var(--surface-raised);
+  --switch-background: var(--muted-surface);
+  --ring: #C6E36C;
+
+  /* ── Misc ─────────────────────────────────────────────────────────────── */
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --radius: 0.75rem;
+}
+
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: #ffffff;
+}
+
+
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* ── Surface ── */
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+
+  /* ── Component ── */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-surface: var(--muted-surface);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* ── Border scale ── */
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-faint: var(--border-faint);
+  --color-divider: var(--divider);
+
+  /* ── Form ── */
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+
+  /* ── Charts ── */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* ── Radii ── */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* ── Sidebar ── */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* ── Global interactive affordance ──────────────────────────────
+     Todos los <button> y <a> sin clase heredan cursor-pointer y
+     una transición base. Esto garantiza que ningún elemento
+     interactivo quede sin feedback visual. Los componentes con
+     className explícito prevalecen sobre estas reglas base.
+  ─────────────────────────────────────────────────────────────── */
+  button:not([disabled]),
+  [role="button"]:not([disabled]),
+  a[href] {
+    cursor: pointer;
+    transition: opacity 0.15s ease, background-color 0.15s ease,
+                color 0.15s ease, border-color 0.15s ease,
+                box-shadow 0.15s ease, transform 0.1s ease;
+  }
+
+  /* Feedback mínimo en botones nativos sin hover propio */
+  button:not([class]):not([disabled]):hover,
+  button[class=""]:not([disabled]):hover {
+    opacity: 0.85;
+  }
+
+  button:not([disabled]):active,
+  [role="button"]:not([disabled]):active {
+    transform: scale(0.97);
+  }
+
+  /* Disabled siempre no-pointer */
+  button[disabled],
+  [role="button"][disabled],
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  /* Focus visible accesible */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #3a4555;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #C6E36C;
+  }
+
+  .glass {
+    background: rgba(168, 187, 238, 0.03);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(168, 187, 238, 0.12);
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+}
+
+/* ─── Relief — Generate button attention animation ─────────────────────────── */
+@keyframes relief-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes relief-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(198,227,108,0.3), 0 4px 16px rgba(198,227,108,0.15); }
+  50% { box-shadow: 0 0 22px rgba(198,227,108,0.6), 0 4px 32px rgba(198,227,108,0.35); }
+}
+@keyframes relief-sparkle-rise {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-18px) scale(0.4); }
+}
+
+.relief-generate-attention {
+  animation: relief-pulse 2s ease-in-out infinite, relief-glow 2s ease-in-out infinite;
+  position: relative;
+  overflow: visible;
+}
+.relief-generate-attention::before,
+.relief-generate-attention::after {
+  content: "✦";
+  position: absolute;
+  font-size: 10px;
+  color: #C6E36C;
+  animation: relief-sparkle-rise 1.4s ease-out infinite;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(198,227,108,0.7));
+}
+.relief-generate-attention::before {
+  top: -2px; left: 18%;
+  animation-delay: 0s;
+}
+.relief-generate-attention::after {
+  top: -2px; right: 18%;
+  animation-delay: 0.7s;
+}

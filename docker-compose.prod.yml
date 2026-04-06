@@ -1,0 +1,69 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Vorea Studio — Production Docker Compose
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d          # Start
+#   docker compose -f docker-compose.prod.yml up -d --build  # Rebuild + Start
+#   docker compose -f docker-compose.prod.yml logs -f app    # Follow logs
+#   docker compose -f docker-compose.prod.yml down           # Stop
+#
+# Requirements:
+#   - .env file with all required variables (see below)
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ── PostgreSQL ───────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: vorea-prod-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vorea}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vorea_prod_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-vorea_studio}
+    volumes:
+      - vorea_prod_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vorea}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # PostgreSQL NOT exposed to host in production — only accessible by app
+
+  # ── Vorea App (API + Frontend) ───────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # These VITE_* vars are embedded into the frontend bundle at build time
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+        VITE_SUPABASE_PROJECT_ID: ${VITE_SUPABASE_PROJECT_ID:-}
+        VITE_OWNER_EMAIL: ${VITE_OWNER_EMAIL:-}
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    container_name: vorea-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${PORT:-3001}:3001"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-vorea}:${POSTGRES_PASSWORD:-vorea_prod_secret}@postgres:5432/${POSTGRES_DB:-vorea_studio}?schema=public
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+volumes:
+  vorea_prod_pgdata:
+    name: vorea_prod_pgdata

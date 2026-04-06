@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vorea SCAD Surface 3D"
+  short_description: "SCAD avanzado, superficies 3D y FDM Vorea"
+  default_prompt: "Usa $vorea-parametric-scad-surface para crear SCAD parametrico complejo, deformaciones 3D, relieves raster y exportes FDM/WebGL en este repositorio."

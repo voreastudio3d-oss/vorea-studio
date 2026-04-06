@@ -1,0 +1,93 @@
+# Índice Maestro de Gobernanza IA — `.agents`
+
+Modo de enforcement: **bloqueante estricto**.
+La selección automática de workflows, skills, subagentes y documentos se deriva de metadata frontmatter versionada en `.agents/**`.
+Este archivo se sincroniza con `pnpm agent:sync` y no debe editarse a mano dentro del bloque generado.
+
+<!-- AGENTS:GENERATED:START -->
+## Base obligatoria
+
+### Reglas normativas
+- [`ai_traceability_rule.md`](./rules/ai_traceability_rule.md) — Trazabilidad y handoff entre IAs
+- [`change_quality_gate_rule.md`](./rules/change_quality_gate_rule.md) — Gate de calidad mínimo por cambio
+- [`rollback_branch_protection_rule.md`](./rules/rollback_branch_protection_rule.md) — Protección de ramas rollback
+
+### Workflows maestros
+- [`agent_handoff_evidence_workflow.md`](./workflows/agent_handoff_evidence_workflow.md) — Cierre documental y evidencia para IAs
+- [`change_validation_master_workflow.md`](./workflows/change_validation_master_workflow.md) — Workflow maestro de validación por tipo de cambio
+- [`codebase_architecture_boundaries_rule.md`](./workflows/codebase_architecture_boundaries_rule.md) — Reglas de arquitectura y boundaries del codebase
+- [`prisma_migration_pipeline_rule.md`](./workflows/prisma_migration_pipeline_rule.md) — Regla obligatoria de migraciones Prisma
+
+## Routing por tipo de cambio
+
+### UI / Frontend
+- [`admin_panel_ux_patterns.md`](./workflows/admin_panel_ux_patterns.md) — Patrones UX del panel admin
+- [`design_tokens_rule.md`](./workflows/design_tokens_rule.md) — Regla obligatoria de design tokens — prohibido hex hardcodeado
+- [`docs_update_sync_rule.md`](./workflows/docs_update_sync_rule.md) — Sincronización de documentación visible
+- [`i18n_admin_content_rule.md`](./workflows/i18n_admin_content_rule.md) — Contenido administrable con i18n
+- [`i18n_locale_sync_rule.md`](./workflows/i18n_locale_sync_rule.md) — Sincronización obligatoria de locales i18n
+- [`ux_ui_review_workflow.md`](./workflows/ux_ui_review_workflow.md) — Revisión UX/UI obligatoria
+
+### Backend / API / Datos
+- [`api_docs_route_sync_rule.md`](./rules/api_docs_route_sync_rule.md) — Paridad de documentación API y rutas
+- [`auth_security_rule.md`](./workflows/auth_security_rule.md) — Seguridad de autenticación y datos
+- [`backend_orm_auth_rule.md`](./rules/backend_orm_auth_rule.md) — Lineamientos Críticos de Backend (Prisma, Auth y CMS Storage)
+- [`db_migration_rule.md`](./rules/db_migration_rule.md) — Seguridad y trazabilidad para migraciones de datos
+- [`docs_update_sync_rule.md`](./workflows/docs_update_sync_rule.md) — Sincronización de documentación visible
+- [`endpoint_security_validation_workflow.md`](./workflows/endpoint_security_validation_workflow.md) — Validación de endpoints y seguridad
+- [`service_abuse_hardening_runbook.md`](./workflows/service_abuse_hardening_runbook.md) — Hardening de abuso de servicios
+- [`vorea_monetization_strategy.md`](./workflows/vorea_monetization_strategy.md) — Estrategia de monetización y límites administrables
+
+### Seguridad / Auth / Pagos
+- [`auth_security_rule.md`](./workflows/auth_security_rule.md) — Seguridad de autenticación y datos
+- [`backend_orm_auth_rule.md`](./rules/backend_orm_auth_rule.md) — Lineamientos Críticos de Backend (Prisma, Auth y CMS Storage)
+- [`endpoint_security_validation_workflow.md`](./workflows/endpoint_security_validation_workflow.md) — Validación de endpoints y seguridad
+- [`service_abuse_hardening_runbook.md`](./workflows/service_abuse_hardening_runbook.md) — Hardening de abuso de servicios
+
+### Engine 3D / Parametric / Render
+- [`engine_testing_rule.md`](./workflows/engine_testing_rule.md) — Testing obligatorio para el engine 3D
+
+### Git / Gobernanza
+- [`git_branching_rule.md`](./workflows/git_branching_rule.md) — Ciclo de ramas y commits por bloque
+- [`git_hygiene_recovery_workflow.md`](./workflows/git_hygiene_recovery_workflow.md) — Limpieza segura de ramas, worktrees y bloqueos git
+- [`post_commit_review_rule.md`](./workflows/post_commit_review_rule.md) — Revisión post-commit y sincronización documental
+- [`rollback_branch_protection_rule.md`](./rules/rollback_branch_protection_rule.md) — Protección de ramas rollback
+
+## Skills y subagentes
+
+### Skills expertas del catálogo
+- [`advanced-3d-parametric-math-fdm.md`](./skills_catalog/advanced-3d-parametric-math-fdm.md) — Matemáticas 3D paramétricas y FDM avanzadas
+- [`ai-orchestration.md`](./skills_catalog/ai-orchestration.md) — Orquestación de IA, costos y fallback
+- [`global-identity-payments-strategy.md`](./skills_catalog/global-identity-payments-strategy.md) — Estrategia global de identidad, pagos y verificación
+- [`global-localization-growth-strategy.md`](./skills_catalog/global-localization-growth-strategy.md) — Estrategia global de localización, marketing y growth
+- [`global-market-platform-strategy.md`](./skills_catalog/global-market-platform-strategy.md) — Estrategia global de plataforma, datos y costos
+- [`ux-ui-css-layout.md`](./skills_catalog/ux-ui-css-layout.md) — UX/UI, CSS y maquetación
+- [`web-ts-services-postgres-headless-mcp.md`](./skills_catalog/web-ts-services-postgres-headless-mcp.md) — Fullstack TS, servicios, Postgres y MCP
+- [`webgl-canvas-threejs.md`](./skills_catalog/webgl-canvas-threejs.md) — Render WebGL, Canvas y Three.js
+
+### Skills repo-locales
+- [`SKILL.md`](./codex-skills/vorea-parametric-scad-products/SKILL.md) — Vorea SCAD product families
+- [`SKILL.md`](./codex-skills/vorea-parametric-scad-surface/SKILL.md) — Vorea SCAD surfaces and fabrication
+
+### Subagentes
+- [`subagent-ai-orchestrator.md`](./subagents/subagent-ai-orchestrator.md) — Subagente de orquestación IA
+- [`subagent-fullstack-ts-services.md`](./subagents/subagent-fullstack-ts-services.md) — Subagente fullstack TS y servicios
+- [`subagent-mcp-headless-integration.md`](./subagents/subagent-mcp-headless-integration.md) — Subagente MCP y operación headless
+- [`subagent-parametric-math-fdm.md`](./subagents/subagent-parametric-math-fdm.md) — Subagente de matemáticas paramétricas FDM
+- [`subagent-ux-ui-layout.md`](./subagents/subagent-ux-ui-layout.md) — Subagente UX/UI y layout
+- [`subagent-webgl-three-rendering.md`](./subagents/subagent-webgl-three-rendering.md) — Subagente WebGL y Three.js
+<!-- AGENTS:GENERATED:END -->
+
+## Checklist de salida (obligatorio)
+
+1. Validaciones corridas y resultado:
+   - `npm run test`
+   - checks específicos del bloque y del router
+2. Impacto reportado:
+   - impacto funcional
+   - impacto API si aplica
+3. Trazabilidad mínima:
+   - `project_backlog.md` solo para estado/prioridad
+   - `ai_shared_plan.md` solo para ejecución activa
+   - `ai_handoff_YYYY-MM-DD.md` solo para delta/evidencia del día
+4. Si cambia gobernanza agentica, reejecutar `pnpm agent:sync` y `pnpm agent:governance:check`.
