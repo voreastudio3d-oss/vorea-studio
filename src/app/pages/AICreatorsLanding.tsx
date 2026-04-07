@@ -13,6 +13,9 @@ export default function AICreatorsLanding() {
 
   const cta = (target: string) => {
     trackAnalyticsEvent("landing_cta_click", { intent: "ai_creators", target });
+    if (target.includes("pricing") || target.includes("plans") || target === "hero_primary" || target === "final") {
+      trackAnalyticsEvent("conversion_intent", { origin: "aicreators_landing", target });
+    }
   };
 
   return (

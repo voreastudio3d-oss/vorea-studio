@@ -102,7 +102,7 @@
   "makers.benefit.freeTrial": "Teste gratuito sem cartão de crédito",
   "makers.pricing.title": "Simples e acessível",
   "makers.pricing.subtitle": "Comece grátis, escale quando precisar. Sem surpresas.",
-  "makers.pricing.freeDesc": "Acesso gratuito ao editor e exportação STL",
+  "makers.pricing.freeDesc": "Acesso gratuito ao editor e limite de 5 exportações STL/GCode mensais",
   "makers.pricing.freeCta": "Começar Grátis",
   "makers.pricing.proDesc": "Mais formatos, ferramentas avançadas e mais capacidade mensal",
   "makers.pricing.proCta": "Escolher Pro",
@@ -190,7 +190,7 @@
   "aiCreators.benefits.publish": "Publique direto no MakerWorld ou na comunidade",
   "aiCreators.pricing.title": "Planos para criadores",
   "aiCreators.pricing.subtitle": "Comece grátis, escale quando quiser.",
-  "aiCreators.pricing.freeDesc": "Experimente o AI Studio e a exportação básica com uma conta gratuita",
+  "aiCreators.pricing.freeDesc": "Experimente o AI Studio (1 geração/mês) e exportação básica com conta gratuita",
   "aiCreators.pricing.freeCta": "Começar Grátis",
   "aiCreators.pricing.proDesc": "Mais capacidade mensal e mais formatos para iterar melhor",
   "aiCreators.pricing.proCta": "Escolher Pro",
@@ -1388,5 +1388,9 @@
   "leaderboard.points": "Pontos XP",
   "leaderboard.empty": "Ainda não há utilizadores no ranking.",
   "leaderboard.badge": "Top",
-  "studio.ai.prompt.injectionInfo": "✨ Descreva destalhes adicionais ou gravuras sobre as suas medidas básicas."
+  "studio.ai.prompt.injectionInfo": "✨ Descreva destalhes adicionais ou gravuras sobre as suas medidas básicas.",
+  "footer.solutions": "Soluciones",
+  "footer.link.makers": "Para Makers",
+  "footer.link.aiCreators": "Para AI Creators",
+  "footer.link.education": "Para Educación"
 }

@@ -48,15 +48,15 @@ export interface BusinessConfig {
 const DEFAULT_PLANS: MembershipPlan[] = [
   {
     tier: "FREE", name: "Free", price: 0, yearlyPrice: 0,
-    features: ["3 proyectos activos", "Exportacion STL basica", "Editor parametrico", "6 exportaciones GCode gratis", "Comunidad (solo lectura)", "1 generacion IA por mes"],
+    features: ["3 proyectos activos", "Exportacion STL (5/mes)", "Editor parametrico", "6 exportaciones GCode gratis", "Comunidad (solo lectura)", "1 generacion IA por mes"],
   },
   {
     tier: "PRO", name: "Pro", price: 12, yearlyPrice: 99, highlighted: true,
-    features: ["Proyectos ilimitados", "Exportacion STL, OBJ, 3MF", "Editor parametrico completo", "Exportaciones GCode ilimitadas", "Deformaciones organicas (1 cr)", "20 generaciones IA por mes", "MakerWorld publish (3 cr)", "Soporte prioritario"],
+    features: ["Proyectos ilimitados", "Exportacion STL, OBJ, 3MF", "Editor parametrico completo", "Exportación GCode ilimitada (Deform/Edit limitado)", "Deformaciones organicas (1 cr)", "20 generaciones IA por mes", "MakerWorld publish (3 cr)", "Soporte prioritario"],
   },
   {
     tier: "STUDIO PRO", name: "Studio Pro", price: 29, yearlyPrice: 249,
-    features: ["Todo lo de Pro", "Exportaciones GCode ilimitadas", "Generaciones IA ilimitadas", "Modelos privados", "Exportacion SCAD editable", "Soporte dedicado 24/7"],
+    features: ["Todo lo de Pro", "Exportación GCode ilimitada (Deform/Edit ilimitado)", "Generaciones IA ilimitadas", "Modelos privados", "Exportacion SCAD editable", "Soporte dedicado 24/7"],
   },
 ];
 

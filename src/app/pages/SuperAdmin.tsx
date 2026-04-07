@@ -11,7 +11,7 @@ import {
   Shield, Users, CreditCard, BarChart3, Newspaper, DollarSign, Bell, Mail, ScrollText,
   RefreshCw, Loader2, Trash2, Ban, CheckCircle2, Crown, Edit2, Save, X,
   Plus, Send, AlertTriangle, TrendingUp, Zap, Bot, ArrowUpDown, Search,
-  ChevronDown, Eye, EyeOff, ShieldCheck, UserX, UserCheck, LayoutDashboard, Activity, Box, Globe, Sparkles, MessageSquare, BookOpen, ExternalLink
+  ChevronDown, Eye, EyeOff, ShieldCheck, UserX, UserCheck, LayoutDashboard, Activity, Box, Globe, Sparkles, MessageSquare, BookOpen, ExternalLink, Printer
 } from "lucide-react";
 import { toast } from "sonner";
 import { AdminApi, CreditsApi, CommunityApi, setCachedAccessToken, getCachedAccessToken, AuthApi } from "../services/api-client";
@@ -2422,6 +2422,42 @@ function ContentTab() {
           <Plus className="w-5 h-5 text-gray-700 mb-2" />
           <span className="text-[10px] text-gray-600 uppercase tracking-wide font-medium">Próximamente</span>
           <span className="text-[10px] text-gray-700 mt-1">Feature Cards, Announcements…</span>
+        </div>
+      </div>
+
+      {/* ── Landing Pages Quick Links ── */}
+      <div className="pt-8 mt-8 border-t border-[rgba(168,187,238,0.08)]">
+        <h3 className="text-sm font-medium text-gray-300 mb-4 flex items-center gap-2">
+          <ExternalLink className="w-4 h-4 text-[#C6E36C]" /> Accesos Directos a Landing Pages
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <a href="/for/makers" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 bg-[#131829] border border-[rgba(168,187,238,0.08)] rounded-xl hover:border-amber-500/30 hover:bg-[#131829]/80 transition-all group">
+            <div className="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
+              <Printer className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-white group-hover:text-amber-400 transition-colors">Makers</h4>
+              <p className="text-[11px] text-gray-500">/for/makers</p>
+            </div>
+          </a>
+          <a href="/for/ai-creators" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 bg-[#131829] border border-[rgba(168,187,238,0.08)] rounded-xl hover:border-blue-500/30 hover:bg-[#131829]/80 transition-all group">
+            <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-white group-hover:text-blue-400 transition-colors">AI Creators</h4>
+              <p className="text-[11px] text-gray-500">/for/ai-creators</p>
+            </div>
+          </a>
+          <a href="/for/education" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 bg-[#131829] border border-[rgba(168,187,238,0.08)] rounded-xl hover:border-purple-500/30 hover:bg-[#131829]/80 transition-all group">
+            <div className="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+              <BookOpen className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-white group-hover:text-purple-400 transition-colors">Educación</h4>
+              <p className="text-[11px] text-gray-500">/for/education</p>
+            </div>
+          </a>
         </div>
       </div>
     </div>
