@@ -8,6 +8,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import type { RenderableMesh } from "./mesh-data";
 import type { CSG } from "./csg";
+import { displaceGeometry, type ModifierConfig } from "./geometry-modifiers";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -225,7 +226,8 @@ export function updateMesh(
   ctx: ThreeSceneContext,
   csg: AnyMesh,
   mode: RenderMode = "smooth",
-  autoCenter: boolean = true
+  autoCenter: boolean = true,
+  modifier?: ModifierConfig | null,
 ) {
   // Clear existing mesh
   while (ctx.meshGroup.children.length > 0) {
@@ -279,13 +281,18 @@ export function updateMesh(
     }
   }
 
-  const geometry = new THREE.BufferGeometry();
+  let geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
 
   if (mode === "smooth") {
     // Recompute smooth normals by averaging
     geometry.computeVertexNormals();
+  }
+
+  // ─── Apply geometry modifier (Worley displacement / lattice) ────────
+  if (modifier?.enabled) {
+    geometry = displaceGeometry(geometry, modifier);
   }
 
   // ─── Material based on render mode ──────────────────────────────────
@@ -352,8 +359,8 @@ export function updateMesh(
 
 // ─── Render Mode ──────────────────────────────────────────────────────────────
 
-export function setRenderMode(ctx: ThreeSceneContext, csg: AnyMesh, mode: RenderMode) {
-  updateMesh(ctx, csg, mode, false);
+export function setRenderMode(ctx: ThreeSceneContext, csg: AnyMesh, mode: RenderMode, modifier?: ModifierConfig | null) {
+  updateMesh(ctx, csg, mode, false, modifier);
 }
 
 // ─── Visibility Toggles ──────────────────────────────────────────────────────

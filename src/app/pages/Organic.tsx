@@ -14,6 +14,8 @@ import { useAuth } from "../services/auth-context";
 import { useI18n } from "../services/i18n-context";
 import { AuthDialog } from "../components/AuthDialog";
 import { ScadViewport } from "../components/ScadViewport";
+import { ModifierPanel } from "../components/ModifierPanel";
+import { DEFAULT_MODIFIER, type ModifierConfig } from "../engine/geometry-modifiers";
 import { consumeProtectedToolAction } from "../services/protected-tool-actions";
 import { trackAnalyticsEvent } from "../services/analytics";
 import { toast } from "sonner";
@@ -307,6 +309,7 @@ export function Organic() {
   const [showCode, setShowCode] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [previewTab, setPreviewTab] = useState<"2d" | "3d">("3d");
+  const [modifier, setModifier] = useState<ModifierConfig>({ ...DEFAULT_MODIFIER });
 
   const currentMeta = PARAM_META[activeMode];
   const currentValues = params[activeMode] as Record<string, number>;
@@ -518,6 +521,7 @@ export function Organic() {
                   source={generatedSCAD}
                   values={{}}
                   autoCompile={true}
+                  modifier={modifier}
                 />
               </div>
             )}
@@ -612,6 +616,13 @@ export function Organic() {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Surface Modifier (Worley / Lattice) */}
+          <Card className="bg-[rgba(26,31,54,0.6)] border-[rgba(168,187,238,0.12)] mt-4 lg:mt-0">
+            <CardContent className="p-5">
+              <ModifierPanel config={modifier} onChange={setModifier} />
             </CardContent>
           </Card>
         </div>
