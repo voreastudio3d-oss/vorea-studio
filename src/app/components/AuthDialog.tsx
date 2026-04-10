@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +32,8 @@ export function AuthDialog({
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [googleFallback, setGoogleFallback] = useState(false);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
 
   // Login fields
   const [loginEmail, setLoginEmail] = useState("");
@@ -67,6 +69,7 @@ export function AuthDialog({
     setResetPin("");
     setResetNewPassword("");
     setShowPassword(false);
+    setGoogleFallback(false);
   };
 
   const handleLogin = () => {
@@ -217,11 +220,15 @@ export function AuthDialog({
         });
         (window as any).google.accounts.id.prompt((notification: any) => {
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            // Fallback: render button if One Tap is blocked
-            (window as any).google.accounts.id.renderButton(
-              document.getElementById("google-btn-container"),
-              { theme: "outline", size: "large", text: "continue_with", width: 300 }
-            );
+            // Fallback: render Google button into a separate container
+            // that React doesn't manage children for.
+            if (googleBtnRef.current) {
+              (window as any).google.accounts.id.renderButton(
+                googleBtnRef.current,
+                { theme: "outline", size: "large", text: "continue_with", width: 300 }
+              );
+              setGoogleFallback(true);
+            }
             setSocialLoading(null);
           }
         });
@@ -593,8 +600,14 @@ export function AuthDialog({
             <div className="flex-1 h-px bg-[rgba(168,187,238,0.1)]" />
           </div>
           <div className="flex gap-3">
+            {/* Google-rendered fallback button (outside React's DOM management) */}
+            <div
+              ref={googleBtnRef}
+              className={`flex-1 flex items-center justify-center ${googleFallback ? "" : "hidden"}`}
+            />
+            {/* React-managed Google button (hidden once GSI renders its own) */}
+            {!googleFallback && (
             <button
-              id="google-btn-container"
               onClick={() => handleSocialLogin("google")}
               disabled={!!socialLoading}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0d1117] border border-[rgba(168,187,238,0.12)] hover:border-[rgba(168,187,238,0.25)] text-sm text-gray-300 hover:text-white transition-all disabled:opacity-50"
@@ -611,6 +624,7 @@ export function AuthDialog({
               )}
               Google
             </button>
+            )}
             {false && (
               <button
                 onClick={() => handleSocialLogin("instagram")}
