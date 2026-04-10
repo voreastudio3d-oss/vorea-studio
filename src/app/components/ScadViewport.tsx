@@ -30,7 +30,6 @@ import {
   type ThreeSceneContext,
   type RenderMode,
 } from "../engine/threejs-renderer";
-import type { ModifierConfig } from "../engine/geometry-modifiers";
 import { CompilationLogService, copyToClipboard } from "../services/compilation-log";
 import { Badge } from "./ui/badge";
 import {
@@ -60,8 +59,6 @@ interface ScadViewportProps {
   autoCompile?: boolean;
   /** Callback with serialized mesh (for GCode generation) */
   onMeshReady?: (mesh: SerializedMesh | null) => void;
-  /** Optional geometry modifier (Worley displacement / lattice) */
-  modifier?: ModifierConfig | null;
 }
 
 export interface ScadViewportHandle {
@@ -102,7 +99,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   values,
   autoCompile = false,
   onMeshReady,
-  modifier,
 }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<ThreeSceneContext | null>(null);
@@ -190,22 +186,15 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   useEffect(() => {
     const ctx = sceneRef.current;
     if (!ctx || !meshRef.current) return;
-    updateMesh(ctx, meshRef.current as any, renderMode, false, modifier);
+    updateMesh(ctx, meshRef.current as any, renderMode);
   }, [renderMode]);
-
-  // Re-apply modifier when config changes (no recompile needed)
-  useEffect(() => {
-    const ctx = sceneRef.current;
-    if (!ctx || !meshRef.current) return;
-    updateMesh(ctx, meshRef.current as any, renderMode, false, modifier);
-  }, [modifier]);
 
   // ─── Render helper (update Three.js scene with mesh) ──────────────
   const renderMeshToScene = useCallback((mesh: RenderableMesh, autoCenter: boolean = false) => {
     const ctx = sceneRef.current;
     if (!ctx) return;
-    updateMesh(ctx, mesh as any, renderMode, autoCenter, modifier);
-  }, [renderMode, modifier]);
+    updateMesh(ctx, mesh as any, renderMode, autoCenter);
+  }, [renderMode]);
 
   // ─── Compile via Worker (off main thread) ─────────────────────────
   const compileWithWorker = useCallback((worker: Worker): Promise<void> => {

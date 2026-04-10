@@ -49,8 +49,6 @@ import { telemetry, type EngineSnapshot, type MeshHealthSnapshot } from "../serv
 import { AuthDialog } from "../components/AuthDialog";
 import { CommunityGalleryEditor } from "../components/CommunityGalleryEditor";
 import { CollapsibleSection } from "../components/CollapsibleSection";
-import { ModifierPanel } from "../components/ModifierPanel";
-import { displaceGeometry, DEFAULT_MODIFIER, type ModifierConfig } from "../engine/geometry-modifiers";
 import { toast } from "sonner";
 import * as THREE from "three";
 import {
@@ -432,7 +430,6 @@ export function Relief() {
   const [previewPalette, setPreviewPalette] = useState<Array<[number, number, number]>>([]);
   const [paramsDirty, setParamsDirty] = useState(false);
   const [lightIntensity, setLightIntensity] = useState(1.2);
-  const [modifier, setModifier] = useState<ModifierConfig>({ ...DEFAULT_MODIFIER });
 
   // —— Collapsible sidebar sections
   const [openSections, setOpenSections] = useState<Set<number>>(new Set([1]));  // Only "Image" open initially
@@ -487,7 +484,6 @@ export function Relief() {
   const [stlAutoGenPending, setStlAutoGenPending] = useState(false);
   const generateRef = useRef<(() => void) | null>(null);
   const currentMeshRef = useRef<THREE.Mesh | null>(null);
-  const originalGeoRef = useRef<THREE.BufferGeometry | null>(null);
   const routeInitRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -1276,11 +1272,7 @@ export function Relief() {
           });
         }
 
-        // Store original geometry and apply modifier
-        originalGeoRef.current = geo;
-        const finalGeo = modifier.enabled ? displaceGeometry(geo, modifier) : geo;
-
-        const mesh = new THREE.Mesh(finalGeo, material);
+        const mesh = new THREE.Mesh(geo, material);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
 
@@ -1407,15 +1399,11 @@ export function Relief() {
           });
         }
 
-        // Store original geometry and apply modifier
-        originalGeoRef.current = res.geometry;
-        const finalGeo = modifier.enabled ? displaceGeometry(res.geometry, modifier) : res.geometry;
-
-        const mesh = new THREE.Mesh(finalGeo, material);
+        const mesh = new THREE.Mesh(res.geometry, material);
         mesh.castShadow = true; mesh.receiveShadow = true;
         // Keep model resting on grid plane.
-        finalGeo.computeBoundingBox();
-        const bbox = finalGeo.boundingBox;
+        res.geometry.computeBoundingBox();
+        const bbox = res.geometry.boundingBox;
         if (bbox) {
           mesh.position.y += -bbox.min.y;
         }
@@ -1521,25 +1509,10 @@ export function Relief() {
     // Lampshade
     lampshadeRadiusBottom, lampshadeRadiusTop, lampshadeHoleRadius,
     lampshadeHeight, lampshadeCap, lampshadeSides,
-    modifier,
   ]);
 
   // Keep generateRef in sync for auto-generate useEffect
   generateRef.current = generate;
-
-  // ─── Re-apply modifier when config changes ────────────────────────
-  useEffect(() => {
-    const ctx = sceneRef.current;
-    const mesh = currentMeshRef.current;
-    const origGeo = originalGeoRef.current;
-    if (!ctx || !mesh || !origGeo) return;
-
-    const newGeo = modifier.enabled ? displaceGeometry(origGeo, modifier) : origGeo;
-    mesh.geometry.dispose();
-    mesh.geometry = newGeo;
-    newGeo.computeBoundingBox();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modifier]);
 
   // ─── Export STL ───────────────────────────────────────────────────
   const exportSTL = useCallback(async () => {
@@ -1559,8 +1532,7 @@ export function Relief() {
     if (meshHealth && meshHealth.score === "not-printable") {
       toast(meshHealth.summary, { icon: "⚠️", duration: 5000 });
     }
-    const exportGeo = currentMeshRef.current?.geometry ?? result.geometry;
-    const blob = exportToSTL(exportGeo);
+    const blob = exportToSTL(result.geometry);
     downloadBlob(blob, "relieve-vorea.stl");
     trackAnalyticsEvent("export_stl", { tool: "relief", meshScore: meshHealth?.score });
     // -- Engine telemetry: capture STL export --
@@ -1599,9 +1571,8 @@ export function Relief() {
     if (!allowed) {
       return;
     }
-    const exportGeo3mf = currentMeshRef.current?.geometry ?? result.geometry;
     const blob = exportTo3MF({
-      geometry: exportGeo3mf,
+      geometry: result.geometry,
       colorZones: result.colorZones,
       zoneColors: result.palette,
       selectedColorIndices: result.colorZones > 1 ? selectedForExport : undefined,
@@ -2658,11 +2629,6 @@ export function Relief() {
             )}
 
             </CollapsibleSection>
-
-            {/* ─── Surface Modifier (Worley / Lattice) ─── */}
-            <div className="mt-3">
-              <ModifierPanel config={modifier} onChange={setModifier} />
-            </div>
           </div>
         </aside>
 

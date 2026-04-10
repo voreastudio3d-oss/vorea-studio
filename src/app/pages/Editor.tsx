@@ -8,8 +8,6 @@ import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { ScadCustomizer } from "../components/ScadCustomizer";
 import { ScadViewport, type ScadViewportHandle } from "../components/ScadViewport";
-import { ModifierPanel } from "../components/ModifierPanel";
-import { DEFAULT_MODIFIER, type ModifierConfig } from "../engine/geometry-modifiers";
 import { PublishDialog } from "../components/PublishDialog";
 import { GCodePanel } from "../components/GCodePanel";
 import { AuthDialog } from "../components/AuthDialog";
@@ -187,7 +185,6 @@ export function Editor() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const viewportRef = useRef<ScadViewportHandle>(null);
   const [authOpen, setAuthOpen] = useState(false);
-  const [modifier, setModifier] = useState<ModifierConfig>({ ...DEFAULT_MODIFIER });
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishMode, setPublishMode] = useState<CommunityPublishMode>("create");
   const [communityModelId, setCommunityModelId] = useState<string | null>(null);
@@ -843,7 +840,6 @@ export function Editor() {
             source={localSource}
             values={model.paramValues}
             onMeshReady={model.setCompiledMesh}
-            modifier={modifier}
           />
         </div>
 
@@ -911,11 +907,6 @@ export function Editor() {
                   </p>
                 </div>
               )}
-
-              {/* Surface Modifier */}
-              <div className="mt-4 border-t border-[rgba(168,187,238,0.08)] pt-3">
-                <ModifierPanel config={modifier} onChange={setModifier} />
-              </div>
             </div>
           )}
 
