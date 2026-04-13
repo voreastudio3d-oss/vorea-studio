@@ -57,6 +57,7 @@ import {
   sanitizeBillingProfile,
 } from "./profile-region-policy.js";
 import { applyToolCreditPrecharge } from "./tool-credit-state.js";
+import { Resend } from "resend";
 
 type Variables = {
   userId: string;
@@ -174,7 +175,6 @@ async function sendResendEmailBestEffort(input: {
   }
 
   try {
-    const { Resend } = require("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from: "Vorea Studio <noreply@voreastudio3d.com>",
@@ -2330,7 +2330,6 @@ app.post("/api/contact", async (c) => {
 
     if (process.env.RESEND_API_KEY) {
       try {
-        const { Resend } = require("resend");
         const resend = new Resend(process.env.RESEND_API_KEY);
         const safeSubject = subject || "Consulta general";
         await resend.emails.send({
