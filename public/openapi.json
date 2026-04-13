@@ -92,7 +92,7 @@
           "Activity"
         ],
         "summary": "Obtener /api/activity",
-        "description": "Endpoint real detectado en `server/app.ts:2051`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2073`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -133,7 +133,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2051"
+          "source": "server/app.ts:2073"
         },
         "security": [
           {
@@ -149,7 +149,7 @@
           "Admin"
         ],
         "summary": "Obtener /api/admin/activity/:userId",
-        "description": "Endpoint real detectado en `server/app.ts:2064`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2086`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "userId",
@@ -210,7 +210,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2064"
+          "source": "server/app.ts:2086"
         },
         "security": [
           {
@@ -226,7 +226,7 @@
           "Admin"
         ],
         "summary": "Obtener /api/admin/ai-budget",
-        "description": "Endpoint real detectado en `server/app.ts:3548`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:3570`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -278,7 +278,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:3548"
+          "source": "server/app.ts:3570"
         },
         "security": [
           {
@@ -292,7 +292,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/ai-budget",
-        "description": "Endpoint real detectado en `server/app.ts:3570`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3592`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -353,7 +353,222 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3570"
+          "source": "server/app.ts:3592"
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "note": "Consultar contrato detallado en matriz operativa."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/ai-lane-matrix": {
+      "delete": {
+        "operationId": "delete_api_admin_ai_lane_matrix",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Eliminar /api/admin/ai-lane-matrix",
+        "description": "Endpoint real detectado en `server/app.ts:3657`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticación requerida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos suficientes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          }
+        },
+        "x-vorea-meta": {
+          "authPolicy": "superadmin",
+          "role": "superadmin",
+          "status": "active",
+          "dependencies": [],
+          "source": "server/app.ts:3657"
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "get_api_admin_ai_lane_matrix",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Obtener /api/admin/ai-lane-matrix",
+        "description": "Endpoint real detectado en `server/app.ts:3631`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticación requerida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos suficientes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          }
+        },
+        "x-vorea-meta": {
+          "authPolicy": "superadmin",
+          "role": "superadmin",
+          "status": "active",
+          "dependencies": [],
+          "source": "server/app.ts:3631"
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "put_api_admin_ai_lane_matrix",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Actualizar /api/admin/ai-lane-matrix",
+        "description": "Endpoint real detectado en `server/app.ts:3641`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticación requerida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos suficientes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          }
+        },
+        "x-vorea-meta": {
+          "authPolicy": "superadmin",
+          "role": "superadmin",
+          "status": "active",
+          "dependencies": [],
+          "source": "server/app.ts:3641"
         },
         "security": [
           {
@@ -383,7 +598,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/alerts",
-        "description": "Endpoint real detectado en `server/app.ts:5144`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5434`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -434,7 +649,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:5144"
+          "source": "server/app.ts:5434"
         },
         "security": [
           {
@@ -448,7 +663,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/alerts",
-        "description": "Endpoint real detectado en `server/app.ts:5161`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5451`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -499,7 +714,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:5161"
+          "source": "server/app.ts:5451"
         },
         "security": [
           {
@@ -529,7 +744,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/analytics",
-        "description": "Endpoint real detectado en `server/app.ts:4746`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5006`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -580,7 +795,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4746"
+          "source": "server/app.ts:5006"
         },
         "security": [
           {
@@ -596,7 +811,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/analytics-insights",
-        "description": "Endpoint real detectado en `server/app.ts:2871`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2893`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -647,7 +862,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2871"
+          "source": "server/app.ts:2893"
         },
         "security": [
           {
@@ -663,7 +878,7 @@
           "Admin"
         ],
         "summary": "Obtener /api/admin/check",
-        "description": "Endpoint real detectado en `server/app.ts:2954`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:2976`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -712,7 +927,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:2954"
+          "source": "server/app.ts:2976"
         },
         "security": [
           {
@@ -728,7 +943,7 @@
           "Admin Community"
         ],
         "summary": "Crear/ejecutar /api/admin/community/cleanup",
-        "description": "Endpoint real detectado en `server/app.ts:7687`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:8002`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -777,7 +992,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7687"
+          "source": "server/app.ts:8002"
         },
         "security": [
           {
@@ -807,7 +1022,7 @@
           "Admin Community"
         ],
         "summary": "Listar /api/admin/community/models",
-        "description": "Endpoint real detectado en `server/app.ts:7597`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:7912`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -856,7 +1071,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7597"
+          "source": "server/app.ts:7912"
         },
         "security": [
           {
@@ -872,7 +1087,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/contributors/:userId",
-        "description": "Endpoint real detectado en `server/app.ts:6150`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:6440`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "userId",
@@ -953,7 +1168,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:6150"
+          "source": "server/app.ts:6440"
         },
         "security": [
           {
@@ -983,7 +1198,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/credit-packs",
-        "description": "Endpoint real detectado en `server/app.ts:3424`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3446`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1034,7 +1249,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3424"
+          "source": "server/app.ts:3446"
         },
         "security": [
           {
@@ -1048,7 +1263,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/credit-packs",
-        "description": "Endpoint real detectado en `server/app.ts:3435`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3457`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1109,7 +1324,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3435"
+          "source": "server/app.ts:3457"
         },
         "security": [
           {
@@ -1139,7 +1354,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/donations",
-        "description": "Endpoint real detectado en `server/app.ts:5997`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:6287`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1191,7 +1406,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:5997"
+          "source": "server/app.ts:6287"
         },
         "security": [
           {
@@ -1207,7 +1422,7 @@
           "Admin"
         ],
         "summary": "Crear/ejecutar /api/admin/email",
-        "description": "Endpoint real detectado en `server/app.ts:5173`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5463`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1268,7 +1483,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:5173"
+          "source": "server/app.ts:5463"
         },
         "security": [
           {
@@ -1298,7 +1513,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/emails",
-        "description": "Endpoint real detectado en `server/app.ts:5218`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5508`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1349,7 +1564,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:5218"
+          "source": "server/app.ts:5508"
         },
         "security": [
           {
@@ -1365,7 +1580,7 @@
           "Admin"
         ],
         "summary": "Crear/ejecutar /api/admin/expenses",
-        "description": "Endpoint real detectado en `server/app.ts:5126`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5416`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1426,7 +1641,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:5126"
+          "source": "server/app.ts:5416"
         },
         "security": [
           {
@@ -1456,7 +1671,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/image-limits",
-        "description": "Endpoint real detectado en `server/app.ts:4395`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4456`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1507,7 +1722,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4395"
+          "source": "server/app.ts:4456"
         },
         "security": [
           {
@@ -1521,7 +1736,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/image-limits",
-        "description": "Endpoint real detectado en `server/app.ts:4406`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4467`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1582,7 +1797,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4406"
+          "source": "server/app.ts:4467"
         },
         "security": [
           {
@@ -1612,7 +1827,7 @@
           "Admin"
         ],
         "summary": "Crear/ejecutar /api/admin/init",
-        "description": "Endpoint real detectado en `server/app.ts:2797`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2819`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1673,7 +1888,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2797"
+          "source": "server/app.ts:2819"
         },
         "security": [
           {
@@ -1703,7 +1918,7 @@
           "Admin"
         ],
         "summary": "Obtener /api/admin/kpi",
-        "description": "Endpoint real detectado en `server/app.ts:2076`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2098`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1754,7 +1969,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2076"
+          "source": "server/app.ts:2098"
         },
         "security": [
           {
@@ -1770,7 +1985,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/limits",
-        "description": "Endpoint real detectado en `server/app.ts:3462`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3484`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1821,7 +2036,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3462"
+          "source": "server/app.ts:3484"
         },
         "security": [
           {
@@ -1835,7 +2050,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/limits",
-        "description": "Endpoint real detectado en `server/app.ts:3482`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3504`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1886,7 +2101,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3482"
+          "source": "server/app.ts:3504"
         },
         "security": [
           {
@@ -1916,7 +2131,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/logs",
-        "description": "Endpoint real detectado en `server/app.ts:5232`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5522`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -1967,7 +2182,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:5232"
+          "source": "server/app.ts:5522"
         },
         "security": [
           {
@@ -1983,7 +2198,7 @@
           "Admin"
         ],
         "summary": "Crear/ejecutar /api/admin/news/ingest",
-        "description": "Endpoint real detectado en `server/app.ts:7999`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:8322`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2034,7 +2249,7 @@
           "dependencies": [
             "paypal"
           ],
-          "source": "server/app.ts:7999"
+          "source": "server/app.ts:8322"
         },
         "security": [
           {
@@ -2064,7 +2279,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/news/source-stats",
-        "description": "Endpoint real detectado en `server/app.ts:7990`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:8313`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2113,7 +2328,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7990"
+          "source": "server/app.ts:8313"
         },
         "security": [
           {
@@ -2129,7 +2344,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/news/sources",
-        "description": "Endpoint real detectado en `server/app.ts:7945`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:8268`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2178,7 +2393,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7945"
+          "source": "server/app.ts:8268"
         },
         "security": [
           {
@@ -2192,7 +2407,7 @@
           "Admin"
         ],
         "summary": "Crear/ejecutar /api/admin/news/sources",
-        "description": "Endpoint real detectado en `server/app.ts:7966`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:8289`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2261,7 +2476,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7966"
+          "source": "server/app.ts:8289"
         },
         "security": [
           {
@@ -2291,7 +2506,7 @@
           "Admin"
         ],
         "summary": "Eliminar /api/admin/news/sources/:id",
-        "description": "Endpoint real detectado en `server/app.ts:7979`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:8302`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [
           {
             "name": "id",
@@ -2360,7 +2575,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7979"
+          "source": "server/app.ts:8302"
         },
         "security": [
           {
@@ -2374,7 +2589,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/news/sources/:id",
-        "description": "Endpoint real detectado en `server/app.ts:7954`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:8277`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [
           {
             "name": "id",
@@ -2443,7 +2658,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7954"
+          "source": "server/app.ts:8277"
         },
         "security": [
           {
@@ -2473,7 +2688,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/plans",
-        "description": "Endpoint real detectado en `server/app.ts:3160`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3182`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2524,7 +2739,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3160"
+          "source": "server/app.ts:3182"
         },
         "security": [
           {
@@ -2538,7 +2753,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/plans",
-        "description": "Endpoint real detectado en `server/app.ts:3175`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3197`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2599,7 +2814,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3175"
+          "source": "server/app.ts:3197"
         },
         "security": [
           {
@@ -2629,7 +2844,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/promotions",
-        "description": "Endpoint real detectado en `server/app.ts:4788`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5048`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2680,7 +2895,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4788"
+          "source": "server/app.ts:5048"
         },
         "security": [
           {
@@ -2694,7 +2909,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/promotions",
-        "description": "Endpoint real detectado en `server/app.ts:4799`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5059`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2755,7 +2970,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4799"
+          "source": "server/app.ts:5059"
         },
         "security": [
           {
@@ -2785,7 +3000,7 @@
           "Admin"
         ],
         "summary": "Eliminar /api/admin/promotions/:id",
-        "description": "Endpoint real detectado en `server/app.ts:4833`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5093`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -2856,7 +3071,74 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4833"
+          "source": "server/app.ts:5093"
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/admin/reports/regional-stats": {
+      "get": {
+        "operationId": "get_api_admin_reports_regional_stats",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Listar /api/admin/reports/regional-stats",
+        "description": "Endpoint real detectado en `server/app.ts:5171`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: prisma.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticación requerida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos suficientes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          }
+        },
+        "x-vorea-meta": {
+          "authPolicy": "superadmin",
+          "role": "superadmin",
+          "status": "active",
+          "dependencies": [
+            "prisma"
+          ],
+          "source": "server/app.ts:5171"
         },
         "security": [
           {
@@ -2872,7 +3154,7 @@
           "Admin"
         ],
         "summary": "Obtener /api/admin/reports/revenue",
-        "description": "Endpoint real detectado en `server/app.ts:4911`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:5201`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2924,7 +3206,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:4911"
+          "source": "server/app.ts:5201"
         },
         "security": [
           {
@@ -2940,7 +3222,7 @@
           "Admin"
         ],
         "summary": "Obtener /api/admin/reports/usage",
-        "description": "Endpoint real detectado en `server/app.ts:4854`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:5114`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -2992,7 +3274,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:4854"
+          "source": "server/app.ts:5114"
         },
         "security": [
           {
@@ -3008,7 +3290,7 @@
           "Admin"
         ],
         "summary": "Crear/ejecutar /api/admin/reset-owner-password",
-        "description": "Endpoint real detectado en `server/app.ts:2705`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2727`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3069,7 +3351,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2705"
+          "source": "server/app.ts:2727"
         },
         "security": [
           {
@@ -3099,7 +3381,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/tool-credits",
-        "description": "Endpoint real detectado en `server/app.ts:3507`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3529`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3150,7 +3432,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3507"
+          "source": "server/app.ts:3529"
         },
         "security": [
           {
@@ -3164,7 +3446,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/tool-credits",
-        "description": "Endpoint real detectado en `server/app.ts:3518`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3540`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3225,7 +3507,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3518"
+          "source": "server/app.ts:3540"
         },
         "security": [
           {
@@ -3255,7 +3537,7 @@
           "Admin"
         ],
         "summary": "Crear/ejecutar /api/admin/tool-credits/legacy-migrate",
-        "description": "Endpoint real detectado en `server/app.ts:3146`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:3168`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3304,7 +3586,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:3146"
+          "source": "server/app.ts:3168"
         },
         "security": [
           {
@@ -3334,7 +3616,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/tool-credits/legacy-status",
-        "description": "Endpoint real detectado en `server/app.ts:3135`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:3157`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3383,7 +3665,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:3135"
+          "source": "server/app.ts:3157"
         },
         "security": [
           {
@@ -3399,7 +3681,7 @@
           "Admin"
         ],
         "summary": "Listar /api/admin/users",
-        "description": "Endpoint real detectado en `server/app.ts:2964`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2986`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3450,7 +3732,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2964"
+          "source": "server/app.ts:2986"
         },
         "security": [
           {
@@ -3466,7 +3748,7 @@
           "Admin"
         ],
         "summary": "Eliminar /api/admin/users/:id",
-        "description": "Endpoint real detectado en `server/app.ts:3036`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3058`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -3537,7 +3819,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3036"
+          "source": "server/app.ts:3058"
         },
         "security": [
           {
@@ -3551,7 +3833,7 @@
           "Admin"
         ],
         "summary": "Actualizar /api/admin/users/:id",
-        "description": "Endpoint real detectado en `server/app.ts:2994`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3016`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -3622,7 +3904,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2994"
+          "source": "server/app.ts:3016"
         },
         "security": [
           {
@@ -3652,7 +3934,7 @@
           "Admin"
         ],
         "summary": "Crear/ejecutar /api/admin/users/cleanup-duplicates",
-        "description": "Endpoint real detectado en `server/app.ts:3066`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3088`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3703,7 +3985,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3066"
+          "source": "server/app.ts:3088"
         },
         "security": [
           {
@@ -3733,7 +4015,7 @@
           "AI"
         ],
         "summary": "Listar /api/ai/budget-status",
-        "description": "Endpoint real detectado en `server/app.ts:4277`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4338`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3764,7 +4046,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4277"
+          "source": "server/app.ts:4338"
         }
       }
     },
@@ -3775,7 +4057,7 @@
           "AI"
         ],
         "summary": "Obtener /api/ai/history",
-        "description": "Endpoint real detectado en `server/app.ts:4134`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4195`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3816,7 +4098,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4134"
+          "source": "server/app.ts:4195"
         },
         "security": [
           {
@@ -3830,7 +4112,7 @@
           "AI"
         ],
         "summary": "Crear/ejecutar /api/ai/history",
-        "description": "Endpoint real detectado en `server/app.ts:4151`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4212`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -3881,7 +4163,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4151"
+          "source": "server/app.ts:4212"
         },
         "security": [
           {
@@ -3911,7 +4193,7 @@
           "AI"
         ],
         "summary": "Eliminar /api/ai/history/:id",
-        "description": "Endpoint real detectado en `server/app.ts:4210`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4271`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -3982,7 +4264,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4210"
+          "source": "server/app.ts:4271"
         },
         "security": [
           {
@@ -3998,7 +4280,7 @@
           "AI"
         ],
         "summary": "Crear/ejecutar /api/ai/quick-fix",
-        "description": "Endpoint real detectado en `server/app.ts:4306`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:4367`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4037,7 +4319,7 @@
           "role": "public_or_authenticated",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:4306"
+          "source": "server/app.ts:4367"
         },
         "requestBody": {
           "required": true,
@@ -4062,7 +4344,7 @@
           "AI"
         ],
         "summary": "Listar /api/ai/recipes",
-        "description": "Endpoint real detectado en `server/app.ts:4043`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4104`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4103,7 +4385,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4043"
+          "source": "server/app.ts:4104"
         },
         "security": [
           {
@@ -4117,7 +4399,7 @@
           "AI"
         ],
         "summary": "Crear/ejecutar /api/ai/recipes",
-        "description": "Endpoint real detectado en `server/app.ts:4058`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4119`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4168,7 +4450,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4058"
+          "source": "server/app.ts:4119"
         },
         "security": [
           {
@@ -4198,7 +4480,7 @@
           "AI"
         ],
         "summary": "Eliminar /api/ai/recipes/:id",
-        "description": "Endpoint real detectado en `server/app.ts:4111`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4172`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -4269,7 +4551,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4111"
+          "source": "server/app.ts:4172"
         },
         "security": [
           {
@@ -4285,7 +4567,7 @@
           "AI"
         ],
         "summary": "Crear/ejecutar /api/ai/track-spend",
-        "description": "Endpoint real detectado en `server/app.ts:4345`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4406`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4346,7 +4628,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4345"
+          "source": "server/app.ts:4406"
         },
         "security": [
           {
@@ -4376,7 +4658,7 @@
           "Auth"
         ],
         "summary": "Crear/ejecutar /api/auth/google",
-        "description": "Endpoint real detectado en `server/app.ts:1847`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: external_http, kv.\n\nAdvertencia: existe definición duplicada para este método/path en código.",
+        "description": "Endpoint real detectado en `server/app.ts:1861`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: external_http, kv.\n\nAdvertencia: existe definición duplicada para este método/path en código.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4438,7 +4720,7 @@
             "external_http",
             "kv"
           ],
-          "source": "server/app.ts:1847"
+          "source": "server/app.ts:1861"
         },
         "requestBody": {
           "required": true,
@@ -4463,7 +4745,7 @@
           "Auth"
         ],
         "summary": "Obtener /api/auth/google/config",
-        "description": "Endpoint real detectado en `server/app.ts:1838`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.\n\nAdvertencia: existe definición duplicada para este método/path en código.",
+        "description": "Endpoint real detectado en `server/app.ts:1852`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.\n\nAdvertencia: existe definición duplicada para este método/path en código.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4492,7 +4774,7 @@
           "role": "public",
           "status": "duplicated_definition",
           "dependencies": [],
-          "source": "server/app.ts:1838"
+          "source": "server/app.ts:1852"
         }
       }
     },
@@ -4503,7 +4785,7 @@
           "Auth"
         ],
         "summary": "Obtener /api/auth/me",
-        "description": "Endpoint real detectado en `server/app.ts:1500`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:1511`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4554,7 +4836,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1500"
+          "source": "server/app.ts:1511"
         }
       },
       "put": {
@@ -4563,7 +4845,7 @@
           "Auth"
         ],
         "summary": "Actualizar /api/auth/me",
-        "description": "Endpoint real detectado en `server/app.ts:1781`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:1795`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4624,7 +4906,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1781"
+          "source": "server/app.ts:1795"
         },
         "requestBody": {
           "required": true,
@@ -4649,7 +4931,7 @@
           "Auth"
         ],
         "summary": "Actualizar /api/auth/me/password",
-        "description": "Endpoint real detectado en `server/app.ts:1534`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:1545`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4718,7 +5000,7 @@
           "role": "public_or_authenticated",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:1534"
+          "source": "server/app.ts:1545"
         },
         "requestBody": {
           "required": true,
@@ -4743,7 +5025,7 @@
           "Auth"
         ],
         "summary": "Crear/ejecutar /api/auth/refresh",
-        "description": "Endpoint real detectado en `server/app.ts:1482`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:1493`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4802,7 +5084,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:1482"
+          "source": "server/app.ts:1493"
         },
         "requestBody": {
           "required": true,
@@ -4827,7 +5109,7 @@
           "Auth"
         ],
         "summary": "Crear/ejecutar /api/auth/request-email-verification",
-        "description": "Endpoint real detectado en `server/app.ts:1331`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:1342`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4888,7 +5170,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1331"
+          "source": "server/app.ts:1342"
         },
         "requestBody": {
           "required": true,
@@ -4913,7 +5195,7 @@
           "Auth"
         ],
         "summary": "Crear/ejecutar /api/auth/request-reset",
-        "description": "Endpoint real detectado en `server/app.ts:1181`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:1192`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -4954,7 +5236,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1181"
+          "source": "server/app.ts:1192"
         },
         "requestBody": {
           "required": true,
@@ -4979,7 +5261,7 @@
           "Auth"
         ],
         "summary": "Crear/ejecutar /api/auth/reset-password",
-        "description": "Endpoint real detectado en `server/app.ts:1262`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:1273`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -5020,7 +5302,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1262"
+          "source": "server/app.ts:1273"
         },
         "requestBody": {
           "required": true,
@@ -5045,7 +5327,7 @@
           "Auth"
         ],
         "summary": "Crear/ejecutar /api/auth/signin",
-        "description": "Endpoint real detectado en `server/app.ts:1125`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:1132`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -5106,7 +5388,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1125"
+          "source": "server/app.ts:1132"
         },
         "requestBody": {
           "required": true,
@@ -5132,7 +5414,7 @@
           "Auth"
         ],
         "summary": "Crear/ejecutar /api/auth/signout",
-        "description": "Endpoint real detectado en `server/app.ts:5598`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:5888`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -5164,7 +5446,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:5598"
+          "source": "server/app.ts:5888"
         },
         "requestBody": {
           "required": true,
@@ -5189,7 +5471,7 @@
           "Auth"
         ],
         "summary": "Crear/ejecutar /api/auth/signup",
-        "description": "Endpoint real detectado en `server/app.ts:1054`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:1057`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -5230,7 +5512,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1054"
+          "source": "server/app.ts:1057"
         },
         "requestBody": {
           "required": true,
@@ -5257,7 +5539,7 @@
           "Auth"
         ],
         "summary": "Listar /api/auth/social-providers",
-        "description": "Endpoint real detectado en `server/app.ts:2690`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:2712`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -5286,7 +5568,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:2690"
+          "source": "server/app.ts:2712"
         }
       }
     },
@@ -5297,7 +5579,7 @@
           "Auth"
         ],
         "summary": "Crear/ejecutar /api/auth/verify-email",
-        "description": "Endpoint real detectado en `server/app.ts:1411`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:1422`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -5358,7 +5640,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1411"
+          "source": "server/app.ts:1422"
         },
         "requestBody": {
           "required": true,
@@ -5383,7 +5665,7 @@
           "Community"
         ],
         "summary": "Listar /api/community/models",
-        "description": "Endpoint real detectado en `server/app.ts:6878`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:7168`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -5412,7 +5694,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:6878"
+          "source": "server/app.ts:7168"
         }
       },
       "post": {
@@ -5421,7 +5703,7 @@
           "Community"
         ],
         "summary": "Crear/ejecutar /api/community/models",
-        "description": "Endpoint real detectado en `server/app.ts:7033`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:7323`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -5502,7 +5784,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7033"
+          "source": "server/app.ts:7323"
         },
         "security": [
           {
@@ -5539,7 +5821,7 @@
           "Community"
         ],
         "summary": "Eliminar /api/community/models/:id",
-        "description": "Endpoint real detectado en `server/app.ts:7290`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:7592`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [
           {
             "name": "id",
@@ -5608,7 +5890,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7290"
+          "source": "server/app.ts:7592"
         },
         "security": [
           {
@@ -5622,7 +5904,7 @@
           "Community"
         ],
         "summary": "Obtener /api/community/models/:id",
-        "description": "Endpoint real detectado en `server/app.ts:6977`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:7267`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [
           {
             "name": "id",
@@ -5671,7 +5953,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:6977"
+          "source": "server/app.ts:7267"
         }
       },
       "put": {
@@ -5680,7 +5962,7 @@
           "Community"
         ],
         "summary": "Actualizar /api/community/models/:id",
-        "description": "Endpoint real detectado en `server/app.ts:7194`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:7491`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -5761,7 +6043,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7194"
+          "source": "server/app.ts:7491"
         },
         "security": [
           {
@@ -5792,7 +6074,7 @@
           "Community"
         ],
         "summary": "Listar /api/community/models/:id/comments",
-        "description": "Endpoint real detectado en `server/app.ts:7733`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:8048`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -5843,7 +6125,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7733"
+          "source": "server/app.ts:8048"
         }
       },
       "post": {
@@ -5852,7 +6134,7 @@
           "Community"
         ],
         "summary": "Crear/ejecutar /api/community/models/:id/comments",
-        "description": "Endpoint real detectado en `server/app.ts:7750`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:8065`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -5933,7 +6215,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7750"
+          "source": "server/app.ts:8065"
         },
         "security": [
           {
@@ -5963,7 +6245,7 @@
           "Community"
         ],
         "summary": "Eliminar /api/community/models/:id/comments/:commentId",
-        "description": "Endpoint real detectado en `server/app.ts:7800`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:8123`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -6043,7 +6325,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7800"
+          "source": "server/app.ts:8123"
         },
         "security": [
           {
@@ -6059,7 +6341,7 @@
           "Community"
         ],
         "summary": "Crear/ejecutar /api/community/models/:id/download",
-        "description": "Endpoint real detectado en `server/app.ts:7386`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:7696`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -6130,7 +6412,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7386"
+          "source": "server/app.ts:7696"
         },
         "security": [
           {
@@ -6160,7 +6442,7 @@
           "Community"
         ],
         "summary": "Crear/ejecutar /api/community/models/:id/feature",
-        "description": "Endpoint real detectado en `server/app.ts:7560`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:7875`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [
           {
             "name": "id",
@@ -6239,7 +6521,7 @@
           "role": "superadmin",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7560"
+          "source": "server/app.ts:7875"
         },
         "security": [
           {
@@ -6269,7 +6551,7 @@
           "Community"
         ],
         "summary": "Listar /api/community/models/:id/forks",
-        "description": "Endpoint real detectado en `server/app.ts:7436`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:7751`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [
           {
             "name": "id",
@@ -6318,7 +6600,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7436"
+          "source": "server/app.ts:7751"
         }
       }
     },
@@ -6329,7 +6611,7 @@
           "Community"
         ],
         "summary": "Crear/ejecutar /api/community/models/:id/like",
-        "description": "Endpoint real detectado en `server/app.ts:7329`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:7635`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -6400,7 +6682,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7329"
+          "source": "server/app.ts:7635"
         },
         "security": [
           {
@@ -6430,7 +6712,7 @@
           "Community"
         ],
         "summary": "Listar /api/community/tags",
-        "description": "Endpoint real detectado en `server/app.ts:7462`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:7777`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -6459,7 +6741,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:7462"
+          "source": "server/app.ts:7777"
         }
       }
     },
@@ -6470,7 +6752,7 @@
           "Community"
         ],
         "summary": "Obtener /api/community/users/:id",
-        "description": "Endpoint real detectado en `server/app.ts:7490`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:7805`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -6521,7 +6803,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7490"
+          "source": "server/app.ts:7805"
         }
       }
     },
@@ -6532,7 +6814,7 @@
           "Misc"
         ],
         "summary": "Listar /api/config/business",
-        "description": "Endpoint real detectado en `server/app.ts:3380`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:3402`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -6563,7 +6845,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:3380"
+          "source": "server/app.ts:3402"
         }
       }
     },
@@ -6574,7 +6856,7 @@
           "Misc"
         ],
         "summary": "Crear/ejecutar /api/contact",
-        "description": "Endpoint real detectado en `server/app.ts:2286`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2308`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -6615,7 +6897,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2286"
+          "source": "server/app.ts:2308"
         },
         "requestBody": {
           "required": true,
@@ -6640,7 +6922,7 @@
           "Content"
         ],
         "summary": "Obtener /api/content/hero-banner",
-        "description": "Endpoint real detectado en `server/app.ts:7901`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:8224`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -6671,7 +6953,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7901"
+          "source": "server/app.ts:8224"
         }
       },
       "put": {
@@ -6680,7 +6962,7 @@
           "Content"
         ],
         "summary": "Actualizar /api/content/hero-banner",
-        "description": "Endpoint real detectado en `server/app.ts:7911`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:8234`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -6741,7 +7023,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7911"
+          "source": "server/app.ts:8234"
         },
         "security": [
           {
@@ -6771,7 +7053,7 @@
           "Misc"
         ],
         "summary": "Listar /api/contributors",
-        "description": "Endpoint real detectado en `server/app.ts:6187`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:6477`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -6802,7 +7084,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:6187"
+          "source": "server/app.ts:6477"
         }
       }
     },
@@ -6813,7 +7095,7 @@
           "Credits"
         ],
         "summary": "Listar /api/credits",
-        "description": "Endpoint real detectado en `server/app.ts:2158`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2180`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -6854,7 +7136,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2158"
+          "source": "server/app.ts:2180"
         }
       }
     },
@@ -6865,7 +7147,7 @@
           "Credits"
         ],
         "summary": "Crear/ejecutar /api/credits/consume",
-        "description": "Endpoint real detectado en `server/app.ts:2196`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:2218`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -6917,7 +7199,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:2196"
+          "source": "server/app.ts:2218"
         },
         "requestBody": {
           "required": true,
@@ -6942,7 +7224,7 @@
           "Credits"
         ],
         "summary": "Crear/ejecutar /api/credits/purchase",
-        "description": "Endpoint real detectado en `server/app.ts:2244`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:2266`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7004,7 +7286,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:2244"
+          "source": "server/app.ts:2266"
         },
         "security": [
           {
@@ -7034,7 +7316,7 @@
           "Misc"
         ],
         "summary": "Crear/ejecutar /api/donations/capture-order",
-        "description": "Endpoint real detectado en `server/app.ts:6356`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:6646`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7116,7 +7398,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:6356"
+          "source": "server/app.ts:6646"
         },
         "security": [
           {
@@ -7146,7 +7428,7 @@
           "Misc"
         ],
         "summary": "Crear/ejecutar /api/donations/create-order",
-        "description": "Endpoint real detectado en `server/app.ts:6275`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:6565`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7198,7 +7480,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:6275"
+          "source": "server/app.ts:6565"
         },
         "security": [
           {
@@ -7228,7 +7510,7 @@
           "Misc"
         ],
         "summary": "Obtener /api/donations/me",
-        "description": "Endpoint real detectado en `server/app.ts:6219`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:6509`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7269,7 +7551,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:6219"
+          "source": "server/app.ts:6509"
         },
         "security": [
           {
@@ -7283,7 +7565,7 @@
           "Misc"
         ],
         "summary": "Actualizar /api/donations/me",
-        "description": "Endpoint real detectado en `server/app.ts:6238`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:6528`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7345,7 +7627,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:6238"
+          "source": "server/app.ts:6528"
         },
         "security": [
           {
@@ -7375,7 +7657,7 @@
           "Feedback"
         ],
         "summary": "Obtener /api/feedback",
-        "description": "Endpoint real detectado en `server/app.ts:2397`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2419`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7426,7 +7708,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2397"
+          "source": "server/app.ts:2419"
         },
         "security": [
           {
@@ -7440,7 +7722,7 @@
           "Feedback"
         ],
         "summary": "Crear/ejecutar /api/feedback",
-        "description": "Endpoint real detectado en `server/app.ts:2359`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2381`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7481,7 +7763,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2359"
+          "source": "server/app.ts:2381"
         },
         "requestBody": {
           "required": true,
@@ -7506,7 +7788,7 @@
           "Feedback"
         ],
         "summary": "Actualizar /api/feedback/:id/status",
-        "description": "Endpoint real detectado en `server/app.ts:2621`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:2643`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [
           {
             "name": "id",
@@ -7588,7 +7870,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:2621"
+          "source": "server/app.ts:2643"
         },
         "security": [
           {
@@ -7618,7 +7900,7 @@
           "Feedback"
         ],
         "summary": "Crear/ejecutar /api/feedback/ai-review",
-        "description": "Endpoint real detectado en `server/app.ts:2417`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: external_http, kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2439`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: external_http, kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7670,7 +7952,7 @@
             "external_http",
             "kv"
           ],
-          "source": "server/app.ts:2417"
+          "source": "server/app.ts:2439"
         },
         "security": [
           {
@@ -7700,7 +7982,7 @@
           "Feedback"
         ],
         "summary": "Listar /api/feedback/ai-stats",
-        "description": "Endpoint real detectado en `server/app.ts:2567`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2589`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7751,7 +8033,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2567"
+          "source": "server/app.ts:2589"
         },
         "security": [
           {
@@ -7767,7 +8049,7 @@
           "GCode"
         ],
         "summary": "Obtener /api/gcode",
-        "description": "Endpoint real detectado en `server/app.ts:1970`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:1992`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7798,7 +8080,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1970"
+          "source": "server/app.ts:1992"
         }
       },
       "post": {
@@ -7807,7 +8089,7 @@
           "GCode"
         ],
         "summary": "Crear/ejecutar /api/gcode",
-        "description": "Endpoint real detectado en `server/app.ts:1987`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2009`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7858,7 +8140,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:1987"
+          "source": "server/app.ts:2009"
         },
         "requestBody": {
           "required": true,
@@ -7883,7 +8165,7 @@
           "GCode"
         ],
         "summary": "Eliminar /api/gcode/:id",
-        "description": "Endpoint real detectado en `server/app.ts:2032`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2054`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -7924,7 +8206,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2032"
+          "source": "server/app.ts:2054"
         }
       }
     },
@@ -7935,7 +8217,7 @@
           "Health"
         ],
         "summary": "Obtener /api/health",
-        "description": "Endpoint real detectado en `server/app.ts:952`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:955`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -7964,7 +8246,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:952"
+          "source": "server/app.ts:955"
         }
       }
     },
@@ -7975,7 +8257,7 @@
           "Misc"
         ],
         "summary": "Crear/ejecutar /api/internal/mcp/tool/:tool",
-        "description": "Endpoint real detectado en `server/app.ts:1014`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:1017`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [
           {
             "name": "tool",
@@ -8034,7 +8316,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:1014"
+          "source": "server/app.ts:1017"
         },
         "requestBody": {
           "required": true,
@@ -8287,7 +8569,7 @@
           "PayPal Orders"
         ],
         "summary": "Crear/ejecutar /api/paypal/capture-order",
-        "description": "Endpoint real detectado en `server/app.ts:5843`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:6133`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -8369,7 +8651,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:5843"
+          "source": "server/app.ts:6133"
         },
         "security": [
           {
@@ -8400,7 +8682,7 @@
           "PayPal Orders"
         ],
         "summary": "Obtener /api/paypal/client-id",
-        "description": "Endpoint real detectado en `server/app.ts:2681`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: paypal.\n\nAdvertencia: existe definición duplicada para este método/path en código.",
+        "description": "Endpoint real detectado en `server/app.ts:2703`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: paypal.\n\nAdvertencia: existe definición duplicada para este método/path en código.",
         "parameters": [],
         "responses": {
           "200": {
@@ -8431,7 +8713,7 @@
           "dependencies": [
             "paypal"
           ],
-          "source": "server/app.ts:2681"
+          "source": "server/app.ts:2703"
         }
       }
     },
@@ -8442,7 +8724,7 @@
           "PayPal Orders"
         ],
         "summary": "Crear/ejecutar /api/paypal/create-order",
-        "description": "Endpoint real detectado en `server/app.ts:5752`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
+        "description": "Endpoint real detectado en `server/app.ts:6042`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv, paypal.",
         "parameters": [],
         "responses": {
           "200": {
@@ -8504,7 +8786,7 @@
             "kv",
             "paypal"
           ],
-          "source": "server/app.ts:5752"
+          "source": "server/app.ts:6042"
         },
         "security": [
           {
@@ -8535,7 +8817,7 @@
           "Promotions"
         ],
         "summary": "Crear/ejecutar /api/promotions/redeem",
-        "description": "Endpoint real detectado en `server/app.ts:4471`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4532`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -8596,7 +8878,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4471"
+          "source": "server/app.ts:4532"
         },
         "security": [
           {
@@ -8626,7 +8908,7 @@
           "Promotions"
         ],
         "summary": "Crear/ejecutar /api/promotions/validate",
-        "description": "Endpoint real detectado en `server/app.ts:4425`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4486`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -8667,7 +8949,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4425"
+          "source": "server/app.ts:4486"
         },
         "requestBody": {
           "required": true,
@@ -8692,7 +8974,7 @@
           "Rewards"
         ],
         "summary": "Obtener /api/rewards/:userId",
-        "description": "Endpoint real detectado en `server/app.ts:4613`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4674`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "userId",
@@ -8733,7 +9015,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4613"
+          "source": "server/app.ts:4674"
         }
       }
     },
@@ -8744,7 +9026,7 @@
           "Rewards"
         ],
         "summary": "Obtener /api/rewards/leaderboard",
-        "description": "Endpoint real detectado en `server/app.ts:7862`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:8185`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -8775,7 +9057,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:7862"
+          "source": "server/app.ts:8185"
         }
       }
     },
@@ -8786,7 +9068,7 @@
           "Rewards"
         ],
         "summary": "Obtener /api/rewards/me",
-        "description": "Endpoint real detectado en `server/app.ts:4587`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.\n\nAdvertencia: existe definición duplicada para este método/path en código.",
+        "description": "Endpoint real detectado en `server/app.ts:4648`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.\n\nAdvertencia: existe definición duplicada para este método/path en código.",
         "parameters": [],
         "responses": {
           "200": {
@@ -8827,7 +9109,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4587"
+          "source": "server/app.ts:4648"
         },
         "security": [
           {
@@ -8843,7 +9125,7 @@
           "Rewards"
         ],
         "summary": "Crear/ejecutar /api/rewards/trigger",
-        "description": "Endpoint real detectado en `server/app.ts:4634`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4695`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -8894,7 +9176,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4634"
+          "source": "server/app.ts:4695"
         },
         "security": [
           {
@@ -9222,7 +9504,141 @@
           "Telemetry"
         ],
         "summary": "Crear/ejecutar /api/telemetry/batch",
-        "description": "Endpoint real detectado en `server/app.ts:4699`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:4825`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv, prisma.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          }
+        },
+        "x-vorea-meta": {
+          "authPolicy": "optional-auth",
+          "role": "public_or_authenticated",
+          "status": "active",
+          "dependencies": [
+            "kv",
+            "prisma"
+          ],
+          "source": "server/app.ts:4825"
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "note": "Consultar contrato detallado en matriz operativa."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/telemetry/insights": {
+      "get": {
+        "operationId": "get_api_telemetry_insights",
+        "tags": [
+          "Telemetry"
+        ],
+        "summary": "Listar /api/telemetry/insights",
+        "description": "Endpoint real detectado en `server/app.ts:4918`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: prisma.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticación requerida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos suficientes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          }
+        },
+        "x-vorea-meta": {
+          "authPolicy": "superadmin",
+          "role": "superadmin",
+          "status": "active",
+          "dependencies": [
+            "prisma"
+          ],
+          "source": "server/app.ts:4918"
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/telemetry/snapshot": {
+      "post": {
+        "operationId": "post_api_telemetry_snapshot",
+        "tags": [
+          "Telemetry"
+        ],
+        "summary": "Crear/ejecutar /api/telemetry/snapshot",
+        "description": "Endpoint real detectado en `server/app.ts:4765`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -9263,7 +9679,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:4699"
+          "source": "server/app.ts:4765"
         },
         "requestBody": {
           "required": true,
@@ -9281,6 +9697,68 @@
         }
       }
     },
+    "/api/telemetry/snapshot/{id}": {
+      "get": {
+        "operationId": "get_api_telemetry_snapshot_id",
+        "tags": [
+          "Telemetry"
+        ],
+        "summary": "Obtener /api/telemetry/snapshot/:id",
+        "description": "Endpoint real detectado en `server/app.ts:4806`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parámetro de ruta: id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          }
+        },
+        "x-vorea-meta": {
+          "authPolicy": "public",
+          "role": "public",
+          "status": "active",
+          "dependencies": [
+            "kv"
+          ],
+          "source": "server/app.ts:4806"
+        }
+      }
+    },
     "/api/tool-actions/consume": {
       "post": {
         "operationId": "post_api_tool_actions_consume",
@@ -9288,7 +9766,7 @@
           "Tool Actions"
         ],
         "summary": "Crear/ejecutar /api/tool-actions/consume",
-        "description": "Endpoint real detectado en `server/app.ts:6994`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:7284`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -9349,7 +9827,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:6994"
+          "source": "server/app.ts:7284"
         },
         "security": [
           {
@@ -9379,7 +9857,7 @@
           "Misc"
         ],
         "summary": "Obtener /api/tool-credits/me",
-        "description": "Endpoint real detectado en `server/app.ts:2178`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:2200`.\n\nPolítica de acceso: **optional-auth**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -9420,7 +9898,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:2178"
+          "source": "server/app.ts:2200"
         }
       }
     },
@@ -9431,7 +9909,7 @@
           "Uploads"
         ],
         "summary": "Crear/ejecutar /api/uploads/community-image",
-        "description": "Endpoint real detectado en `server/app.ts:6668`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:6958`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -9482,7 +9960,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:6668"
+          "source": "server/app.ts:6958"
         },
         "security": [
           {
@@ -9512,7 +9990,7 @@
           "Uploads"
         ],
         "summary": "Obtener /api/uploads/community-image/:id",
-        "description": "Endpoint real detectado en `server/app.ts:6725`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:7015`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -9563,7 +10041,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:6725"
+          "source": "server/app.ts:7015"
         }
       }
     },
@@ -9574,7 +10052,7 @@
           "Uploads"
         ],
         "summary": "Crear/ejecutar /api/uploads/thumbnail",
-        "description": "Endpoint real detectado en `server/app.ts:6615`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:6905`.\n\nPolítica de acceso: **authenticated**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -9635,7 +10113,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:6615"
+          "source": "server/app.ts:6905"
         },
         "security": [
           {
@@ -9665,7 +10143,7 @@
           "Uploads"
         ],
         "summary": "Obtener /api/uploads/thumbnail/:id",
-        "description": "Endpoint real detectado en `server/app.ts:6716`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:7006`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "id",
@@ -9716,7 +10194,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:6716"
+          "source": "server/app.ts:7006"
         }
       }
     },
@@ -9727,7 +10205,7 @@
           "Vault"
         ],
         "summary": "Listar /api/vault/keys",
-        "description": "Endpoint real detectado en `server/app.ts:5253`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5543`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [],
         "responses": {
           "200": {
@@ -9778,7 +10256,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:5253"
+          "source": "server/app.ts:5543"
         },
         "security": [
           {
@@ -9794,7 +10272,7 @@
           "Vault"
         ],
         "summary": "Eliminar /api/vault/keys/:provider",
-        "description": "Endpoint real detectado en `server/app.ts:5343`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5633`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "provider",
@@ -9855,7 +10333,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:5343"
+          "source": "server/app.ts:5633"
         },
         "security": [
           {
@@ -9869,7 +10347,7 @@
           "Vault"
         ],
         "summary": "Actualizar /api/vault/keys/:provider",
-        "description": "Endpoint real detectado en `server/app.ts:5285`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5575`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: kv.",
         "parameters": [
           {
             "name": "provider",
@@ -9940,7 +10418,7 @@
           "dependencies": [
             "kv"
           ],
-          "source": "server/app.ts:5285"
+          "source": "server/app.ts:5575"
         },
         "security": [
           {
@@ -9970,7 +10448,7 @@
           "Vault"
         ],
         "summary": "Crear/ejecutar /api/vault/keys/:provider/test",
-        "description": "Endpoint real detectado en `server/app.ts:5369`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: external_http, kv.",
+        "description": "Endpoint real detectado en `server/app.ts:5659`.\n\nPolítica de acceso: **superadmin**.\n\nDependencias primarias: external_http, kv.",
         "parameters": [
           {
             "name": "provider",
@@ -10042,7 +10520,7 @@
             "external_http",
             "kv"
           ],
-          "source": "server/app.ts:5369"
+          "source": "server/app.ts:5659"
         },
         "security": [
           {
@@ -10072,7 +10550,7 @@
           "Misc"
         ],
         "summary": "Obtener /og/:slug",
-        "description": "Endpoint real detectado en `server/app.ts:995`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:998`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [
           {
             "name": "slug",
@@ -10111,7 +10589,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:995"
+          "source": "server/app.ts:998"
         }
       }
     },
@@ -10122,7 +10600,7 @@
           "Misc"
         ],
         "summary": "Obtener /og/default.svg",
-        "description": "Endpoint real detectado en `server/app.ts:987`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:990`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -10151,7 +10629,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:987"
+          "source": "server/app.ts:990"
         }
       }
     },
@@ -10162,7 +10640,7 @@
           "Misc"
         ],
         "summary": "Obtener /robots.txt",
-        "description": "Endpoint real detectado en `server/app.ts:957`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:960`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -10191,7 +10669,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:957"
+          "source": "server/app.ts:960"
         }
       }
     },
@@ -10202,7 +10680,7 @@
           "Misc"
         ],
         "summary": "Obtener /sitemap.xml",
-        "description": "Endpoint real detectado en `server/app.ts:966`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:969`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [],
         "responses": {
           "200": {
@@ -10231,7 +10709,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:966"
+          "source": "server/app.ts:969"
         }
       }
     },
@@ -10242,7 +10720,7 @@
           "Misc"
         ],
         "summary": "Obtener /sitemaps/:section.xml",
-        "description": "Endpoint real detectado en `server/app.ts:974`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
+        "description": "Endpoint real detectado en `server/app.ts:977`.\n\nPolítica de acceso: **public**.\n\nDependencias primarias: ninguna explícita.",
         "parameters": [
           {
             "name": "section",
@@ -10291,7 +10769,7 @@
           "role": "public",
           "status": "active",
           "dependencies": [],
-          "source": "server/app.ts:974"
+          "source": "server/app.ts:977"
         }
       }
     }
