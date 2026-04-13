@@ -59,7 +59,9 @@ jobs:
         run: pnpm test:coverage
 
       - name: Validate Prisma migrations (no schema drift)
-        run: npx prisma migrate diff --from-migrations ./prisma/migrations --to-schema ./prisma/schema.prisma --shadow-database-url "postgresql://vorea:vorea_dev@localhost:5432/vorea_shadow" --exit-code
+        run: npx prisma migrate diff --from-migrations ./prisma/migrations --to-schema ./prisma/schema.prisma --exit-code
+        env:
+          DATABASE_URL: postgresql://vorea:vorea_dev@localhost:5432/vorea_shadow
         continue-on-error: false
 
       - name: Build
