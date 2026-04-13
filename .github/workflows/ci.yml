@@ -12,6 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vorea
+          POSTGRES_PASSWORD: vorea_dev
+          POSTGRES_DB: vorea_shadow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,7 +59,7 @@ jobs:
         run: pnpm test:coverage
 
       - name: Validate Prisma migrations (no schema drift)
-        run: npx prisma migrate diff --from-migrations ./prisma/migrations --to-schema ./prisma/schema.prisma --exit-code
+        run: npx prisma migrate diff --from-migrations ./prisma/migrations --to-schema ./prisma/schema.prisma --shadow-database-url "postgresql://vorea:vorea_dev@localhost:5432/vorea_shadow" --exit-code
         continue-on-error: false
 
       - name: Build
