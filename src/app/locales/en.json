@@ -102,7 +102,7 @@
   "makers.benefit.freeTrial": "Free trial — no credit card required",
   "makers.pricing.title": "Simple & affordable",
   "makers.pricing.subtitle": "Start free, scale when you need to. No surprises.",
-  "makers.pricing.freeDesc": "Free access to the editor and STL export",
+  "makers.pricing.freeDesc": "Free access to the editor and a limit of 5 STL/GCode exports per month",
   "makers.pricing.freeCta": "Start Free",
   "makers.pricing.proDesc": "More formats, advanced tools and more monthly capacity",
   "makers.pricing.proCta": "Choose Pro",
@@ -190,7 +190,7 @@
   "aiCreators.benefits.publish": "Publish directly to MakerWorld or the community",
   "aiCreators.pricing.title": "Plans for creators",
   "aiCreators.pricing.subtitle": "Start free, scale when you want.",
-  "aiCreators.pricing.freeDesc": "Try AI Studio and basic export with a free account",
+  "aiCreators.pricing.freeDesc": "Try AI Studio (1 generation/mo) and basic export with a free account",
   "aiCreators.pricing.freeCta": "Start Free",
   "aiCreators.pricing.proDesc": "More monthly capacity and more formats to iterate better",
   "aiCreators.pricing.proCta": "Choose Pro",
@@ -1319,5 +1319,9 @@
   "leaderboard.points": "XP Points",
   "leaderboard.empty": "No users in the leaderboard yet.",
   "leaderboard.badge": "Top",
-  "studio.ai.prompt.injectionInfo": "✨ Describe additional details or engravings on top of your base dimensions."
+  "studio.ai.prompt.injectionInfo": "✨ Describe additional details or engravings on top of your base dimensions.",
+  "footer.solutions": "Soluciones",
+  "footer.link.makers": "Para Makers",
+  "footer.link.aiCreators": "Para AI Creators",
+  "footer.link.education": "Para Educación"
 }

@@ -128,7 +128,11 @@ export function Landing() {
               <Button
                 size="lg"
                 className="w-full sm:w-auto font-bold h-14 px-8 text-base shadow-[0_0_30px_rgba(198,227,108,0.3)] hover:shadow-[0_0_40px_rgba(198,227,108,0.4)] transition-shadow"
-                onClick={() => navigate(primaryRoute)}
+                onClick={() => {
+                  trackAnalyticsEvent("landing_cta_click", { intent: "general", target: "hero_primary" });
+                  trackAnalyticsEvent("conversion_intent", { origin: "main_landing", target: "hero_primary" });
+                  navigate(primaryRoute);
+                }}
               >
                 {enterEditor}
               </Button>
@@ -136,7 +140,10 @@ export function Landing() {
                 variant="secondary"
                 size="lg"
                 className="w-full sm:w-auto font-bold h-14 px-8 text-base border-border/20 hover:bg-border/5 text-white"
-                onClick={() => navigate(secondaryRoute)}
+                onClick={() => {
+                  trackAnalyticsEvent("landing_cta_click", { intent: "general", target: "hero_secondary" });
+                  navigate(secondaryRoute);
+                }}
               >
                 {exploreCommunity}
               </Button>

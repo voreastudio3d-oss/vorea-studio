@@ -1,0 +1,60 @@
+{
+  "vorea_version": "1.0",
+  "source": "fusion360",
+  "design_name": "Soporte_Ejemplo",
+  "export_date": "2026-04-10T17:00:00",
+  "scale_factor": 1.0,
+  "parameter_count": 5,
+  "parameters": [
+    {
+      "name": "largo_base",
+      "value": 120.000,
+      "original_value": 12.0,
+      "unit": "mm",
+      "original_unit": "cm",
+      "comment": "Largo de la base del soporte",
+      "expression": null,
+      "scale": 1.0
+    },
+    {
+      "name": "ancho_base",
+      "value": 80.000,
+      "original_value": 8.0,
+      "unit": "mm",
+      "original_unit": "cm",
+      "comment": "Ancho de la base",
+      "expression": null,
+      "scale": 1.0
+    },
+    {
+      "name": "alto_pared",
+      "value": 25.000,
+      "original_value": 2.5,
+      "unit": "mm",
+      "original_unit": "cm",
+      "comment": "Altura de las paredes",
+      "expression": "largo_base / 4.8",
+      "scale": 1.0
+    },
+    {
+      "name": "grosor_pared",
+      "value": 2.000,
+      "original_value": 0.2,
+      "unit": "mm",
+      "original_unit": "cm",
+      "comment": "Grosor de pared (2 perimeters @0.4mm nozzle)",
+      "expression": null,
+      "scale": 1.0
+    },
+    {
+      "name": "angulo_draft",
+      "value": 3.000,
+      "original_value": 3.0,
+      "unit": "deg",
+      "original_unit": "deg",
+      "comment": "Ángulo de desmoldeo / draft para paredes",
+      "expression": null,
+      "scale": 1.0
+    }
+  ]
+}

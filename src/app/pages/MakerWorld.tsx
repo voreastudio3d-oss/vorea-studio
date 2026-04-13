@@ -538,6 +538,7 @@ export function MakerWorld() {
                   )}
                   <Button className="w-full gap-2" disabled={!hasRun || failCount > 0}>
                     <Upload className="w-3.5 h-3.5" /> Publicar
+                    <span className="opacity-80 text-[10px] bg-black/20 px-1.5 py-0.5 rounded leading-none flex items-center">-3 Cr</span>
                   </Button>
                 </CardContent>
               </Card>

@@ -2,7 +2,7 @@
 
 Bienvenido al núcleo de conocimiento del proyecto. Obsidian usará este documento como el Sol (nodo central) de tu **Graph View** conectando a los planetas (reglas, flujos, memoria temporal).
 
-_Actualizado: 2026-04-05 — Auditoría de gobernanza + consolidación handoffs + matriz LLM_
+_Actualizado: 2026-04-10 — 12 agentes activos creados desde skills-database + auditoría de gobernanza_
 
 ## Plan Maestro y Handoffs
 
@@ -68,6 +68,33 @@ _Actualizado: 2026-04-05 — Auditoría de gobernanza + consolidación handoffs 
 - [[ux-ui-css-layout|skills_catalog/ux-ui-css-layout.md]]
 - [[web-ts-services-postgres-headless-mcp|skills_catalog/web-ts-services-postgres-headless-mcp.md]]
 - [[webgl-canvas-threejs|skills_catalog/webgl-canvas-threejs.md]]
+
+## Agentes Activos (.agent.md)
+
+> **Directorio:** `.github/agents/` — Agentes invocables nativos de Copilot, creados 2026-04-10 desde `.skills-database`
+
+### Tier 1 — Impacto directo en backlog
+- [[vorea-security-reviewer|agents/vorea-security-reviewer.agent.md]] **🔒 Security Reviewer** — Auth, pagos, OWASP, threat modeling
+- [[vorea-db-architect|agents/vorea-db-architect.agent.md]] **🗄️ DB Architect** — PostgreSQL, Prisma, migraciones, indexing
+- [[vorea-api-tester|agents/vorea-api-tester.agent.md]] **🔌 API Tester** — Tests funcionales, performance, carga
+- [[vorea-technical-writer|agents/vorea-technical-writer.agent.md]] **📚 Technical Writer** — OpenAPI, manuales, docs portal
+- [[vorea-seo-growth|agents/vorea-seo-growth.agent.md]] **🔍 SEO & Growth** — SEO técnico, funnels, analytics
+- [[vorea-product-owner|agents/vorea-product-owner.agent.md]] **🧭 Product Owner** — PRDs, RICE, roadmap, sprint goals
+- [[vorea-analytics|agents/vorea-analytics.agent.md]] **📊 Analytics & Finance** — KPIs, dashboards, AI spend
+
+### Tier 2 — Calidad y compliance
+- [[vorea-accessibility-auditor|agents/vorea-accessibility-auditor.agent.md]] **♿ Accessibility Auditor** — WCAG 2.2, screen reader, keyboard nav
+- [[vorea-ux-researcher|agents/vorea-ux-researcher.agent.md]] **🔬 UX Researcher** — Usability testing, personas, journey maps
+- [[vorea-workflow-architect|agents/vorea-workflow-architect.agent.md]] **🗺️ Workflow Architect** — State machines, failure modes, handoff contracts
+- [[vorea-sprint-prioritizer|agents/vorea-sprint-prioritizer.agent.md]] **🎯 Sprint Prioritizer** — RICE scoring, capacity planning, velocity
+- [[vorea-legal-compliance|agents/vorea-legal-compliance.agent.md]] **⚖️ Legal Compliance** — GDPR, CCPA, EU AI Act, multi-jurisdicción
+
+### CAD Interop
+- [[vorea-cad-converter|agents/vorea-cad-converter.agent.md]] **🔄 CAD Converter** — Fusion 360 → SCAD, parámetros, mapeo de familias
+
+## Skills Activos (.github/skills/)
+
+- [[fusion-scad-bridge|.github/skills/fusion-scad-bridge/SKILL.md]] **🔄 Fusion→SCAD Bridge** — Script F360, conversión de unidades, mapeo a familias Vorea
 
 ## Subagentes Específicos
 

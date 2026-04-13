@@ -29,6 +29,9 @@ export function MakerLanding() {
 
   const ctaClick = (target: string, route: string) => {
     trackAnalyticsEvent("landing_cta_click", { intent: "makers", target });
+    if (target.includes("pricing") || target.includes("plans") || target === "hero_primary" || target === "final_cta") {
+      trackAnalyticsEvent("conversion_intent", { origin: "maker_landing", target });
+    }
     navigate(route);
   };
 

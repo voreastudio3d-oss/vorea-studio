@@ -102,7 +102,7 @@
   "makers.benefit.freeTrial": "Trial gratuito sin tarjeta de crédito",
   "makers.pricing.title": "Simple y accesible",
   "makers.pricing.subtitle": "Empezá gratis, escalá cuando lo necesites. Sin sorpresas.",
-  "makers.pricing.freeDesc": "Acceso gratuito al editor y exportación STL",
+  "makers.pricing.freeDesc": "Acceso gratuito al editor y límite de 5 exportaciones STL/GCode mensuales",
   "makers.pricing.freeCta": "Empezar Gratis",
   "makers.pricing.proDesc": "Más formatos, herramientas avanzadas y mayor capacidad mensual",
   "makers.pricing.proCta": "Elegir Pro",
@@ -190,7 +190,7 @@
   "aiCreators.benefits.publish": "Publicá directo en MakerWorld o la comunidad",
   "aiCreators.pricing.title": "Planes para creadores",
   "aiCreators.pricing.subtitle": "Empezá gratis, escalá cuando quieras.",
-  "aiCreators.pricing.freeDesc": "Probá AI Studio y exportación básica con una cuenta gratuita",
+  "aiCreators.pricing.freeDesc": "Probá AI Studio (1 generacion/mes) y exportación básica con cuenta gratuita",
   "aiCreators.pricing.freeCta": "Empezar Gratis",
   "aiCreators.pricing.proDesc": "Más capacidad mensual y más formatos para iterar mejor",
   "aiCreators.pricing.proCta": "Elegir Pro",
@@ -1319,5 +1319,9 @@
   "leaderboard.points": "Puntos XP",
   "leaderboard.empty": "Aún no hay usuarios en el ranking.",
   "leaderboard.badge": "Top",
-  "studio.ai.prompt.injectionInfo": "✨ Describe los detalles o grabados adicionales encima de tus medidas base."
+  "studio.ai.prompt.injectionInfo": "✨ Describe los detalles o grabados adicionales encima de tus medidas base.",
+  "footer.solutions": "Soluciones",
+  "footer.link.makers": "Para Makers",
+  "footer.link.aiCreators": "Para AI Creators",
+  "footer.link.education": "Para Educación"
 }

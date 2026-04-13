@@ -563,6 +563,7 @@ export function Organic() {
               <Button onClick={handleSendToEditor} className="gap-2">
                 <ExternalLink className="w-4 h-4" />
                 {t("organic.compileInEditor", { defaultValue: "Compilar en el Editor" })}
+                <span className="opacity-80 text-[10px] bg-black/20 px-1.5 py-0.5 rounded leading-none flex items-center">-1 Cr</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
               <Button

@@ -33,8 +33,8 @@ async function getPrisma() {
   try {
     const pgMod = await import("pg");
     const { PrismaPg } = await import("@prisma/adapter-pg");
-    const mod = await import("@prisma/client");
-    const PrismaClient = mod.PrismaClient || (mod as any).default?.PrismaClient || (mod as any).default;
+    const mod: any = await import("@prisma/client");
+    const PrismaClient = mod.PrismaClient || mod.default?.PrismaClient || mod.default;
 
     const connectionString =
       (typeof process !== "undefined" && process.env?.DATABASE_URL) ||

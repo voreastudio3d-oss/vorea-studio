@@ -35,14 +35,22 @@ export function Footer() {
         { label: t("footer.link.userProfile"), route: "/profile" },
       ],
     },
+    {
+      title: t("footer.solutions", { defaultValue: "Soluciones" } as any),
+      links: [
+        { label: t("footer.link.makers", { defaultValue: "Para Makers" } as any), route: "/for/makers" },
+        { label: t("footer.link.aiCreators", { defaultValue: "Para IA" } as any), route: "/for/ai-creators" },
+        { label: t("footer.link.education", { defaultValue: "Para Educación" } as any), route: "/for/education" },
+      ],
+    },
   ];
 
   return (
     <footer className="border-t border-[rgba(168,187,238,0.12)] bg-[#0a0e17]">
       <div className="max-w-7xl mx-auto px-6 py-14">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <img
               src={logoSrc}
               alt="Vorea Studio"

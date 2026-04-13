@@ -61,3 +61,4 @@ test_dump_governance.txt
 test_results.json
 test_results.tap
 test_results.txt
+package-lock.json
