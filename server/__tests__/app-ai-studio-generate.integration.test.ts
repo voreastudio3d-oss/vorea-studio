@@ -337,6 +337,171 @@ describe("app ai-studio generate integration", () => {
     expect(aiStudioPipelineState.executeNormalizedGeneration).not.toHaveBeenCalled();
   });
 
+  it("returns 402 when user has insufficient credits", async () => {
+    kvState.store.set("user:user_free:profile", { id: "user_free", tier: "FREE", role: "user" });
+    kvState.store.set("user:user_free:tool_credits", {
+      balance: 2,
+      topupBalance: 0,
+      totalUsed: 30,
+      monthlyAllocation: 6,
+      monthlyIssuedAt: "2026-04-01T00:00:00.000Z",
+    });
+    kvState.store.set("admin:tool_credits", {
+      creditValueUsd: 0.05,
+      monthlyCredits: { FREE: 6, PRO: 200, "STUDIO PRO": 500 },
+      tools: {
+        ai_studio: {
+          label: "AI Studio",
+          actions: [
+            { actionId: "text_to_3d_simple", creditCost: 5 },
+          ],
+        },
+      },
+    });
+
+    const app = await loadApp();
+    const response = await postJson(
+      app,
+      "/api/ai-studio/generate",
+      {
+        prompt: "Caja organizadora simple",
+        engine: "fdm",
+        familySlug: "storage-box",
+        quality: "draft",
+      },
+      "token-free"
+    );
+
+    expect(response.status).toBe(402);
+    const json = await response.json();
+    expect(json).toMatchObject({
+      success: false,
+      code: "CREDITS_INSUFFICIENT",
+    });
+    // LLM was never called
+    expect(aiStudioPipelineState.executeNormalizedGeneration).not.toHaveBeenCalled();
+    // Credits must remain untouched
+    expect(kvState.store.get("user:user_free:tool_credits")).toMatchObject({
+      balance: 2,
+      topupBalance: 0,
+      totalUsed: 30,
+    });
+  });
+
+  it("returns 401 when no auth token is provided", async () => {
+    const app = await loadApp();
+    const response = await postJson(
+      app,
+      "/api/ai-studio/generate",
+      {
+        prompt: "Caja organizadora simple",
+        engine: "fdm",
+        familySlug: "storage-box",
+        quality: "draft",
+      }
+      // no token
+    );
+
+    expect(response.status).toBe(401);
+    const json = await response.json();
+    expect(json).toMatchObject({
+      success: false,
+      code: "AUTH_REQUIRED",
+    });
+    expect(aiStudioPipelineState.executeNormalizedGeneration).not.toHaveBeenCalled();
+  });
+
+  it("correctly consumes credits on successful generation", async () => {
+    const generationId = "gen-consume-credits-001";
+    const mockResult = {
+      scadCode: "cube([15,15,15]);",
+      modelName: "test-model",
+      description: "A 15mm cube",
+      parameters: [],
+      warnings: [],
+    };
+    aiStudioPipelineState.executeNormalizedGeneration.mockResolvedValue({
+      result: mockResult,
+      normalized: {
+        promptRaw: "Cubo mediano",
+        promptClean: "Cubo mediano",
+        promptCanonical: "cubo mediano",
+        promptNormalized: "Cubo mediano",
+        engine: "fdm",
+        quality: "draft",
+        requestedFamilySlug: "storage-box",
+        resolvedFamilySlug: "storage-box",
+        familyDisplayName: "Storage Box",
+        sourceRecipeId: null,
+        locale: null,
+        intent: "create_from_scratch",
+        parameterOverrides: {},
+        parameterSchema: [],
+        warnings: [],
+        riskFlags: [],
+        scadTemplate: undefined,
+        monetization: { tier: "FREE", creditCost: 5, channel: "draft" },
+      },
+      routing: {
+        mode: "automatic",
+        provider: "openai",
+        model: "gpt-4o-mini",
+        lane: "economy",
+        reason: "default",
+        attemptHistory: [],
+      },
+      traceId: "trace-consume-001",
+    });
+
+    kvState.store.set("user:user_free:profile", { id: "user_free", tier: "FREE", role: "user" });
+    kvState.store.set("user:user_free:tool_credits", {
+      balance: 20,
+      topupBalance: 8,
+      totalUsed: 5,
+      monthlyAllocation: 12,
+      monthlyIssuedAt: "2026-04-01T00:00:00.000Z",
+    });
+    kvState.store.set("admin:tool_credits", {
+      creditValueUsd: 0.05,
+      monthlyCredits: { FREE: 12, PRO: 200, "STUDIO PRO": 500 },
+      tools: {
+        ai_studio: {
+          label: "AI Studio",
+          actions: [
+            { actionId: "text_to_3d_simple", creditCost: 5 },
+          ],
+        },
+      },
+    });
+
+    const app = await loadApp();
+    const response = await postJson(
+      app,
+      "/api/ai-studio/generate",
+      {
+        generationId,
+        prompt: "Cubo mediano",
+        engine: "fdm",
+        familySlug: "storage-box",
+        quality: "draft",
+      },
+      "token-free"
+    );
+
+    expect(response.status).toBe(200);
+    const json = await response.json();
+    expect(json.success).toBe(true);
+    expect(json.usage).toMatchObject({
+      creditsConsumed: 5,
+      balanceRemaining: 15,
+    });
+
+    // Credits must have been deducted
+    const credits = kvState.store.get("user:user_free:tool_credits");
+    expect(credits.balance).toBe(15);
+    expect(credits.totalUsed).toBe(10);
+  });
+
   it("persists generation result in KV before responding 200 on success", async () => {
     const generationId = "gen-success-persist-001";
     const mockResult = {

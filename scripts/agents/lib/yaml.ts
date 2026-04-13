@@ -195,6 +195,34 @@ function parseObject(
     }
     const key = trimmed.slice(0, separator).trim();
     const remainder = trimmed.slice(separator + 1).trim();
+
+    // ── Block scalar indicators: `>` (folded) and `|` (literal) ──
+    if (remainder === ">" || remainder === "|") {
+      const folded = remainder === ">";
+      const scalarLines: string[] = [];
+      let cursor = index + 1;
+      while (cursor < lines.length) {
+        const scalarRaw = lines[cursor];
+        const scalarTrimmed = stripComment(scalarRaw).trim();
+        if (!scalarTrimmed) {
+          scalarLines.push("");
+          cursor += 1;
+          continue;
+        }
+        const scalarIndent = countIndent(scalarRaw);
+        if (scalarIndent <= indent) {
+          break;
+        }
+        scalarLines.push(scalarTrimmed);
+        cursor += 1;
+      }
+      values[key] = folded
+        ? scalarLines.join(" ").replace(/ {2,}/g, " ").trim()
+        : scalarLines.join("\n").trim();
+      index = cursor;
+      continue;
+    }
+
     if (remainder) {
       values[key] = parseScalar(remainder);
       index += 1;

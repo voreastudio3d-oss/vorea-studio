@@ -33,6 +33,11 @@ const subscriptionFinanceState = vi.hoisted(() => ({
   },
 }));
 
+// ─── BG-107: Resend module mock (hoisted so vi.mock works correctly) ───────────
+const resendState = vi.hoisted(() => ({
+  emailsSend: vi.fn().mockResolvedValue({ id: "resend-mock-id" }),
+}));
+
 function clone<T>(value: T): T {
   if (value === null || value === undefined) return value;
   return JSON.parse(JSON.stringify(value)) as T;
@@ -109,6 +114,14 @@ vi.mock("../subscription-finance.js", () => ({
   getSubscriptionFinanceSummary: async () => clone(subscriptionFinanceState.summary),
 }));
 
+vi.mock("resend", () => {
+  return {
+    Resend: class MockResend {
+      emails = { send: resendState.emailsSend };
+    },
+  };
+});
+
 function jsonResponse(status: number, payload: any): Response {
   return new Response(JSON.stringify(payload), {
     status,
@@ -161,10 +174,12 @@ describe("app monetization integration", () => {
     delete process.env.GA4_SERVICE_ACCOUNT_KEY;
     delete process.env.GA4_PROPERTY_ID;
     delete process.env.ADMIN_ANALYTICS_ALLOW_MOCK;
+    delete process.env.RESEND_API_KEY;
     process.env.ENABLE_LEGACY_CREDIT_PACKS = "true";
     process.env.PAYPAL_CLIENT_ID = "test-client-id";
     process.env.PAYPAL_CLIENT_SECRET = "test-client-secret";
     process.env.PAYPAL_MODE = "sandbox";
+    resendState.emailsSend.mockClear();
   });
 
   it("enforces generic tool-action consumption with aliases and limits", async () => {
@@ -1208,5 +1223,150 @@ describe("app monetization integration", () => {
     expect(againJson.alreadyProcessed).toBe(true);
     expect(againJson.creditsAdded).toBe(0);
     expect(againJson.totalCredits).toBe(36);
+  });
+
+  // ─── BG-107: Email transaccional Resend — confirmación de compra ──────────────
+
+  it("BG-107: sends purchase confirmation email via Resend after successful PayPal capture", async () => {
+    // RESEND_API_KEY must be set so sendResendEmailBestEffort() doesn't early-exit.
+    // The resend module is mocked at module level via resendState (vi.hoisted).
+    process.env.RESEND_API_KEY = "re_test_key_mock";
+
+    kvState.store.set("user:user_free:profile", {
+      id: "user_free",
+      tier: "FREE",
+      role: "user",
+      email: "buyer@test.local",
+    });
+    kvState.store.set("admin:tool_credits", {
+      creditValueUsd: 0.05,
+      monthlyCredits: { FREE: 6, PRO: 200, "STUDIO PRO": 500 },
+      tools: {},
+    });
+
+    kvState.store.set("paypal:order:ord_email_test", {
+      orderId: "ord_email_test",
+      userId: "user_free",
+      packId: "pack_50",
+      credits: 50,
+      expectedAmountUsd: 9.99,
+      expectedCurrency: "USD",
+      status: "CREATED",
+      createdAt: new Date().toISOString(),
+    });
+
+    const okFetch = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(200, { access_token: "paypal-token" }))
+      .mockResolvedValueOnce(
+        jsonResponse(200, {
+          status: "COMPLETED",
+          purchase_units: [
+            {
+              payments: {
+                captures: [
+                  {
+                    id: "CAP_EMAIL_OK",
+                    status: "COMPLETED",
+                    amount: { currency_code: "USD", value: "9.99" },
+                  },
+                ],
+              },
+            },
+          ],
+        })
+      );
+    vi.stubGlobal("fetch", okFetch);
+
+    const app = await loadApp();
+
+    // Act
+    const res = await postJson(
+      app,
+      "/api/paypal/capture-order",
+      { orderId: "ord_email_test", packId: "pack_50" },
+      "token-free"
+    );
+
+    // Assert — capture succeeds
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.creditsAdded).toBe(50);
+
+    // Assert — email was attempted (best-effort, fire-and-forget — flush microtasks)
+    await new Promise((r) => setTimeout(r, 50));
+    expect(resendState.emailsSend).toHaveBeenCalledOnce();
+
+    const emailCall = resendState.emailsSend.mock.calls[0][0];
+    expect(emailCall.to).toBe("buyer@test.local");
+    expect(emailCall.subject).toContain("Confirmación de compra");
+    expect(emailCall.html).toContain("50"); // credits added
+    expect(emailCall.html).toContain("9.99"); // amount
+    expect(emailCall.html).toContain("ord_email_test"); // order ID
+    // RESEND_API_KEY cleanup is handled by beforeEach
+  });
+
+  it("BG-107: skips purchase email gracefully when RESEND_API_KEY is not set", async () => {
+    delete process.env.RESEND_API_KEY;
+
+    kvState.store.set("user:user_free:profile", {
+      id: "user_free",
+      tier: "FREE",
+      role: "user",
+      email: "buyer@test.local",
+    });
+    kvState.store.set("admin:tool_credits", {
+      creditValueUsd: 0.05,
+      monthlyCredits: { FREE: 6, PRO: 200, "STUDIO PRO": 500 },
+      tools: {},
+    });
+    kvState.store.set("paypal:order:ord_no_email", {
+      orderId: "ord_no_email",
+      userId: "user_free",
+      packId: "pack_10",
+      credits: 10,
+      expectedAmountUsd: 2.99,
+      expectedCurrency: "USD",
+      status: "CREATED",
+      createdAt: new Date().toISOString(),
+    });
+
+    const okFetch = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(200, { access_token: "paypal-token" }))
+      .mockResolvedValueOnce(
+        jsonResponse(200, {
+          status: "COMPLETED",
+          purchase_units: [
+            {
+              payments: {
+                captures: [
+                  {
+                    id: "CAP_NO_EMAIL",
+                    status: "COMPLETED",
+                    amount: { currency_code: "USD", value: "2.99" },
+                  },
+                ],
+              },
+            },
+          ],
+        })
+      );
+    vi.stubGlobal("fetch", okFetch);
+
+    const app = await loadApp();
+    const res = await postJson(
+      app,
+      "/api/paypal/capture-order",
+      { orderId: "ord_no_email", packId: "pack_10" },
+      "token-free"
+    );
+
+    // Capture must still succeed even without Resend configured
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.creditsAdded).toBe(10);
   });
 });

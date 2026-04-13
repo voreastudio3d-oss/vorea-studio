@@ -56,6 +56,8 @@ import {
   resolveRegionCode,
   sanitizeBillingProfile,
 } from "./profile-region-policy.js";
+import { applyToolCreditPrecharge } from "./tool-credit-state.js";
+import { Resend } from "resend";
 
 type Variables = {
   userId: string;
@@ -173,7 +175,6 @@ async function sendResendEmailBestEffort(input: {
   }
 
   try {
-    const { Resend } = require("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from: "Vorea Studio <noreply@voreastudio3d.com>",
@@ -768,13 +769,8 @@ async function consumeToolActionUsage(
     throw new Error(`Créditos insuficientes. Necesitas ${gate.creditCost} y tienes ${credits.balance}.`);
   }
 
-  const monthlyBalanceBefore = getMonthlyToolBalance(credits);
-  const creditsFromMonthly = Math.min(gate.creditCost, monthlyBalanceBefore);
-  const creditsFromTopup = Math.max(0, gate.creditCost - creditsFromMonthly);
-
-  credits.balance -= gate.creditCost;
-  credits.topupBalance = Math.max(0, credits.topupBalance - creditsFromTopup);
-  credits.totalUsed += gate.creditCost;
+  const { nextState, snapshot } = applyToolCreditPrecharge(credits, gate.creditCost);
+  Object.assign(credits, nextState);
   await kv.set(getUserToolCreditsKey(userId), credits);
   await userActivityLog(userId, "tool_credit_consumed", {
     toolId: gate.resolvedToolId,
@@ -784,8 +780,8 @@ async function consumeToolActionUsage(
     monthlyAllocation: credits.monthlyAllocation,
     monthlyBalanceAfter: getMonthlyToolBalance(credits),
     topupBalanceAfter: credits.topupBalance,
-    creditsFromMonthly,
-    creditsFromTopup,
+    creditsFromMonthly: snapshot.creditsFromMonthly,
+    creditsFromTopup: snapshot.creditsFromTopup,
   });
   return credits;
 }
@@ -1224,40 +1220,29 @@ app.post("/api/auth/request-reset", async (c) => {
       requestedAt: new Date().toISOString(),
     });
     
-    // For local dev, log it. In production, securely email this PIN.
-    console.log(`[AUTH] Password reset PIN for ${email}: ${pin}`);
-
-    // Send email using Resend if configured
-    if (process.env.RESEND_API_KEY) {
-      try {
-        const { Resend } = require('resend');
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        
-        await resend.emails.send({
-          from: 'Vorea Studio <noreply@voreastudio3d.com>',
-          to: user.email,
-          subject: 'Código de recuperación de contraseña - Vorea Studio',
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px; background-color: #f9f9f9;">
-              <h2 style="color: #333; text-align: center;">Vorea Studio</h2>
-              <p style="color: #555; font-size: 16px;">Has solicitado restablecer tu contraseña. Usa el siguiente código de 6 dígitos para continuar con el proceso:</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2563eb; background: #e0e7ff; padding: 10px 20px; border-radius: 8px;">${pin}</span>
-              </div>
-              <p style="color: #555; font-size: 14px;">Si no solicitaste este cambio, simplemente ignora este correo. El código expirará pronto.</p>
-              <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
-              <p style="color: #999; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} Vorea Studio. Todos los derechos reservados.</p>
-            </div>
-          `
-        });
-        console.log(`[AUTH] Password reset email sent securely via Resend to ${email}.`);
-      } catch (emailError: any) {
-        console.error(`[AUTH] Failed to send reset email to ${email} via Resend:`, emailError.message);
-        // We do not fail the request to not expose if email exists or fails, it will fallback to console log in dev
-      }
-    } else {
-      console.warn("[AUTH] RESEND_API_KEY is not configured. Reset email was NOT sent.");
+    // For local dev only — never log credentials in production.
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[AUTH] Password reset PIN for ${email}: ${pin}`);
     }
+
+    // Send email using shared helper (best-effort)
+    await sendResendEmailBestEffort({
+      to: user.email,
+      subject: "Código de recuperación de contraseña - Vorea Studio",
+      logLabel: "password reset",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px; background-color: #f9f9f9;">
+          <h2 style="color: #333; text-align: center;">Vorea Studio</h2>
+          <p style="color: #555; font-size: 16px;">Has solicitado restablecer tu contraseña. Usa el siguiente código de 6 dígitos para continuar con el proceso:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2563eb; background: #e0e7ff; padding: 10px 20px; border-radius: 8px;">${pin}</span>
+          </div>
+          <p style="color: #555; font-size: 14px;">Si no solicitaste este cambio, simplemente ignora este correo. El código expirará pronto.</p>
+          <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+          <p style="color: #999; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} Vorea Studio. Todos los derechos reservados.</p>
+        </div>
+      `,
+    });
 
     return c.json({ 
       message: "Si el correo existe, se enviará un PIN de recuperación.",
@@ -1391,7 +1376,9 @@ app.post("/api/auth/request-email-verification", async (c) => {
       email: user.email,
     });
 
-    console.log(`[AUTH] Email verification code for ${user.email}: ${code}`);
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[AUTH] Email verification code for ${user.email}: ${code}`);
+    }
 
     await sendResendEmailBestEffort({
       to: user.email,
@@ -2343,7 +2330,6 @@ app.post("/api/contact", async (c) => {
 
     if (process.env.RESEND_API_KEY) {
       try {
-        const { Resend } = require("resend");
         const resend = new Resend(process.env.RESEND_API_KEY);
         const safeSubject = subject || "Consulta general";
         await resend.emails.send({
@@ -6267,6 +6253,30 @@ app.post("/api/paypal/capture-order", async (c) => {
       currency: paymentInfo.currency,
       captureId: paymentInfo.captureId,
     });
+
+    // Send purchase confirmation email (best-effort, fire-and-forget)
+    const buyerProfile = (await kv.get(`user:${userId}:profile`)) as any;
+    const buyerEmail = buyerProfile?.email;
+    if (buyerEmail) {
+      sendResendEmailBestEffort({
+        to: buyerEmail,
+        subject: "Confirmación de compra - Vorea Studio",
+        logLabel: "purchase confirmation",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px; background-color: #f9f9f9;">
+            <h2 style="color: #333; text-align: center;">Vorea Studio</h2>
+            <p style="color: #555; font-size: 16px;">¡Gracias por tu compra!</p>
+            <div style="background: #e0e7ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 5px 0; color: #333;"><strong>Créditos añadidos:</strong> ${creditsToAdd}</p>
+              <p style="margin: 5px 0; color: #333;"><strong>Saldo total:</strong> ${toolCreditState.balance}</p>
+              <p style="margin: 5px 0; color: #333;"><strong>Monto:</strong> $${paymentInfo.amount} ${paymentInfo.currency}</p>
+              <p style="margin: 5px 0; color: #333;"><strong>Orden:</strong> ${orderId}</p>
+            </div>
+            <p style="color: #555; font-size: 14px;">Tus créditos ya están disponibles en tu cuenta. ¡Comienza a crear!</p>
+          </div>
+        `,
+      }).catch(() => {}); // fire-and-forget
+    }
 
     return c.json({
       success: true,
