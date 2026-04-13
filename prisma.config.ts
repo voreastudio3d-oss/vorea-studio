@@ -18,5 +18,7 @@ export default defineConfig({
   datasource: {
     url: process.env.DATABASE_URL ||
       "postgresql://vorea:vorea_dev@localhost:5432/vorea_studio",
+    shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL ||
+      "postgresql://vorea:vorea_dev@localhost:5432/vorea_shadow",
   },
 });

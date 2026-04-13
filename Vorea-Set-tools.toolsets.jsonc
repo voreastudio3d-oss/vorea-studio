@@ -1,0 +1,169 @@
+{
+  // ═══════════════════════════════════════════════════════════════
+  //  VOREA STUDIO 3D — VS Code Toolsets
+  //  Productive tool groupings for testing, CI, quality & DevOps
+  // ═══════════════════════════════════════════════════════════════
+
+  // ── Testing & Coverage ──────────────────────────────────────────
+  "test:unit": {
+    "label": "Run Unit Tests",
+    "command": "pnpm test",
+    "group": "testing"
+  },
+  "test:coverage": {
+    "label": "Run Tests with Coverage Report",
+    "command": "pnpm test:coverage",
+    "group": "testing"
+  },
+  "test:watch": {
+    "label": "Watch Mode Tests",
+    "command": "pnpm test:watch",
+    "group": "testing"
+  },
+  "test:file": {
+    "label": "Test Current File",
+    "command": "pnpm vitest run ${relativeFile}",
+    "group": "testing"
+  },
+  "test:server": {
+    "label": "Run Server Tests Only",
+    "command": "pnpm vitest run server/",
+    "group": "testing"
+  },
+  "test:frontend": {
+    "label": "Run Frontend Tests Only",
+    "command": "pnpm vitest run src/",
+    "group": "testing"
+  },
+
+  // ── Code Quality ────────────────────────────────────────────────
+  "lint": {
+    "label": "ESLint Check",
+    "command": "pnpm lint",
+    "group": "quality"
+  },
+  "typecheck": {
+    "label": "TypeScript Type Check",
+    "command": "pnpm typecheck",
+    "group": "quality"
+  },
+  "typecheck:repo": {
+    "label": "TypeScript Repo-Wide Check",
+    "command": "pnpm typecheck:repo",
+    "group": "quality"
+  },
+
+  // ── CI Pipeline (local simulation) ─────────────────────────────
+  "ci:full": {
+    "label": "Full CI Pipeline (local)",
+    "command": "pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build",
+    "group": "ci"
+  },
+  "ci:quick": {
+    "label": "Quick CI (lint + typecheck)",
+    "command": "pnpm lint && pnpm typecheck",
+    "group": "ci"
+  },
+  "ci:governance": {
+    "label": "Agent Governance Check",
+    "command": "pnpm agent:governance:check",
+    "group": "ci"
+  },
+
+  // ── Database & Prisma ───────────────────────────────────────────
+  "db:generate": {
+    "label": "Prisma Generate Client",
+    "command": "npx prisma generate",
+    "group": "database"
+  },
+  "db:migrate": {
+    "label": "Prisma Migrate Dev",
+    "command": "npx prisma migrate dev",
+    "group": "database"
+  },
+  "db:migrate:diff": {
+    "label": "Prisma Migrate Diff (CI parity)",
+    "command": "npx prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma --exit-code",
+    "group": "database"
+  },
+  "db:studio": {
+    "label": "Prisma Studio",
+    "command": "npx prisma studio",
+    "group": "database"
+  },
+  "db:seed": {
+    "label": "Seed Database",
+    "command": "npx tsx prisma/seed.ts",
+    "group": "database"
+  },
+
+  // ── Development Servers ─────────────────────────────────────────
+  "dev:frontend": {
+    "label": "Start Vite Dev Server",
+    "command": "pnpm dev",
+    "group": "dev"
+  },
+  "dev:api": {
+    "label": "Start API Server",
+    "command": "pnpm dev:api",
+    "group": "dev"
+  },
+  "dev:all": {
+    "label": "Start All Dev Servers",
+    "command": "pnpm dev:all",
+    "group": "dev"
+  },
+  "dev:kill": {
+    "label": "Kill All Dev Servers",
+    "command": "pnpm dev:kill",
+    "group": "dev"
+  },
+
+  // ── Documentation ──────────────────────────────────────────────
+  "docs:api:generate": {
+    "label": "Generate API Docs",
+    "command": "pnpm docs:api:generate",
+    "group": "docs"
+  },
+  "docs:api:check": {
+    "label": "Check API Docs Parity",
+    "command": "pnpm docs:api:check",
+    "group": "docs"
+  },
+
+  // ── Build & Deploy ─────────────────────────────────────────────
+  "build": {
+    "label": "Production Build",
+    "command": "pnpm build",
+    "group": "build"
+  },
+  "build:docker": {
+    "label": "Docker Build",
+    "command": "docker compose build",
+    "group": "build"
+  },
+
+  // ── Agent System ───────────────────────────────────────────────
+  "agent:sync": {
+    "label": "Sync Agents",
+    "command": "pnpm agent:sync",
+    "group": "agents"
+  },
+  "agent:preflight": {
+    "label": "Agent Preflight Check",
+    "command": "pnpm agent:preflight",
+    "group": "agents"
+  },
+
+  // ── Utilities ──────────────────────────────────────────────────
+  "qa:relief:assets": {
+    "label": "Generate Relief QA Assets",
+    "command": "pnpm qa:relief:assets",
+    "group": "utils"
+  },
+  "i18n:check": {
+    "label": "i18n Sync Check",
+    "command": "node scripts/i18n-sync-check.mjs",
+    "group": "utils"
+  }
+}
