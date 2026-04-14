@@ -15,7 +15,7 @@
  *   npx tsx scripts/smoke-ai-studio-railway.ts
  *
  * Variables de entorno requeridas:
- *   SMOKE_BASE_URL   — URL base de Railway, ej: https://voreastudio3d.up.railway.app
+ *   SMOKE_BASE_URL   — URL base de producción, ej: https://voreastudio3d.com
  *   SMOKE_AUTH_TOKEN — JWT válido de un usuario de prueba con créditos suficientes
  *
  * Opcionales:
@@ -33,7 +33,7 @@ const ADMIN_TOKEN = process.env.SMOKE_ADMIN_TOKEN || "";
 const TIMEOUT_MS = Number(process.env.SMOKE_TIMEOUT_MS || "20000");
 
 if (!BASE_URL) {
-  console.error("❌ Falta SMOKE_BASE_URL. Ejemplo: https://voreastudio3d.up.railway.app");
+  console.error("❌ Falta SMOKE_BASE_URL. Ejemplo: https://voreastudio3d.com");
   process.exit(1);
 }
 if (!AUTH_TOKEN) {
