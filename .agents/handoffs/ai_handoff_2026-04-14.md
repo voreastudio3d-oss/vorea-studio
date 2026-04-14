@@ -79,6 +79,47 @@ Checklist operativa lista para ejecutar:
   - correr `npm run test:coverage` cuando el cambio toque lógica crítica, transversal o sensible;
   - agregar/ajustar tests unitarios o justificar explícitamente por qué no correspondía hacerlo.
 
+---
+
+## Actualización — Sprint QA + Dashboard (sesión 2)
+
+### Qué se hizo
+
+#### 1. Relief cap winding fix (BG-110 ✅)
+- Corregido `preferredNormal` en caps/seals de `box.ts`, `polygon.ts` y `lampshade.ts` (cylinder ya corregido en sesión previa).
+- Mesh inspector verifica 4 surface modes: watertight, manifold, 0 boundary edges, 0 non-manifold edges.
+- Smoke assets generados correctamente.
+
+#### 2. Webhook handler tests (Monetización)
+- Creado `server/__tests__/paypal-webhook-handler.test.ts` con 17 tests: event routing, sale amount extraction (v1/v2), idempotency keys, tier demotion mapping.
+
+#### 3. FODA + KPI Dashboard (BG-117.3 ✅, BG-117.4 ✅)
+- `docs/research/foda-analysis-2026.md` — FODA formal con 6 ítems por cuadrante + roadmap 6 meses.
+- `src/app/pages/FODAAnalysisTab.tsx` — Cuadrantes color-coded, badges impacto, roadmap timeline.
+- `src/app/pages/FinancialDashboardTab.tsx` — 4 KPI cards, BarChart (revenue/mes stacked), PieChart (breakdown), LineChart (AI costs), tabla resumen. Usa recharts directamente.
+- Ambos tabs integrados en `SuperAdmin.tsx` (tipo, imports, TABS, NAV_GROUPS, render).
+
+#### 4. Gobernanza agéntica
+- Tests de gobernanza corregidos (regex parser YAML + current_block.yaml schema).
+- BG-301 verificado como ya implementado (5 proveedores LLM reales).
+
+### Hallazgos
+- Los 4 surface modes de Relief ahora producen meshes manifold consistentes.
+- recharts 2.15.2 funciona bien directo sin el wrapper shadcn `chart.tsx`.
+- PayPal webhook handler no tenía ningún test unitario — gap cerrado con 17 tests.
+
+### Verificaciones
+- `npx vitest run` → 1417 passed, 0 failures
+- `npx tsc --noEmit` → 0 errors
+- `npx tsx scripts/agents/sync.ts` → 48 entries, 0 warnings
+- `npx tsx scripts/agents/governance-check.ts` → passed
+
+### Siguiente paso
+1. Deploy a Railway y validar dashboard financiero con datos reales.
+2. Ejecutar certificación de monetización en entorno objetivo.
+3. Continuar con BG-109 (Relief: tolerancia por color, previsualización de partes).
+4. Evaluar BG-116 pendientes (retargeting, lead magnets, dashboard semanal).
+
 
 ## Actualización - Gemini (Antigravity) 
 - Sprint de Revenue Certificado. (Dashboard y consumos funcionando end-to-end current_block.yaml actualizado a DONE). 

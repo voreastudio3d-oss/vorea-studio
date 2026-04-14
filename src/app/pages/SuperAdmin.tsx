@@ -23,8 +23,10 @@ import { CommunityTab } from "./CommunityTab";
 import { FeedbackAdmin } from "./FeedbackAdmin";
 import { AiStudioAdminTab } from "./AiStudioAdminTab";
 import { RegionalStatsTab } from "./RegionalStatsTab";
+import { FODAAnalysisTab } from "./FODAAnalysisTab";
+import { FinancialDashboardTab } from "./FinancialDashboardTab";
 
-type Tab = "dashboard" | "users" | "plans" | "credits" | "activity" | "usage" | "finance" | "donations" | "alerts" | "emails" | "logs" | "content" | "community" | "news" | "analytics" | "feedback" | "aistudiocms" | "regional";
+type Tab = "dashboard" | "users" | "plans" | "credits" | "activity" | "usage" | "finance" | "donations" | "alerts" | "emails" | "logs" | "content" | "community" | "news" | "analytics" | "feedback" | "aistudiocms" | "regional" | "foda" | "kpi-dashboard";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <BarChart3 className="w-4 h-4" /> },
@@ -45,6 +47,8 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "feedback", label: "Feedback AI", icon: <MessageSquare className="w-4 h-4" /> },
   { id: "aistudiocms", label: "AI Studio CMS", icon: <Bot className="w-4 h-4" /> },
   { id: "regional", label: "Regional", icon: <Globe className="w-4 h-4" /> },
+  { id: "foda", label: "FODA", icon: <Shield className="w-4 h-4" /> },
+  { id: "kpi-dashboard", label: "KPIs Dashboard", icon: <TrendingUp className="w-4 h-4" /> },
 ];
 
 const NAV_GROUPS: Array<{
@@ -75,7 +79,7 @@ const NAV_GROUPS: Array<{
     id: "system",
     label: "Sistema",
     description: "Alertas, emails y trazabilidad operativa.",
-    tabs: ["alerts", "emails", "logs", "analytics", "feedback"],
+    tabs: ["alerts", "emails", "logs", "analytics", "feedback", "foda", "kpi-dashboard"],
   },
 ];
 
@@ -439,6 +443,8 @@ export function SuperAdmin() {
           {tab === "feedback" && <FeedbackAdmin />}
           {tab === "aistudiocms" && <AiStudioAdminTab />}
           {tab === "regional" && <RegionalStatsTab />}
+          {tab === "foda" && <FODAAnalysisTab />}
+          {tab === "kpi-dashboard" && <FinancialDashboardTab />}
         </div>
       </div>
     </div>

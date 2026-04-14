@@ -218,6 +218,58 @@ describe("api-client — AuthApi", () => {
     const config = await AuthApi.getGoogleConfig();
     expect(config.configured).toBe(false);
   });
+
+  it("verifyEmail returns success payload when code is valid", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ message: "Email verificado", verifiedAt: "2026-04-14T12:00:00.000Z" }),
+      clone: function () { return this; },
+    });
+
+    const result = await AuthApi.verifyEmail("ABC123");
+    expect(result.message).toBe("Email verificado");
+    expect(result.verifiedAt).toBe("2026-04-14T12:00:00.000Z");
+  });
+
+  it("getGoogleConfig returns API payload on success", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ configured: true, clientId: "google-client-id" }),
+    });
+
+    const config = await AuthApi.getGoogleConfig();
+    expect(config).toEqual({ configured: true, clientId: "google-client-id" });
+  });
+
+  it("refreshToken stores and returns a fresh token", async () => {
+    setStoredToken("old-token");
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ token: "new-refresh-token" }),
+      clone: function () { return this; },
+    });
+
+    const result = await AuthApi.refreshToken();
+    expect(result?.token).toBe("new-refresh-token");
+    expect(getStoredToken()).toBe("new-refresh-token");
+  });
+
+  it("refreshToken returns null when refresh endpoint fails", async () => {
+    setStoredToken("old-token");
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      json: () => Promise.resolve({ error: "Unauthorized" }),
+      clone: function () { return this; },
+    });
+
+    const result = await AuthApi.refreshToken();
+    expect(result).toBeNull();
+    expect(getStoredToken()).toBe("old-token");
+  });
 });
 
 describe("api-client — GCodeApi", () => {
@@ -281,6 +333,17 @@ describe("api-client — GCodeApi", () => {
       expect.objectContaining({ method: "DELETE" })
     );
   });
+
+  it("remove throws API error when delete fails", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 403,
+      json: () => Promise.resolve({ error: "No autorizado para eliminar GCode" }),
+      clone: function () { return this; },
+    });
+
+    await expect(GCodeApi.remove("g1")).rejects.toThrow("No autorizado para eliminar GCode");
+  });
 });
 
 describe("api-client — CreditsApi", () => {
@@ -325,6 +388,18 @@ describe("api-client — CreditsApi", () => {
     });
 
     await expect(CreditsApi.consume()).rejects.toThrow("Sin creditos");
+  });
+
+  it("consume returns response payload on success", async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ consumed: true, balance: 41 }),
+      clone: function () { return this; },
+    });
+
+    const result = await CreditsApi.consume();
+    expect(result).toEqual({ consumed: true, balance: 41 });
   });
 
   it("purchase sends packId and credits", async () => {

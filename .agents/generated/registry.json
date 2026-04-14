@@ -41,8 +41,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:ux-ui-review",
+        "workflow:i18n-admin-content"
       ],
       "path": ".agents/workflows/admin_panel_ux_patterns.md",
       "source_group": "workflows",
@@ -87,8 +87,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:engine-testing",
+        "subagent:subagent-parametric-math-fdm"
       ],
       "path": ".agents/skills_catalog/advanced-3d-parametric-math-fdm.md",
       "source_group": "skills_catalog",
@@ -135,8 +135,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "rule:ai-traceability",
+        "workflow:post-commit-review"
       ],
       "path": ".agents/workflows/agent_handoff_evidence_workflow.md",
       "source_group": "workflows",
@@ -184,8 +184,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:skill-review-upgrade",
+        "subagent:subagent-ai-orchestrator"
       ],
       "path": ".agents/skills_catalog/ai-orchestration.md",
       "source_group": "skills_catalog",
@@ -234,8 +234,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:agent-handoff-evidence",
+        "workflow:skill-review-upgrade"
       ],
       "path": ".agents/rules/ai_traceability_rule.md",
       "source_group": "rules",
@@ -281,8 +281,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:endpoint-security-validation",
+        "workflow:change-validation-master"
       ],
       "path": ".agents/rules/api_docs_route_sync_rule.md",
       "source_group": "rules",
@@ -331,8 +331,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:endpoint-security-validation",
+        "rule:change-quality-gate"
       ],
       "path": ".agents/workflows/auth_security_rule.md",
       "source_group": "workflows",
@@ -377,7 +377,7 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]"
+        "rule:change-quality-gate"
       ],
       "path": ".agents/rules/backend_orm_auth_rule.md",
       "source_group": "rules",
@@ -426,8 +426,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:change-validation-master",
+        "workflow:agent-handoff-evidence"
       ],
       "path": ".agents/rules/change_quality_gate_rule.md",
       "source_group": "rules",
@@ -476,8 +476,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "rule:change-quality-gate",
+        "workflow:subagent-routing"
       ],
       "path": ".agents/workflows/change_validation_master_workflow.md",
       "source_group": "workflows",
@@ -529,10 +529,10 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]",
-        "[object Object]",
-        "[object Object]"
+        "workflow:change-validation-master",
+        "workflow:multi-llm-specialization-routing",
+        "workflow:agent-handoff-evidence",
+        "workflow:prisma-migration-pipeline"
       ],
       "path": ".agents/workflows/codebase_architecture_boundaries_rule.md",
       "source_group": "workflows",
@@ -581,8 +581,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "rule:rollback-branch-protection",
+        "workflow:endpoint-security-validation"
       ],
       "path": ".agents/rules/db_migration_rule.md",
       "source_group": "rules",
@@ -629,8 +629,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:ux-ui-review",
+        "workflow:codebase-architecture-boundaries"
       ],
       "path": ".agents/workflows/design_tokens_rule.md",
       "source_group": "workflows",
@@ -680,8 +680,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "rule:ai-traceability",
+        "rule:api-docs-route-sync"
       ],
       "path": ".agents/workflows/docs_update_sync_rule.md",
       "source_group": "workflows",
@@ -725,8 +725,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:auth-security",
+        "rule:api-docs-route-sync"
       ],
       "path": ".agents/workflows/endpoint_security_validation_workflow.md",
       "source_group": "workflows",
@@ -768,8 +768,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:subagent-routing",
+        "skill:advanced-3d-parametric-math-fdm"
       ],
       "path": ".agents/workflows/engine_testing_rule.md",
       "source_group": "workflows",
@@ -816,8 +816,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:git-hygiene-recovery",
+        "rule:rollback-branch-protection"
       ],
       "path": ".agents/workflows/git_branching_rule.md",
       "source_group": "workflows",
@@ -865,8 +865,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:git-branching",
+        "workflow:post-commit-review"
       ],
       "path": ".agents/workflows/git_hygiene_recovery_workflow.md",
       "source_group": "workflows",
@@ -929,9 +929,9 @@
         ]
       },
       "related": [
-        "[object Object]",
-        "[object Object]",
-        "[object Object]"
+        "workflow:service-abuse-hardening-runbook",
+        "workflow:endpoint-security-validation",
+        "skill:global-market-platform-strategy"
       ],
       "path": ".agents/workflows/global_architecture_scale_rule.md",
       "source_group": "workflows",
@@ -998,9 +998,9 @@
         ]
       },
       "related": [
-        "[object Object]",
-        "[object Object]",
-        "[object Object]"
+        "workflow:auth-security",
+        "workflow:endpoint-security-validation",
+        "skill:global-identity-payments-strategy"
       ],
       "path": ".agents/workflows/global_identity_payments_rule.md",
       "source_group": "workflows",
@@ -1064,8 +1064,8 @@
         ]
       },
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:global-identity-payments",
+        "workflow:auth-security"
       ],
       "path": ".agents/skills_catalog/global-identity-payments-strategy.md",
       "source_group": "skills_catalog",
@@ -1127,8 +1127,8 @@
         ]
       },
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:global-localization-marketing",
+        "workflow:i18n-locale-sync"
       ],
       "path": ".agents/skills_catalog/global-localization-growth-strategy.md",
       "source_group": "skills_catalog",
@@ -1191,9 +1191,9 @@
         ]
       },
       "related": [
-        "[object Object]",
-        "[object Object]",
-        "[object Object]"
+        "workflow:i18n-locale-sync",
+        "workflow:docs-update-sync",
+        "skill:global-localization-growth-strategy"
       ],
       "path": ".agents/workflows/global_localization_marketing_rule.md",
       "source_group": "workflows",
@@ -1255,8 +1255,8 @@
         ]
       },
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:global-architecture-scale",
+        "workflow:service-abuse-hardening-runbook"
       ],
       "path": ".agents/skills_catalog/global-market-platform-strategy.md",
       "source_group": "skills_catalog",
@@ -1303,8 +1303,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:i18n-locale-sync",
+        "workflow:admin-panel-ux-patterns"
       ],
       "path": ".agents/workflows/i18n_admin_content_rule.md",
       "source_group": "workflows",
@@ -1348,8 +1348,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:ux-ui-review",
+        "workflow:i18n-admin-content"
       ],
       "path": ".agents/workflows/i18n_locale_sync_rule.md",
       "source_group": "workflows",
@@ -1395,10 +1395,10 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]",
-        "[object Object]",
-        "[object Object]"
+        "rule:codebase-architecture-boundaries",
+        "workflow:multi-llm-specialization-routing",
+        "workflow:agent-handoff-evidence",
+        "workflow:git-branching"
       ],
       "path": ".agents/workflows/llm_safe_operating_protocol.md",
       "source_group": "workflows",
@@ -1444,8 +1444,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:subagent-routing",
+        "workflow:skill-review-upgrade"
       ],
       "path": ".agents/workflows/multi_llm_specialization_routing.md",
       "source_group": "workflows",
@@ -1500,8 +1500,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:agent-handoff-evidence",
+        "workflow:git-hygiene-recovery"
       ],
       "path": ".agents/workflows/post_commit_review_rule.md",
       "source_group": "workflows",
@@ -1553,10 +1553,10 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]",
-        "[object Object]",
-        "[object Object]"
+        "workflow:codebase-architecture-boundaries",
+        "workflow:change-validation-master",
+        "workflow:endpoint-security-validation",
+        "workflow:git-branching-rule"
       ],
       "path": ".agents/workflows/prisma_migration_pipeline_rule.md",
       "source_group": "workflows",
@@ -1603,8 +1603,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:git-branching",
+        "workflow:git-hygiene-recovery"
       ],
       "path": ".agents/rules/rollback_branch_protection_rule.md",
       "source_group": "rules",
@@ -1654,9 +1654,9 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]",
-        "[object Object]"
+        "workflow:auth-security",
+        "workflow:endpoint-security-validation",
+        "rule:change-quality-gate"
       ],
       "path": ".agents/workflows/service_abuse_hardening_runbook.md",
       "source_group": "workflows",
@@ -1701,8 +1701,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:subagent-routing",
+        "rule:ai-traceability"
       ],
       "path": ".agents/workflows/skill_review_upgrade_workflow.md",
       "source_group": "workflows",
@@ -1750,8 +1750,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "skill:ai-orchestration",
+        "workflow:subagent-routing"
       ],
       "path": ".agents/subagents/subagent-ai-orchestrator.md",
       "source_group": "subagents",
@@ -1798,8 +1798,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "skill:web-ts-services-postgres-headless-mcp",
+        "workflow:subagent-routing"
       ],
       "path": ".agents/subagents/subagent-fullstack-ts-services.md",
       "source_group": "subagents",
@@ -1843,8 +1843,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "skill:web-ts-services-postgres-headless-mcp",
+        "workflow:subagent-routing"
       ],
       "path": ".agents/subagents/subagent-mcp-headless-integration.md",
       "source_group": "subagents",
@@ -1890,8 +1890,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "skill:advanced-3d-parametric-math-fdm",
+        "workflow:engine-testing"
       ],
       "path": ".agents/subagents/subagent-parametric-math-fdm.md",
       "source_group": "subagents",
@@ -1936,8 +1936,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:skill-review-upgrade",
+        "workflow:change-validation-master"
       ],
       "path": ".agents/workflows/subagent_routing_workflow.md",
       "source_group": "workflows",
@@ -1984,8 +1984,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "skill:ux-ui-css-layout",
+        "workflow:ux-ui-review"
       ],
       "path": ".agents/subagents/subagent-ux-ui-layout.md",
       "source_group": "subagents",
@@ -2031,8 +2031,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "skill:webgl-canvas-threejs",
+        "workflow:engine-testing"
       ],
       "path": ".agents/subagents/subagent-webgl-three-rendering.md",
       "source_group": "subagents",
@@ -2079,8 +2079,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:change-validation-master",
+        "workflow:ux-ui-review"
       ],
       "path": ".agents/workflows/ui_state_sync_rule.md",
       "source_group": "workflows",
@@ -2127,8 +2127,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:ux-ui-review",
+        "subagent:subagent-ux-ui-layout"
       ],
       "path": ".agents/skills_catalog/ux-ui-css-layout.md",
       "source_group": "skills_catalog",
@@ -2173,8 +2173,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:i18n-locale-sync",
+        "workflow:admin-panel-ux-patterns"
       ],
       "path": ".agents/workflows/ux_ui_review_workflow.md",
       "source_group": "workflows",
@@ -2221,8 +2221,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:endpoint-security-validation",
+        "skill:ai-orchestration"
       ],
       "path": ".agents/workflows/vorea_monetization_strategy.md",
       "source_group": "workflows",
@@ -2275,8 +2275,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "skill:advanced-3d-parametric-math-fdm",
+        "subagent:subagent-parametric-math-fdm"
       ],
       "path": ".agents/codex-skills/vorea-parametric-scad-products/SKILL.md",
       "source_group": "codex_skills",
@@ -2342,8 +2342,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "skill:webgl-canvas-threejs",
+        "subagent:subagent-webgl-three-rendering"
       ],
       "path": ".agents/codex-skills/vorea-parametric-scad-surface/SKILL.md",
       "source_group": "codex_skills",
@@ -2403,8 +2403,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:endpoint-security-validation",
+        "subagent:subagent-fullstack-ts-services"
       ],
       "path": ".agents/skills_catalog/web-ts-services-postgres-headless-mcp.md",
       "source_group": "skills_catalog",
@@ -2451,8 +2451,8 @@
       ],
       "cross_llm_notes": {},
       "related": [
-        "[object Object]",
-        "[object Object]"
+        "workflow:engine-testing",
+        "subagent:subagent-webgl-three-rendering"
       ],
       "path": ".agents/skills_catalog/webgl-canvas-threejs.md",
       "source_group": "skills_catalog",

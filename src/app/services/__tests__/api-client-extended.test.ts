@@ -67,6 +67,32 @@ function mockFetchError(error: string, status = 400) {
   return mockFetch({ error }, false, status);
 }
 
+function installMockFileReader(options: {
+  result?: string;
+  error?: unknown;
+}) {
+  const originalFileReader = globalThis.FileReader;
+
+  class MockFileReader {
+    result = options.result ?? null;
+    onload: null | (() => void) = null;
+    onerror: null | ((error?: unknown) => void) = null;
+
+    readAsDataURL() {
+      if (options.error) {
+        this.onerror?.(options.error);
+        return;
+      }
+      this.onload?.();
+    }
+  }
+
+  globalThis.FileReader = MockFileReader as any;
+  return () => {
+    globalThis.FileReader = originalFileReader;
+  };
+}
+
 let fetchMock: ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
@@ -276,6 +302,52 @@ describe("AiStudioAdminApi", () => {
 // ──────────────────────────────────────────────────────────────────────────────
 
 describe("AiStudioCMSApi", () => {
+  it("uploadFamilyImage converts blob to data URL and returns uploaded URL", async () => {
+    const restore = installMockFileReader({
+      result: "data:image/png;base64,ZmFtaWx5",
+    });
+    globalThis.fetch = mockFetch({ url: "/api/uploads/community-image/fam_img_123" });
+
+    try {
+      const url = await AiStudioCMSApi.uploadFamilyImage(new Blob(["family"], { type: "image/png" }));
+      expect(url).toBe("/api/uploads/community-image/fam_img_123");
+      expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+        data: "data:image/png;base64,ZmFtaWx5",
+      });
+    } finally {
+      restore();
+    }
+  });
+
+  it("uploadFamilyImage throws when upload is rejected", async () => {
+    const restore = installMockFileReader({
+      result: "data:image/png;base64,ZmFtaWx5",
+    });
+    globalThis.fetch = mockFetchError("Imagen inválida", 422);
+
+    try {
+      await expect(
+        AiStudioCMSApi.uploadFamilyImage(new Blob(["family"], { type: "image/png" }))
+      ).rejects.toThrow("Imagen inválida");
+    } finally {
+      restore();
+    }
+  });
+
+  it("uploadFamilyImage surfaces FileReader failures", async () => {
+    const restore = installMockFileReader({
+      error: new Error("file read failed"),
+    });
+
+    try {
+      await expect(
+        AiStudioCMSApi.uploadFamilyImage(new Blob(["family"], { type: "image/png" }))
+      ).rejects.toThrow("file read failed");
+    } finally {
+      restore();
+    }
+  });
+
   it("getFamilies returns list", async () => {
     globalThis.fetch = mockFetch({ families: [{ id: "f1", slug: "vase" }] });
     const families = await AiStudioCMSApi.getFamilies();
@@ -358,6 +430,11 @@ describe("AiStudioRecipesApi", () => {
     globalThis.fetch = mockFetch({});
     await AiStudioRecipesApi.remove("r1");
   });
+
+  it("remove throws when delete endpoint returns an error", async () => {
+    globalThis.fetch = mockFetchError("Error al eliminar recipe", 500);
+    await expect(AiStudioRecipesApi.remove("r1")).rejects.toThrow("Error al eliminar recipe");
+  });
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -405,6 +482,38 @@ describe("AiStudioGenerateApi", () => {
     globalThis.fetch = mockFetch({ success: false });
     const result = await AiStudioGenerateApi.getGenerationResult("gen-123");
     expect(result).toBeNull();
+  });
+
+  it("getGenerationResult returns generation payload when ready", async () => {
+    globalThis.fetch = mockFetch({
+      success: true,
+      result: {
+        modelName: "vase",
+        scadCode: "cube(10);",
+        parameters: [],
+        reasoning: "ok",
+      },
+      usage: {
+        creditsConsumed: 1,
+        balanceRemaining: 9,
+      },
+      routing: {
+        mode: "automatic",
+        provider: "gemini",
+        model: "flash",
+        lane: "economy",
+        reason: "ok",
+        traceId: null,
+      },
+      contract: null,
+      warnings: [],
+      generationId: "gen-123",
+      createdAt: "2026-04-14T00:00:00.000Z",
+      completedAt: "2026-04-14T00:00:01.000Z",
+    });
+    const result = await AiStudioGenerateApi.getGenerationResult("gen-123");
+    expect(result?.success).toBe(true);
+    expect(result?.result.modelName).toBe("vase");
   });
 
   it("getGenerationResult returns null on fetch exception", async () => {
@@ -521,6 +630,11 @@ describe("CommunityApi", () => {
     await CommunityApi.deleteModel("m1");
   });
 
+  it("deleteModel throws the API error when deletion fails", async () => {
+    globalThis.fetch = mockFetchError("No puedes eliminar este modelo", 403);
+    await expect(CommunityApi.deleteModel("m1")).rejects.toThrow("No puedes eliminar este modelo");
+  });
+
   it("toggleLike returns like state", async () => {
     globalThis.fetch = mockFetch({ liked: true, likes: 5 });
     const result = await CommunityApi.toggleLike("m1");
@@ -592,6 +706,77 @@ describe("CommunityApi", () => {
     globalThis.fetch = mockFetch({}, false, 500);
     const result = await CommunityApi.listForks("m1");
     expect(result).toEqual({ forks: [], total: 0 });
+  });
+
+  it("cleanupCommunityModels sends the dryRun flag", async () => {
+    globalThis.fetch = mockFetch({ cleaned: 2, dryRun: false });
+    const result = await CommunityApi.cleanupCommunityModels(false);
+    expect(result.cleaned).toBe(2);
+    expect((globalThis.fetch as any).mock.calls[0][0]).toContain("/admin/community/cleanup");
+    expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({ dryRun: false });
+  });
+
+  it("uploadThumbnail converts blobs to data urls before uploading", async () => {
+    const restore = installMockFileReader({
+      result: "data:image/png;base64,dGh1bWJuYWls",
+    });
+    globalThis.fetch = mockFetch({ url: "/api/uploads/thumbnail/thumb_123" });
+
+    try {
+      const url = await CommunityApi.uploadThumbnail(new Blob(["thumbnail"], { type: "image/png" }));
+      expect(url).toBe("/api/uploads/thumbnail/thumb_123");
+      expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+        data: "data:image/png;base64,dGh1bWJuYWls",
+      });
+    } finally {
+      restore();
+    }
+  });
+
+  it("uploadCommunityImage throws when the upload endpoint rejects the image", async () => {
+    const restore = installMockFileReader({
+      result: "data:image/png;base64,aW1hZ2U=",
+    });
+    globalThis.fetch = mockFetchError("Imagen demasiado grande", 413);
+
+    try {
+      await expect(
+        CommunityApi.uploadCommunityImage(new Blob(["image"], { type: "image/png" }))
+      ).rejects.toThrow("Imagen demasiado grande");
+    } finally {
+      restore();
+    }
+  });
+
+  it("uploadCommunityImage returns the uploaded asset url on success", async () => {
+    const restore = installMockFileReader({
+      result: "data:image/png;base64,aW1hZ2U=",
+    });
+    globalThis.fetch = mockFetch({ url: "/api/uploads/community-image/img_123" });
+
+    try {
+      const url = await CommunityApi.uploadCommunityImage(new Blob(["image"], { type: "image/png" }));
+      expect(url).toBe("/api/uploads/community-image/img_123");
+      expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+        data: "data:image/png;base64,aW1hZ2U=",
+      });
+    } finally {
+      restore();
+    }
+  });
+
+  it("uploadCommunityImage surfaces file reader failures", async () => {
+    const restore = installMockFileReader({
+      error: new Error("cannot read file"),
+    });
+
+    try {
+      await expect(
+        CommunityApi.uploadCommunityImage(new Blob(["image"], { type: "image/png" }))
+      ).rejects.toThrow("cannot read file");
+    } finally {
+      restore();
+    }
   });
 
   it("saveDraft calls publishModel with draft status", async () => {
@@ -1025,6 +1210,20 @@ describe("AdminApi", () => {
     expect(plans).toHaveLength(1);
   });
 
+  it("updatePlans sends PUT and returns updated plans", async () => {
+    globalThis.fetch = mockFetch({ updated: true, plans: [{ tier: "PRO", monthlyUsd: 19 }] });
+    const result = await AdminApi.updatePlans([{ tier: "PRO", monthlyUsd: 19 }]);
+    expect(result.updated).toBe(true);
+    expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+      plans: [{ tier: "PRO", monthlyUsd: 19 }],
+    });
+  });
+
+  it("updatePlans throws when API rejects plan updates", async () => {
+    globalThis.fetch = mockFetchError("Planes inválidos", 400);
+    await expect(AdminApi.updatePlans([{ tier: "PRO", monthlyUsd: -10 }])).rejects.toThrow("Planes inválidos");
+  });
+
   it("getUsageReport returns usage", async () => {
     globalThis.fetch = mockFetch({ usage: { totalUsers: 100 } });
     const usage = await AdminApi.getUsageReport();
@@ -1061,16 +1260,70 @@ describe("AdminApi", () => {
     expect(packs).toHaveLength(1);
   });
 
+  it("updateCreditPacks sends PUT and returns updated packs", async () => {
+    globalThis.fetch = mockFetch({ updated: 1, creditPacks: [{ id: "p1", credits: 100 }] });
+    const result = await AdminApi.updateCreditPacks([{ id: "p1", credits: 100 }]);
+    expect(result.updated).toBe(1);
+    expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+      creditPacks: [{ id: "p1", credits: 100 }],
+    });
+  });
+
+  it("updateCreditPacks throws when API rejects the payload", async () => {
+    globalThis.fetch = mockFetchError("Pack inválido", 400);
+    await expect(AdminApi.updateCreditPacks([{ id: "bad-pack", credits: -5 }])).rejects.toThrow("Pack inválido");
+  });
+
   it("getLimits returns limits", async () => {
     globalThis.fetch = mockFetch({ limits: {}, costs: {} });
     const result = await AdminApi.getLimits();
     expect(result.limits).toBeDefined();
   });
 
+  it("updateLimits sends PUT and returns the updated config", async () => {
+    globalThis.fetch = mockFetch({
+      limits: { maxPromptChars: 2400 },
+      costs: { generationUsd: 0.08 },
+    });
+    const result = await AdminApi.updateLimits({
+      limits: { maxPromptChars: 2400 },
+      costs: { generationUsd: 0.08 },
+    });
+    expect(result.costs.generationUsd).toBe(0.08);
+    expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+      limits: { maxPromptChars: 2400 },
+      costs: { generationUsd: 0.08 },
+    });
+  });
+
+  it("updateLimits throws when the API rejects the change", async () => {
+    globalThis.fetch = mockFetchError("No autorizado para actualizar limites", 403);
+    await expect(
+      AdminApi.updateLimits({
+        limits: { maxPromptChars: 1000 },
+      })
+    ).rejects.toThrow("No autorizado para actualizar limites");
+  });
+
   it("getAlerts returns alerts", async () => {
     globalThis.fetch = mockFetch({ alerts: { budget: true } });
     const alerts = await AdminApi.getAlerts();
     expect(alerts.budget).toBe(true);
+  });
+
+  it("updateAlerts sends PUT and returns response payload", async () => {
+    globalThis.fetch = mockFetch({ alerts: { budget: true }, updated: true });
+    const result = await AdminApi.updateAlerts({ budget: true, throttling: false });
+    expect(result.updated).toBe(true);
+    expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+      budget: true,
+      throttling: false,
+    });
+  });
+
+  it("updateAlerts throws when payload is invalid", async () => {
+    globalThis.fetch = mockFetchError("Alertas inválidas", 400);
+    await expect(AdminApi.updateAlerts({ budget: "bad-type" as any })).rejects.toThrow("Alertas inválidas");
   });
 
   it("sendEmail sends POST", async () => {
@@ -1103,6 +1356,22 @@ describe("AdminApi", () => {
   it("getAIBudget throws on invalid response", async () => {
     globalThis.fetch = mockFetch({});
     await expect(AdminApi.getAIBudget()).rejects.toThrow("Respuesta inválida");
+  });
+
+  it("updateAIBudget sends PUT and returns the updated budget", async () => {
+    globalThis.fetch = mockFetch({ budget: { globalMonthlyBudgetUsd: 150 } });
+    const budget = await AdminApi.updateAIBudget({ globalMonthlyBudgetUsd: 150 });
+    expect(budget.globalMonthlyBudgetUsd).toBe(150);
+    expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+      budget: { globalMonthlyBudgetUsd: 150 },
+    });
+  });
+
+  it("updateAIBudget throws when the API rejects the update", async () => {
+    globalThis.fetch = mockFetchError("No autorizado para actualizar AI budget", 403);
+    await expect(AdminApi.updateAIBudget({ globalMonthlyBudgetUsd: 200 })).rejects.toThrow(
+      "No autorizado para actualizar AI budget"
+    );
   });
 
   it("getHeroBanner returns config", async () => {
@@ -1155,6 +1424,20 @@ describe("AdminApi", () => {
     expect(result).toBeDefined();
   });
 
+  it("saveLaneMatrixConfig sends PUT and returns update result", async () => {
+    globalThis.fetch = mockFetch({ updated: true, matrix: { economy: ["gpt-4.1-mini"] } });
+    const result = await AdminApi.saveLaneMatrixConfig({ economy: ["gpt-4.1-mini"] });
+    expect(result.updated).toBe(true);
+    expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+      config: { economy: ["gpt-4.1-mini"] },
+    });
+  });
+
+  it("saveLaneMatrixConfig throws when config is invalid", async () => {
+    globalThis.fetch = mockFetchError("Matriz inválida", 422);
+    await expect(AdminApi.saveLaneMatrixConfig({ economy: ["invalid-model"] })).rejects.toThrow("Matriz inválida");
+  });
+
   it("resetLaneMatrixConfig sends DELETE", async () => {
     globalThis.fetch = mockFetch({ reset: true });
     const result = await AdminApi.resetLaneMatrixConfig();
@@ -1189,6 +1472,27 @@ describe("AdminApi", () => {
     globalThis.fetch = mockFetch({ promotions: [{ id: "p1" }] });
     const promotions = await AdminApi.getPromotions();
     expect(promotions).toHaveLength(1);
+  });
+
+  it("updatePromotions sends PUT and returns the updated payload", async () => {
+    globalThis.fetch = mockFetch({
+      promotions: [{ id: "promo-1", code: "SAVE20", discountPercent: 20 }],
+      updated: 1,
+    });
+    const result = await AdminApi.updatePromotions([
+      { id: "promo-1", code: "SAVE20", discountPercent: 20 },
+    ]);
+    expect(result.updated).toBe(1);
+    expect(JSON.parse((globalThis.fetch as any).mock.calls[0][1].body)).toEqual({
+      promotions: [{ id: "promo-1", code: "SAVE20", discountPercent: 20 }],
+    });
+  });
+
+  it("updatePromotions throws when the API rejects the update", async () => {
+    globalThis.fetch = mockFetchError("Promoción inválida", 400);
+    await expect(
+      AdminApi.updatePromotions([{ code: "BROKEN", discountPercent: 120 }])
+    ).rejects.toThrow("Promoción inválida");
   });
 
   it("deletePromotion sends DELETE", async () => {

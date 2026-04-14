@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-03T15:31:52.882Z",
+  "generatedAt": "2026-04-14T20:56:11.039Z",
   "sourceFixtureSvg": "public/qa-assets/relief-smoke-four-zones.svg",
   "rasterizedFixture": {
     "size": "96x96",
@@ -16,7 +16,7 @@
       "file3mf": "public/qa-assets/relief-smoke/relief-plane-hybrid.3mf",
       "fileStl": "public/qa-assets/relief-smoke/relief-plane-hybrid.stl",
       "faceCount": 37632,
-      "generationTimeMs": 73.6249,
+      "generationTimeMs": 156.4916,
       "palette": [
         "#21594b",
         "#d9342b",
@@ -45,7 +45,7 @@
       "file3mf": "public/qa-assets/relief-smoke/relief-cylinder-slic3r-strict.3mf",
       "fileStl": "public/qa-assets/relief-smoke/relief-cylinder-slic3r-strict.stl",
       "faceCount": 37248,
-      "generationTimeMs": 93.9388,
+      "generationTimeMs": 100.8847,
       "palette": [
         "#21594b",
         "#d9342b",
@@ -59,7 +59,7 @@
           -140.848
         ],
         "max": [
-          140.9333,
+          140.848,
           100,
           140.848
         ]
@@ -74,7 +74,7 @@
       "file3mf": "public/qa-assets/relief-smoke/relief-plane-split-objects.3mf",
       "fileStl": "public/qa-assets/relief-smoke/relief-plane-split-objects.stl",
       "faceCount": 37632,
-      "generationTimeMs": 103.1016,
+      "generationTimeMs": 94.7062,
       "palette": [
         "#21594b",
         "#d9342b",
