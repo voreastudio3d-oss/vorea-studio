@@ -15,7 +15,7 @@ npm run test:coverage
 | Functions | `90.80%` |
 | Lines | `93.85%` |
 
-The current `vitest` thresholds in [vitest.config.ts](/e:/SITIOS%20WEB%20GENRADOS/VOREASTUDIO3D.COM/vitest.config.ts:16) are being met:
+The current `vitest` thresholds in [vitest.config.ts](../../vitest.config.ts) are being met:
 
 | Metric | Threshold |
 |--------|-----------|
@@ -81,7 +81,7 @@ npm run test:coverage
 
 Open the HTML report locally:
 
-- [coverage/index.html](/e:/SITIOS%20WEB%20GENRADOS/VOREASTUDIO3D.COM/coverage/index.html)
+- `coverage/index.html`
 
 Target a single suite while iterating:
 
