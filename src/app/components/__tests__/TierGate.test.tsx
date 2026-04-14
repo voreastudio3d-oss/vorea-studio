@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { createElement } from "react";
+import { createElement, type ReactNode } from "react";
 import { TierGate } from "../TierGate";
 
 // Mock dependencies
@@ -26,6 +26,12 @@ vi.mock("../AuthDialog", () => ({
 import { useAuth } from "../../services/auth-context";
 
 const mockedUseAuth = vi.mocked(useAuth);
+function renderTierGate(
+  props: { requiredTier: "FREE" | "PRO" | "STUDIO PRO"; featureName?: string; blur?: boolean },
+  children: ReactNode = createElement("div", null, "Content")
+) {
+  return render(createElement(TierGate, { ...props, children }));
+}
 
 describe("TierGate", () => {
   it("renders children when user has sufficient tier", () => {
@@ -34,10 +40,9 @@ describe("TierGate", () => {
       user: { tier: "STUDIO PRO" } as any,
     } as any);
 
-    render(
-      createElement(TierGate, { requiredTier: "PRO" },
-        createElement("div", { "data-testid": "content" }, "Premium Content")
-      )
+    renderTierGate(
+      { requiredTier: "PRO" },
+      createElement("div", { "data-testid": "content" }, "Premium Content")
     );
 
     expect(screen.getByTestId("content")).toBeInTheDocument();
@@ -49,10 +54,9 @@ describe("TierGate", () => {
       user: { tier: "PRO" } as any,
     } as any);
 
-    render(
-      createElement(TierGate, { requiredTier: "PRO" },
-        createElement("span", null, "Exact Match")
-      )
+    renderTierGate(
+      { requiredTier: "PRO" },
+      createElement("span", null, "Exact Match")
     );
 
     expect(screen.getByText("Exact Match")).toBeInTheDocument();
@@ -64,10 +68,9 @@ describe("TierGate", () => {
       user: { tier: "FREE" } as any,
     } as any);
 
-    render(
-      createElement(TierGate, { requiredTier: "PRO", featureName: "AI Studio" },
-        createElement("div", null, "Hidden Content")
-      )
+    renderTierGate(
+      { requiredTier: "PRO", featureName: "AI Studio" },
+      createElement("div", null, "Hidden Content")
     );
 
     expect(screen.getByText(/AI Studio requiere PRO/)).toBeInTheDocument();
@@ -80,11 +83,7 @@ describe("TierGate", () => {
       user: null,
     } as any);
 
-    render(
-      createElement(TierGate, { requiredTier: "PRO" },
-        createElement("div", null, "Content")
-      )
-    );
+    renderTierGate({ requiredTier: "PRO" });
 
     expect(screen.getByText(/Ingresar/)).toBeInTheDocument();
     expect(screen.getByText(/Inicia sesion/)).toBeInTheDocument();
@@ -96,11 +95,7 @@ describe("TierGate", () => {
       user: { tier: "FREE" } as any,
     } as any);
 
-    render(
-      createElement(TierGate, { requiredTier: "STUDIO PRO" },
-        createElement("div", null, "Content")
-      )
-    );
+    renderTierGate({ requiredTier: "STUDIO PRO" });
 
     expect(screen.getByText(/Ver Planes/)).toBeInTheDocument();
   });
@@ -111,10 +106,9 @@ describe("TierGate", () => {
       user: null,
     } as any);
 
-    const { container } = render(
-      createElement(TierGate, { requiredTier: "PRO" },
-        createElement("div", null, "Blurred")
-      )
+    const { container } = renderTierGate(
+      { requiredTier: "PRO" },
+      createElement("div", null, "Blurred")
     );
 
     const blurredEl = container.querySelector(".blur-sm");
@@ -127,10 +121,9 @@ describe("TierGate", () => {
       user: null,
     } as any);
 
-    const { container } = render(
-      createElement(TierGate, { requiredTier: "PRO", blur: false },
-        createElement("div", { "data-testid": "hidden" }, "No Blur")
-      )
+    const { container } = renderTierGate(
+      { requiredTier: "PRO", blur: false },
+      createElement("div", { "data-testid": "hidden" }, "No Blur")
     );
 
     const blurredEl = container.querySelector(".blur-sm");
@@ -143,11 +136,7 @@ describe("TierGate", () => {
       user: { tier: "FREE" } as any,
     } as any);
 
-    render(
-      createElement(TierGate, { requiredTier: "PRO" },
-        createElement("div", null, "Content")
-      )
-    );
+    renderTierGate({ requiredTier: "PRO" });
 
     expect(screen.getByText(/Requiere plan PRO/)).toBeInTheDocument();
   });

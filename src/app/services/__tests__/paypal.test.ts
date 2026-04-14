@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * paypal service tests — PayPalService.createOrder, captureOrder logic.
  */
@@ -17,7 +18,7 @@ describe("paypal service", () => {
 
   beforeEach(async () => {
     fetchMock = vi.fn();
-    globalThis.fetch = fetchMock;
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
     // Dynamic import to get fresh module
     const mod = await import("../paypal");
     PayPalService = mod.PayPalService;

@@ -31,8 +31,8 @@ describe("ai-studio-store", () => {
   });
 
   it("setQuality updates quality", () => {
-    useAiStudioStore.getState().setQuality("production");
-    expect(useAiStudioStore.getState().quality).toBe("production");
+    useAiStudioStore.getState().setQuality("final");
+    expect(useAiStudioStore.getState().quality).toBe("final");
   });
 
   it("setParameterOverridesByFamily with object replaces overrides", () => {
@@ -59,11 +59,11 @@ describe("ai-studio-store", () => {
     const { setPrompt, setSelectedFamily, setQuality } = useAiStudioStore.getState();
     setPrompt("parametric vase");
     setSelectedFamily("vase");
-    setQuality("balanced");
+    setQuality("final");
 
     const state = useAiStudioStore.getState();
     expect(state.prompt).toBe("parametric vase");
     expect(state.selectedFamily).toBe("vase");
-    expect(state.quality).toBe("balanced");
+    expect(state.quality).toBe("final");
   });
 });

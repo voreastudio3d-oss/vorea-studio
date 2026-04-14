@@ -5,13 +5,14 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { createElement } from "react";
 import { ScadCustomizer } from "../ScadCustomizer";
+import type { ScadParseResult } from "../../services/scad-parser";
 
 describe("ScadCustomizer", () => {
-  const defaultParse = {
+  const defaultParse: ScadParseResult = {
     params: [
       { name: "width", type: "number" as const, value: 100, defaultValue: 100, line: 1, comment: "Width", range: { min: 10, max: 500, step: 1 } },
       { name: "height", type: "number" as const, value: 50, defaultValue: 50, line: 2, comment: "Height", range: { min: 5, max: 250, step: 1 } },
-      { name: "rounded", type: "boolean" as const, value: true, defaultValue: true, line: 3, comment: "Rounded corners" },
+      { name: "rounded", type: "bool" as const, value: true, defaultValue: true, line: 3, comment: "Rounded corners" },
     ],
     sections: [],
     source: "width = 100;\nheight = 50;\nrounded = true;",

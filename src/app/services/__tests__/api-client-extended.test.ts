@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Extended api-client tests — covers all remaining API objects & normalizer functions.
  * The base api-client.test.ts covers AuthApi, GCodeApi, CreditsApi, rate-limit.
@@ -72,7 +73,7 @@ beforeEach(() => {
   localStorage.clear();
   setStoredToken("test-token");
   fetchMock = vi.fn();
-  globalThis.fetch = fetchMock;
+  globalThis.fetch = fetchMock as unknown as typeof fetch;
 });
 
 afterEach(() => {
@@ -85,48 +86,48 @@ afterEach(() => {
 
 describe("FeedbackApi", () => {
   it("submit sends POST with data", async () => {
-    globalThis.fetch = mockFetch({ id: "fb1" });
+    globalThis.fetch = mockFetch({ id: "fb1" }) as unknown as typeof fetch;
     const result = await FeedbackApi.submit({ type: "bug", message: "broken" });
     expect(result.id).toBe("fb1");
   });
 
   it("submit throws on error", async () => {
-    globalThis.fetch = mockFetchError("Error al enviar feedback");
+    globalThis.fetch = mockFetchError("Error al enviar feedback") as unknown as typeof fetch;
     await expect(FeedbackApi.submit({ type: "bug", message: "x" })).rejects.toThrow();
   });
 
   it("list returns items on success", async () => {
-    globalThis.fetch = mockFetch({ items: [{ id: "fb1" }] });
+    globalThis.fetch = mockFetch({ items: [{ id: "fb1" }] }) as unknown as typeof fetch;
     const items = await FeedbackApi.list();
     expect(items).toHaveLength(1);
   });
 
   it("list returns empty on error", async () => {
-    globalThis.fetch = mockFetch("Server error", false, 500);
+    globalThis.fetch = mockFetch("Server error", false, 500) as unknown as typeof fetch;
     const items = await FeedbackApi.list();
     expect(items).toEqual([]);
   });
 
   it("triggerAIReview sends POST", async () => {
-    globalThis.fetch = mockFetch({ success: true });
+    globalThis.fetch = mockFetch({ success: true }) as unknown as typeof fetch;
     const result = await FeedbackApi.triggerAIReview();
     expect(result.success).toBe(true);
   });
 
   it("getAIStats returns stats", async () => {
-    globalThis.fetch = mockFetch({ stats: { total: 10 } });
+    globalThis.fetch = mockFetch({ stats: { total: 10 } }) as unknown as typeof fetch;
     const stats = await FeedbackApi.getAIStats();
     expect(stats.total).toBe(10);
   });
 
   it("getAIStats returns null on error", async () => {
-    globalThis.fetch = mockFetch("err", false, 500);
+    globalThis.fetch = mockFetch("err", false, 500) as unknown as typeof fetch;
     const stats = await FeedbackApi.getAIStats();
     expect(stats).toBeNull();
   });
 
   it("updateStatus sends PUT", async () => {
-    globalThis.fetch = mockFetch({ status: "resolved" });
+    globalThis.fetch = mockFetch({ status: "resolved" }) as unknown as typeof fetch;
     const result = await FeedbackApi.updateStatus("fb1", "resolved");
     expect(result.status).toBe("resolved");
   });
@@ -138,7 +139,7 @@ describe("FeedbackApi", () => {
 
 describe("ContactApi", () => {
   it("submit sends contact data", async () => {
-    globalThis.fetch = mockFetch({ success: true, contactId: "c1" });
+    globalThis.fetch = mockFetch({ success: true, contactId: "c1" }) as unknown as typeof fetch;
     const result = await ContactApi.submit({
       name: "Test",
       email: "t@t.com",
@@ -149,7 +150,7 @@ describe("ContactApi", () => {
   });
 
   it("submit throws on error", async () => {
-    globalThis.fetch = mockFetchError("Error al enviar contacto");
+    globalThis.fetch = mockFetchError("Error al enviar contacto") as unknown as typeof fetch;
     await expect(
       ContactApi.submit({ name: "T", email: "t@t.com", message: "x" })
     ).rejects.toThrow("Error al enviar contacto");
@@ -164,14 +165,14 @@ describe("ToolCreditsApi", () => {
   it("getMine returns credits", async () => {
     globalThis.fetch = mockFetch({
       credits: { balance: 100, monthlyAllocation: 50, monthlyBalance: 50, topupBalance: 50, totalUsed: 0, lastResetAt: "2024-01-01", tier: "PRO" },
-    });
+    }) as unknown as typeof fetch;
     const credits = await ToolCreditsApi.getMine();
     expect(credits.balance).toBe(100);
     expect(credits.tier).toBe("PRO");
   });
 
   it("getMine throws on error", async () => {
-    globalThis.fetch = mockFetchError("Unauthorized", 401);
+    globalThis.fetch = mockFetchError("Unauthorized", 401) as unknown as typeof fetch;
     await expect(ToolCreditsApi.getMine()).rejects.toThrow();
   });
 });

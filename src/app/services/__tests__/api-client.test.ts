@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * api-client unit tests — token management & API wrapper logic.
  * Tests pure functions + fetchApi mocking via global.fetch.
@@ -58,7 +59,7 @@ describe("api-client — AuthApi", () => {
   beforeEach(() => {
     localStorage.clear();
     fetchMock = vi.fn();
-    globalThis.fetch = fetchMock;
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
   });
 
   afterEach(() => {
@@ -225,7 +226,7 @@ describe("api-client — GCodeApi", () => {
   beforeEach(() => {
     localStorage.clear();
     fetchMock = vi.fn();
-    globalThis.fetch = fetchMock;
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
   });
 
   it("list returns items on success", async () => {
@@ -288,7 +289,7 @@ describe("api-client — CreditsApi", () => {
   beforeEach(() => {
     localStorage.clear();
     fetchMock = vi.fn();
-    globalThis.fetch = fetchMock;
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
   });
 
   it("get returns credits on success", async () => {
@@ -345,7 +346,7 @@ describe("api-client — rate limit handling", () => {
   beforeEach(() => {
     localStorage.clear();
     fetchMock = vi.fn();
-    globalThis.fetch = fetchMock;
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
   });
 
   it("shows toast on 429 response", async () => {

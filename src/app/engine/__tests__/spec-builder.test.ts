@@ -78,7 +78,7 @@ describe("classifyPromptIntent", () => {
 
 describe("buildParameterBlueprint", () => {
   it("returns parameters for fdm storage-box family", () => {
-    const params = buildParameterBlueprint("fdm", "storage-box");
+    const params = buildParameterBlueprint("fdm", "storage-box", "draft");
     expect(Array.isArray(params)).toBe(true);
     expect(params.length).toBeGreaterThan(0);
     // Each param should have name and type
@@ -89,19 +89,19 @@ describe("buildParameterBlueprint", () => {
   });
 
   it("returns parameters for organic vase family", () => {
-    const params = buildParameterBlueprint("organic", "vase");
+    const params = buildParameterBlueprint("organic", "vase-wave", "draft");
     expect(Array.isArray(params)).toBe(true);
     expect(params.length).toBeGreaterThan(0);
   });
 
   it("returns default parameters for unknown family", () => {
-    const params = buildParameterBlueprint("fdm", "unknown-family-xyz" as any);
+    const params = buildParameterBlueprint("fdm", "unknown-family-xyz" as any, "draft");
     expect(Array.isArray(params)).toBe(true);
     expect(params.length).toBeGreaterThan(0);
   });
 
   it("returns parameters for fdm text-keychain-tag", () => {
-    const params = buildParameterBlueprint("fdm", "text-keychain-tag");
+    const params = buildParameterBlueprint("fdm", "text-keychain-tag", "draft");
     expect(params.length).toBeGreaterThan(0);
     const names = params.map((p) => p.name);
     // Should have text-related params
@@ -109,22 +109,22 @@ describe("buildParameterBlueprint", () => {
   });
 
   it("returns parameters for fdm threaded-jar", () => {
-    const params = buildParameterBlueprint("fdm", "threaded-jar");
+    const params = buildParameterBlueprint("fdm", "threaded-jar", "draft");
     expect(params.length).toBeGreaterThan(0);
   });
 
   it("returns parameters for fdm lamp-shade-kit", () => {
-    const params = buildParameterBlueprint("fdm", "lamp-shade-kit");
+    const params = buildParameterBlueprint("fdm", "lamp-shade-kit", "draft");
     expect(params.length).toBeGreaterThan(0);
   });
 
   it("returns parameters for fdm planter-drip-system", () => {
-    const params = buildParameterBlueprint("fdm", "planter-drip-system");
+    const params = buildParameterBlueprint("fdm", "planter-drip-system", "draft");
     expect(params.length).toBeGreaterThan(0);
   });
 
-  it("returns parameters for fdm cable-clip", () => {
-    const params = buildParameterBlueprint("fdm", "cable-clip");
+  it("returns parameters for fdm utility-hook", () => {
+    const params = buildParameterBlueprint("fdm", "utility-hook", "draft");
     expect(params.length).toBeGreaterThan(0);
   });
 });

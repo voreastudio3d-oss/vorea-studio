@@ -3,7 +3,7 @@
  * FeedbackPanel, CollapsibleSection, Footer.
  */
 import { describe, it, expect, vi } from "vitest";
-import { render, createElement } from "react";
+import { createElement } from "react";
 import type { ReactNode } from "react";
 
 vi.mock("../../services/auth-context", () => ({
