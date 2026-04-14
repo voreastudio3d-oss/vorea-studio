@@ -31,6 +31,7 @@
     "qa:smoke": "npx tsx scripts/verify-admin-smoke.ts",
     "verify:deploy:routing-seo": "npx tsx scripts/verify-deploy-routing-seo.ts",
     "verify:monetization:tiers": "npx tsx scripts/verify-monetization-tiers.ts",
+    "smoke:ai-studio:railway": "npx tsx scripts/smoke-ai-studio-railway.ts",
     "news:ingest": "npx tsx --env-file=.env scripts/news-ingest.ts",
     "news:cleanup": "npx tsx --env-file=.env scripts/news-cleanup.ts",
     "news:seed-sources": "npx tsx --env-file=.env scripts/seed-news-sources.ts",
