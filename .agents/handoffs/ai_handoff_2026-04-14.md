@@ -65,6 +65,20 @@ Checklist operativa lista para ejecutar:
 - `corepack pnpm test`
 - Bloque runtime actualizado en `.agents/runtime/current_block.yaml` con gate local restaurada y bloqueo real documentado
 
+## Actualización - Gobernanza de validación
+
+- Se endureció la gobernanza para LLMs en:
+  - `.agents/rules/change_quality_gate_rule.md`
+  - `.agents/workflows/change_validation_master_workflow.md`
+  - `.agents/adapters/openai.md`
+  - `.agents/adapters/claude.md`
+  - `.agents/adapters/gemini.md`
+  - `.agents/adapters/antigravity.md`
+- Nueva obligación explícita:
+  - correr `npm run test` y `npm run typecheck` antes de cerrar tareas con cambios de código;
+  - correr `npm run test:coverage` cuando el cambio toque lógica crítica, transversal o sensible;
+  - agregar/ajustar tests unitarios o justificar explícitamente por qué no correspondía hacerlo.
+
 
 ## Actualización - Gemini (Antigravity) 
 - Sprint de Revenue Certificado. (Dashboard y consumos funcionando end-to-end current_block.yaml actualizado a DONE). 

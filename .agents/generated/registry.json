@@ -400,7 +400,9 @@
         "Matriz mínima de validación obligatoria por tipo de cambio."
       ],
       "validations": [
-        "npm run test"
+        "npm run test",
+        "npm run typecheck",
+        "npm run test:coverage (cuando corresponda)"
       ],
       "docs_to_update": [
         "ai_handoff_YYYY-MM-DD.md"
@@ -448,7 +450,9 @@
         "Matriz consistente de validaciones según el tipo de cambio."
       ],
       "validations": [
-        "npm run test"
+        "npm run test",
+        "npm run typecheck",
+        "npm run test:coverage (cuando corresponda)"
       ],
       "docs_to_update": [
         "ai_handoff_YYYY-MM-DD.md"

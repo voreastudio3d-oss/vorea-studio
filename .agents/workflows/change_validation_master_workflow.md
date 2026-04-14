@@ -13,6 +13,8 @@ outputs:
   - Matriz consistente de validaciones según el tipo de cambio.
 validations:
   - npm run test
+  - npm run typecheck
+  - npm run test:coverage (cuando corresponda)
 docs_to_update:
   - ai_handoff_YYYY-MM-DD.md
 tags:
@@ -54,12 +56,23 @@ Si la tarea cruza multiples dominios tecnicos, aplicar tambien:
 
 | Escenario | Validaciones obligatorias |
 |---|---|
-| UI/frontend | `npm run test` + [`ux_ui_review_workflow.md`](./ux_ui_review_workflow.md) + [`i18n_locale_sync_rule.md`](./i18n_locale_sync_rule.md) |
-| Backend sin rutas | `npm run test` + [`endpoint_security_validation_workflow.md`](./endpoint_security_validation_workflow.md) |
-| Backend con rutas/contrato | `npm run test` + `npm run docs:api:generate` + `npm run docs:api:check` + [`endpoint_security_validation_workflow.md`](./endpoint_security_validation_workflow.md) |
-| Auth/pagos/permisos/datos | `npm run test` + [`auth_security_rule.md`](./auth_security_rule.md) + [`endpoint_security_validation_workflow.md`](./endpoint_security_validation_workflow.md) |
-| i18n/contenido | `npm run test` + [`i18n_locale_sync_rule.md`](./i18n_locale_sync_rule.md) + [`i18n_admin_content_rule.md`](./i18n_admin_content_rule.md) |
+| UI/frontend | `npm run test` + `npm run typecheck` + `npm run test:coverage` cuando haya lógica no trivial + [`ux_ui_review_workflow.md`](./ux_ui_review_workflow.md) + [`i18n_locale_sync_rule.md`](./i18n_locale_sync_rule.md) |
+| Backend sin rutas | `npm run test` + `npm run typecheck` + `npm run test:coverage` cuando cambie lógica de negocio/servicios + [`endpoint_security_validation_workflow.md`](./endpoint_security_validation_workflow.md) |
+| Backend con rutas/contrato | `npm run test` + `npm run typecheck` + `npm run test:coverage` cuando cambie lógica/contrato + `npm run docs:api:generate` + `npm run docs:api:check` + [`endpoint_security_validation_workflow.md`](./endpoint_security_validation_workflow.md) |
+| Auth/pagos/permisos/datos | `npm run test` + `npm run typecheck` + `npm run test:coverage` + [`auth_security_rule.md`](./auth_security_rule.md) + [`endpoint_security_validation_workflow.md`](./endpoint_security_validation_workflow.md) |
+| i18n/contenido | `npm run test` + `npm run typecheck` + [`i18n_locale_sync_rule.md`](./i18n_locale_sync_rule.md) + [`i18n_admin_content_rule.md`](./i18n_admin_content_rule.md) |
 | Feature/Flujo impactados | [`docs_update_sync_rule.md`](./docs_update_sync_rule.md) |
+
+## Paso 2 bis — Regla de cierre para LLMs
+
+Antes de declarar una tarea como terminada, toda IA debe responder estas preguntas:
+
+1. ¿Corrí `npm run test`?
+2. ¿Corrí `npm run typecheck`?
+3. ¿Este cambio requería tests nuevos o ajuste de tests existentes?
+4. ¿Este cambio requería `npm run test:coverage` por tocar lógica crítica, transversal o sensible?
+
+Si cualquiera de las respuestas aplicables es "no", la tarea no debe cerrarse como finalizada sin justificación explícita.
 
 ## Paso 3 — Reglas normativas transversales
 Aplicar siempre:
@@ -77,3 +90,4 @@ La tarea queda cerrada solo si:
 1. Pasan todos los checks aplicables.
 2. Se entrega evidencia completa.
 3. Se actualiza trazabilidad para otras IAs/agentes cuando corresponde.
+4. Queda explícito si se añadieron/ajustaron tests unitarios o por qué no correspondía hacerlo.
