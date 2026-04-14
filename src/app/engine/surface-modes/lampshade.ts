@@ -222,9 +222,9 @@ export function createLampshadeSurface(config: LampshadeConfig): SurfaceStrategy
           emitTri(iTop0, iTop1, holeB0, br, bg, bb, [0, -1, 0]);
           emitTri(iTop1, holeB1, holeB0, br, bg, bb, [0, -1, 0]);
         } else {
-          // No cap, just seal the edge
-          emitTri(oTop0, oTop1, iTop0, br, bg, bb, [0, 1, 0]);
-          emitTri(oTop1, iTop1, iTop0, br, bg, bb, [0, 1, 0]);
+          // No cap, just seal the edge — explicit manifold-consistent winding
+          emitTri(oTop0, oTop1, iTop0, br, bg, bb);
+          emitTri(oTop1, iTop1, iTop0, br, bg, bb);
         }
       }
 
@@ -255,9 +255,9 @@ export function createLampshadeSurface(config: LampshadeConfig): SurfaceStrategy
           emitTri(iBot0, holeT0, iBot1, br, bg, bb, [0, 1, 0]);
           emitTri(iBot1, holeT0, holeT1, br, bg, bb, [0, 1, 0]);
         } else {
-          // No cap, just seal the edge
-          emitTri(oBot0, iBot0, oBot1, br, bg, bb, [0, -1, 0]);
-          emitTri(oBot1, iBot0, iBot1, br, bg, bb, [0, -1, 0]);
+          // No cap, just seal the edge — explicit manifold-consistent winding
+          emitTri(oBot1, oBot0, iBot0, br, bg, bb);
+          emitTri(oBot1, iBot0, iBot1, br, bg, bb);
         }
       }
     },

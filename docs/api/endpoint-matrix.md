@@ -1,6 +1,6 @@
 # Inventario Operativo de Endpoints
 
-Generado: 2026-04-13T13:40:09.386Z
+Generado: 2026-04-13T14:27:21.372Z
 
 Total definiciones detectadas: **151**
 Total únicos (method+path): **147**

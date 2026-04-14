@@ -25,7 +25,18 @@ Siguiente frente recomendado:
 
 ## Estado del bloque
 
-### Bloque cerrado hoy: `BG-209 V1.1`
+### Bloque cerrado: Sprint QA + Dashboard (2026-04-14)
+
+**Tareas completadas:**
+- **BG-110 ✅** — QA Relief: fix cap winding en cylinder, box, polygon, lampshade. 4 modos watertight, manifold, 0 boundary edges. Smoke assets OK.
+- **BG-117.3 ✅** — FODA formalizado en `docs/research/foda-analysis-2026.md` + `FODAAnalysisTab` en SuperAdmin.
+- **BG-117.4 ✅** — Dashboard financiero con recharts (`FinancialDashboardTab`) integrado en SuperAdmin: KPI cards, BarChart, PieChart, LineChart.
+- **BG-301 ✅** — Motor IA Real verificado (5 proveedores LLM con routing, fallback y budget).
+- **Gobernanza ✅** — Tests de gobernanza agéntica corregidos y pasando.
+- **Monetización** — 17 tests nuevos de webhook handler PayPal (`paypal-webhook-handler.test.ts`).
+- **Suite completa**: 1417 tests, 0 failures, 0 TypeScript errors.
+
+### Bloque anterior: `BG-209 V1.1`
 
 - drift de gobernanza eliminado;
 - `pnpm agent:governance:check` agregado al CI;

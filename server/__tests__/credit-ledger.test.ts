@@ -33,8 +33,6 @@ describe("credit-ledger", () => {
     vi.useRealTimers();
   });
 
-  // ── getUserCreditBalance ─────────────────────────────────────────────────
-
   it("returns zeroed defaults when user has no credit state", async () => {
     const { getUserCreditBalance } = await import("../credit-ledger.js");
     const balance = await getUserCreditBalance("user-new");
@@ -80,8 +78,6 @@ describe("credit-ledger", () => {
     expect(balance.totalUsed).toBe(0);
     expect(balance.monthlyAllocation).toBe(0);
   });
-
-  // ── reserveCredits ──────────────────────────────────────────────────────
 
   it("returns a no-op snapshot when creditCost is zero", async () => {
     const { reserveCredits } = await import("../credit-ledger.js");
@@ -130,18 +126,14 @@ describe("credit-ledger", () => {
       expect(result.snapshot.creditCost).toBe(8);
       expect(result.balanceAfter).toBeLessThan(20);
     }
-    // State was persisted
     const stored = kvState.store.get("user:u4:tool_credits");
     expect(stored).toBeDefined();
     expect(stored.balance).toBeLessThan(20);
   });
 
-  // ── releaseCredits ──────────────────────────────────────────────────────
-
   it("is a no-op when snapshot is null", async () => {
     const { releaseCredits } = await import("../credit-ledger.js");
     await releaseCredits("u1", null);
-    // Should not throw
   });
 
   it("restores credits after a failed operation", async () => {
@@ -156,7 +148,6 @@ describe("credit-ledger", () => {
 
     const result = await reserveCredits("u5", 8);
     expect(result.ok).toBe(true);
-
     if (result.ok) {
       await releaseCredits("u5", result.snapshot);
       const restored = await getUserCreditBalance("u5");
@@ -164,8 +155,6 @@ describe("credit-ledger", () => {
       expect(restored.topupBalance).toBe(5);
     }
   });
-
-  // ── Idempotency helpers ────────────────────────────────────────────────
 
   it("returns null for unseen generationId", async () => {
     const { getIdempotencyRecord } = await import("../credit-ledger.js");

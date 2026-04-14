@@ -1,6 +1,6 @@
 # Inconsistencias Detectadas en API/Producto
 
-Generado: 2026-04-13T13:40:09.387Z
+Generado: 2026-04-13T14:27:21.373Z
 
 ## 1) Definiciones duplicadas de rutas
 

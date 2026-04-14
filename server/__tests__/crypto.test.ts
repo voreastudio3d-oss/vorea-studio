@@ -15,8 +15,6 @@ describe("crypto", () => {
     delete process.env.ENCRYPTION_MASTER_KEY;
   });
 
-  // ── encrypt / decrypt round-trip ──────────────────────────────────────
-
   it("encrypts and decrypts back to the original plaintext", async () => {
     const { encrypt, decrypt } = await import("../crypto.js");
     const secret = "sk-abc123-my-secret-api-key";
@@ -46,8 +44,6 @@ describe("crypto", () => {
     expect(() => decrypt(payload)).toThrow();
   });
 
-  // ── getMasterKey validation ───────────────────────────────────────────
-
   it("throws when ENCRYPTION_MASTER_KEY is not set", async () => {
     delete process.env.ENCRYPTION_MASTER_KEY;
     const { encrypt } = await import("../crypto.js");
@@ -59,8 +55,6 @@ describe("crypto", () => {
     const { encrypt } = await import("../crypto.js");
     expect(() => encrypt("hello")).toThrow("32 bytes");
   });
-
-  // ── maskKey ───────────────────────────────────────────────────────────
 
   it("masks long keys showing first 4 and last 4 chars", async () => {
     const { maskKey } = await import("../crypto.js");
@@ -74,8 +68,6 @@ describe("crypto", () => {
     const { maskKey } = await import("../crypto.js");
     expect(maskKey("short")).toBe("••••••••");
   });
-
-  // ── SUPPORTED_PROVIDERS / isValidProvider ─────────────────────────────
 
   it("validates known providers", async () => {
     const { isValidProvider, SUPPORTED_PROVIDERS } = await import(

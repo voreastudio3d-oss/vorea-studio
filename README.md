@@ -142,11 +142,21 @@ Run all tests:
 npm run test
 ```
 
+Run coverage:
+
+```bash
+npm run test:coverage
+```
+
 Run only community data integrity tests:
 
 ```bash
 npm run test -- src/app/data/__tests__/community-data.test.ts
 ```
+
+Current coverage baseline and next priorities are tracked in:
+
+- [docs/operations/test-coverage-plan.md](docs/operations/test-coverage-plan.md)
 
 Relief QA manual:
 

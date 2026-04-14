@@ -2,7 +2,6 @@
 
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-// Mock Prisma + pg
 vi.mock("@prisma/client", () => {
   const mockFindMany = vi.fn().mockResolvedValue([]);
   return {
@@ -19,9 +18,9 @@ vi.mock("@prisma/adapter-pg", () => ({
 }));
 
 vi.mock("pg", () => {
-  const Pool = vi.fn(() => ({
-    end: vi.fn().mockResolvedValue(undefined),
-  }));
+  function Pool() {
+    return { end: vi.fn().mockResolvedValue(undefined) };
+  }
   return { default: { Pool } };
 });
 
@@ -41,7 +40,6 @@ describe("subscription-finance", () => {
   it("returns unavailable when DATABASE_URL is empty", async () => {
     const original = process.env.DATABASE_URL;
     delete process.env.DATABASE_URL;
-    // Need to re-import after clearing env
     const mod = await import("../subscription-finance.js");
     const result = await mod.getSubscriptionFinanceSummary([
       { tier: "PRO", price: 9.99 },

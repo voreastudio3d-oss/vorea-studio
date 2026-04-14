@@ -17,6 +17,16 @@ Bienvenido a **Vorea Studio**. Antigravity opera como Claude Opus 4.6 dentro del
 4. **Routing:** Si necesitas enrutar un bloque, usa `pnpm agent:route --goal`.
 5. **Handoff:** Al cerrar, documenta en `.agents/handoffs/ai_handoff_YYYY-MM-DD.md`.
 
+## Checklist de Cierre Obligatorio
+
+Antes de declarar una tarea como finalizada, debes verificar explícitamente:
+
+1. Corriste `npm run test` para el cambio o el slice afectado.
+2. Corriste `npm run typecheck`.
+3. Si el cambio tocó lógica crítica, transversal o sensible, corriste `npm run test:coverage`.
+4. Si el cambio introdujo o corrigió comportamiento, agregaste o ajustaste tests unitarios/integración cuando correspondía.
+5. Si no corriste alguno de los checks aplicables, debes justificarlo en el handoff. Sin esa evidencia, la tarea no se considera cerrada.
+
 ## Ventajas de este Agente
 
 - **Razonamiento profundo** — ideal para seguridad, contratos API, diseño de arquitectura

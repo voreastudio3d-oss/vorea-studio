@@ -40,7 +40,6 @@ describe("3D model SCAD templates", () => {
   it.each(ALL_MODELS)(
     "$name template contains valid OpenSCAD syntax markers",
     ({ scad }) => {
-      // All parametric models should have at least a module or variable declaration
       const hasModule = /module\s+\w+/.test(scad);
       const hasVariable = /\w+\s*=\s*.+;/.test(scad);
       expect(hasModule || hasVariable).toBe(true);

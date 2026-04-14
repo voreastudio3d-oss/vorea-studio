@@ -2,17 +2,14 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// In-memory store simulating PostgreSQL kv_store table
 const rows = vi.hoisted(() => ({
   store: new Map<string, any>(),
 }));
 
 const mockClient = {
   query: vi.fn(async (sql: string, params?: any[]) => {
-    // CREATE TABLE
     if (sql.includes("CREATE TABLE")) return { rows: [] };
 
-    // INSERT / UPSERT
     if (sql.includes("INSERT INTO kv_store")) {
       const key = params![0] as string;
       const value = JSON.parse(params![1] as string);
@@ -20,7 +17,6 @@ const mockClient = {
       return { rows: [] };
     }
 
-    // SELECT single
     if (sql.includes("SELECT value FROM kv_store WHERE key = $1 LIMIT 1")) {
       const key = params![0] as string;
       if (rows.store.has(key)) {
@@ -29,7 +25,6 @@ const mockClient = {
       return { rows: [] };
     }
 
-    // SELECT by ANY
     if (sql.includes("key = ANY($1)") && sql.includes("SELECT")) {
       const keys = params![0] as string[];
       const matched = keys
@@ -38,7 +33,6 @@ const mockClient = {
       return { rows: matched };
     }
 
-    // SELECT by prefix
     if (sql.includes("LIKE $1")) {
       const prefix = (params![0] as string).replace("%", "");
       const matched = [...rows.store.entries()]
@@ -47,20 +41,17 @@ const mockClient = {
       return { rows: matched };
     }
 
-    // DELETE single
     if (sql.includes("DELETE FROM kv_store WHERE key = $1")) {
       rows.store.delete(params![0] as string);
       return { rows: [] };
     }
 
-    // DELETE by ANY
     if (sql.includes("DELETE FROM kv_store WHERE key = ANY")) {
       const keys = params![0] as string[];
       keys.forEach((k) => rows.store.delete(k));
       return { rows: [] };
     }
 
-    // BEGIN / COMMIT / ROLLBACK
     return { rows: [] };
   }),
   release: vi.fn(),

@@ -85,7 +85,8 @@ export function syncDynamicHead(meta: RouteHeadMeta, pathname: string, locale: s
   if (typeof document === "undefined" || typeof window === "undefined") return;
 
   const { htmlLang, ogLocale } = normalizeLocale(locale);
-  const canonicalUrl = new URL(pathname, window.location.origin).toString();
+  const canonicalPath = `/${locale.split('-')[0]}${pathname === '/' ? '' : pathname}`;
+  const canonicalUrl = new URL(canonicalPath, window.location.origin).toString();
   const title = meta.title;
   const description = meta.description;
   const robots = meta.robots || (pathname.startsWith("/studio") || pathname.startsWith("/ai-studio") || pathname.startsWith("/perfil") ? "noindex, nofollow" : "index, follow");
