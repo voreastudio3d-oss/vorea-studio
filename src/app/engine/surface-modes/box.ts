@@ -154,27 +154,27 @@ export function createBoxSurface(config: BoxConfig): SurfaceStrategy {
         }
       }
 
-      // Top ring cap
+      // Top ring cap — explicit manifold-consistent winding (no preferredNormal)
       if (capTop) {
         for (let ix = 0; ix < gW; ix++) {
           const oTop0 = this.outerPoint(ix, gH, getHeight(ix, gH));
           const oTop1 = this.outerPoint(ix + 1, gH, getHeight(ix + 1, gH));
           const iTop0 = this.innerPoint(ix, gH);
           const iTop1 = this.innerPoint(ix + 1, gH);
-          emitTri(oTop0, iTop0, oTop1, br, bg, bb, [0, 1, 0]);
-          emitTri(oTop1, iTop0, iTop1, br, bg, bb, [0, 1, 0]);
+          emitTri(oTop0, oTop1, iTop0, br, bg, bb);
+          emitTri(oTop1, iTop1, iTop0, br, bg, bb);
         }
       }
 
-      // Bottom ring cap
+      // Bottom ring cap — explicit manifold-consistent winding (no preferredNormal)
       if (capBottom) {
         for (let ix = 0; ix < gW; ix++) {
           const oBot0 = this.outerPoint(ix, 0, getHeight(ix, 0));
           const oBot1 = this.outerPoint(ix + 1, 0, getHeight(ix + 1, 0));
           const iBot0 = this.innerPoint(ix, 0);
           const iBot1 = this.innerPoint(ix + 1, 0);
-          emitTri(oBot0, oBot1, iBot0, br, bg, bb, [0, -1, 0]);
-          emitTri(oBot1, iBot1, iBot0, br, bg, bb, [0, -1, 0]);
+          emitTri(oBot1, oBot0, iBot0, br, bg, bb);
+          emitTri(oBot1, iBot0, iBot1, br, bg, bb);
         }
       }
     },

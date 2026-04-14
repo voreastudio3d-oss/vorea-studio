@@ -14,6 +14,16 @@ Bienvenido a **Vorea Studio**. Si eres GPT-4o/GPT-5 o Codex, este es tu punto de
 3. **Restricciones:** Revisa las restricciones de zona en `.agents/workflows/llm_safe_operating_protocol.md` sección 1.1.
 4. **Handoff:** Al cerrar, documenta en `.agents/handoffs/ai_handoff_YYYY-MM-DD.md`.
 
+## Checklist de Cierre Obligatorio
+
+Antes de declarar una tarea como finalizada, debes verificar explícitamente:
+
+1. Corriste `npm run test` para el cambio o el slice afectado.
+2. Corriste `npm run typecheck`.
+3. Si el cambio tocó lógica crítica, transversal o sensible, corriste `npm run test:coverage`.
+4. Si el cambio introdujo o corrigió comportamiento, agregaste o ajustaste tests unitarios/integración cuando correspondía.
+5. Si no corriste alguno de los checks aplicables, debes justificarlo en el handoff. Sin esa evidencia, la tarea no se considera cerrada.
+
 ## ⚠️ Zonas Prohibidas (Codex/GPT)
 
 > **LEER ANTES DE ESCRIBIR CÓDIGO**

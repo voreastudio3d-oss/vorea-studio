@@ -102,11 +102,11 @@ vi.mock("../../services/community-edit-routing", () => ({
 }));
 
 vi.mock("../../services/protected-auth-interactions", () => ({
-  protectedAuthAction: vi.fn((fn: Function) => fn),
+  protectedAuthAction: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
 }));
 
 vi.mock("../../services/protected-tool-actions", () => ({
-  protectedToolAction: vi.fn((fn: Function) => fn),
+  protectedToolAction: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
 }));
 
 vi.mock("../../services/hooks", () => ({

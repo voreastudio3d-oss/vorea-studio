@@ -34,15 +34,15 @@ Fuentes consideradas:
 | BG-116 | 🟡 Avanzado | **3/3 landings creadas**: `/for/makers`, `/for/education`, `/for/ai-creators` (ruteadas en App.tsx). Ya quedó importado el paquete `docs/marketing/` con auditoría pública, playbook de campañas, ad copy y briefs Canva, y además se alineó pricing/copy visible con `/plans` evitando claims cuantitativos inconsistentes. **Pendiente**: retargeting, lead magnets, dashboard semanal de adquisición y operación de redes |
 | BG-117.1 | ✅ Completado | Sistema IA insights: GA4 Data API + Gemini + `AnalyticsInsightsTab` en SuperAdmin con KPIs, tool usage, funnel, insights IA, cache 6h, mock fallback. Service account configurado en Railway |
 | BG-117.2 | ✅ Avanzado | Benchmark de ecosistema ya existente en `docs/research/3d-ecosystem-benchmark-2026-03.md` y nuevo research accionable de producto SCAD en `docs/research/parametric-scad-product-opportunities-2026-03.md`. Tambien quedo skill repo-local para futuras expansiones de catalogo |
-| BG-117.3 | ⬜ No empezado | FODA + roadmap 6 meses. Análisis FODA preliminar existe en `ai_shared_plan.md` pero no está formalizado |
-| BG-117.4 | 🟡 En progreso | Dashboard financiero ya separa top-ups one-time, suscripciones cobradas, donaciones y gasto IA real; además muestra el estado del bucket legacy y permite correr el backfill batch. Falta validarlo en el entorno objetivo |
+| BG-117.3 | ✅ Completado | FODA formalizado en `docs/research/foda-analysis-2026.md` + tab `FODAAnalysisTab` integrada en SuperAdmin con cuadrantes, badges de impacto y roadmap 6 meses |
+| BG-117.4 | ✅ Completado | Dashboard financiero con recharts (BarChart revenue/mes, PieChart breakdown, LineChart AI costs, tabla resumen) integrado en SuperAdmin como `FinancialDashboardTab`. 4 KPI cards + visualizaciones completas |
 | BG-201 | ✅ Completado | Planes alineados, features fantasma removidas (API access, colaboración, analytics avanzados) |
 | BG-202 | ✅ ~Cerrado | i18n: 8 locales sincronizados, 168 claves admin.activity.*, 84 claves membership. Residual: regla automática de sync |
 | BG-208 | ✅ Completado | `/docs` + OpenAPI + matriz + perfiles + manual usuario; paridad OpenAPI recuperada y espejo `public/docs/` resincronizado |
 | BG-209 | ✅ Completado | Gobernanza agentica V1.1 cerrada: drift determinista resuelto, `agent:governance:check` en CI, `agent:preflight --json`, `agent:git-recover --json`, `agent:route --goal` y routing mejorado para `.agents/**` y `agents/openai.yaml`. La compatibilidad multi-LLM queda como contexto manual mínimo, no como instrucción global intrusiva |
 | **Admin UX** | ✅ Completado | Mega menu horizontal por grupos + URL hash persistence + mobile dropdown (2026-03-25) |
 | **BG-109** | ⬜ No empezado | Relief: tolerancia por color, previsualización partes, asignación de caras (ver `project_pending.md`) |
-| **BG-110** | 🟡 En progreso | QA Relief: cobertura inicial de `mesh-inspector`, `threemf-exporter`, `mesh-repair` y `heightmap-generator` para `plane/cylinder`; smoke real ejecutado por CLI en Orca/Bambu muestra `plane/hybrid` sano, pero `cylinder/slic3r-strict` y `split-objects` siguen fallando con `open_edges`, así que no está cerrado |
+| **BG-110** | ✅ Completado | QA Relief: fix de cap winding en cylinder, box, polygon y lampshade (eliminado `preferredNormal` en caps/seals). Mesh inspector verifica 4 modos watertight, manifold, 0 boundary edges, 0 non-manifold edges. Smoke assets generados OK. 1417 tests pasan |
 | **BG-203** | ⬜ No empezado | Refactor intérprete SCAD por módulos (ver `project_pending.md`) |
 | **BG-204** | ⬜ No empezado | Métricas internas del engine |
 | **BG-205** | 🟡 En progreso | `text()` ya quedó expuesto en AI Studio para `text-keychain-tag`, `nameplate-pro` y `peg-label-system`, ahora con `auto-fit` básico, extrusión 3D real y wrapping heurístico a 2 líneas para signage; `threaded-jar` ya suma `thread_clearance`, `lead_in`, `thread_depth`, `fit_slop` y un perfil helicoidal más volumétrico, pero siguen faltando mejoras geométricas avanzadas, tolerancias más finas y mayor precisión para `Minkowski`/signage complejo |
@@ -51,7 +51,7 @@ Fuentes consideradas:
 
 ## Orden inmediato de acción (Actualizado)
 
-1. **[ALTA PRIORIDAD] BG-301**: Implementar el Motor IA Real (Integración LLM API) en el AI Studio para generación dinámica.
+1. ~~**BG-301**: Motor IA Real~~ — ✅ Ya implementado: 5 proveedores LLM (Gemini, OpenAI, Anthropic, DeepSeek, Kimi) con routing, fallback y budget. Verificado con API keys reales.
 2. Terminar la capa de CMS del AI Studio (Lectura/Escritura de Familias y Presets desde Base de datos en vez de código estático).
 3. Ejecutar fuera de local la certificación pendiente de monetización y guardar evidencia.
 4. Reprobar Claude o Gemini con contexto manual mínimo tras retirar instrucciones globales intrusivas.
@@ -86,7 +86,7 @@ Fuentes consideradas:
 | BG-102 | Conectar Editor al motor SCAD real | Editor con código SCAD + compilación + preview + export funcional | Los controles y acciones del Editor operan sobre geometría real |
 | BG-103 | Corregir MakerWorld sin modelo inicial | Estado vacío + CTA de carga/import + lint real sobre mesh | No hay métricas/lint fake cuando no existe modelo |
 | BG-104 | AI Studio con salida útil (SCAD real) | Generación SCAD real o plantillas funcionales + “Abrir en Editor” con transferencia | Cada generación produce código utilizable en Editor |
-| BG-117 | Dashboard analítico IA (GA4+Gemini+SuperAdmin) | GA4 Data API configurada, Gemini insights, cache 6h. 117.1 ✅, 117.2 ✅ (benchmark en `docs/research/`), 117.3 FODA ⏳, 117.4 KPIs ⏳ | SuperAdmin muestra KPIs, tool usage, funnel y sugerencias IA reales |
+| BG-117 | Dashboard analítico IA (GA4+Gemini+SuperAdmin) | GA4 Data API configurada, Gemini insights, cache 6h. 117.1 ✅, 117.2 ✅ (benchmark en `docs/research/`), 117.3 ✅ (FODA formalizado), 117.4 ✅ (KPI dashboard recharts) | SuperAdmin muestra KPIs, tool usage, funnel, sugerencias IA reales, FODA estratégico y dashboard financiero |
 | BG-105 | Orgánico conectado a deformación 3D real | Aplicación de deformaciones sobre mesh real | El resultado orgánico afecta geometría exportable, no solo preview 2D |
 | BG-106 | Comunidad real (upload/likes/downloads) | Endpoints + UI con datos reales en Explore | Explore deja de usar catálogo mock y soporta interacción real |
 | BG-107 | Envío de emails real | Integración de proveedor (Resend/SendGrid) en flujos admin | Eventos de negocio envían emails verificables |

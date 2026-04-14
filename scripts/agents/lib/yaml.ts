@@ -138,7 +138,7 @@ function parseArray(lines: string[], startIndex: number, indent: number): [YamlV
       break;
     }
     const itemText = trimmed === "-" ? "" : trimmed.slice(2).trim();
-    const looksLikeObjectEntry = /^[A-Za-z0-9_.-]+:\s*/.test(itemText);
+    const looksLikeObjectEntry = /^[A-Za-z0-9_.-]+:(\s|$)/.test(itemText);
     if (itemText && looksLikeObjectEntry) {
       const nestedIndent = indent + 2;
       const syntheticLines = [...lines];
