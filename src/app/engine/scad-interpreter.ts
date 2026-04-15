@@ -2045,7 +2045,8 @@ class Evaluator {
         const solid = named.solid === true || named.solid === "true";
         const maxheight = (named.maxheight as number) || 10;
         const sizeArg = named.size as number[] | number | undefined;
-        let sizeX = 100, sizeY = 100;
+        let sizeX = (named.width as number) || 100;
+        let sizeY = (named.height as number) || 100;
         if (Array.isArray(sizeArg)) {
           sizeX = sizeArg[0] || 100;
           sizeY = sizeArg[1] || sizeArg[0] || 100;

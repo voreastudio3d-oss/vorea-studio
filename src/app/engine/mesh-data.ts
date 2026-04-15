@@ -24,6 +24,14 @@ export interface SerializedMesh {
 
 // ─── Worker message protocol ──────────────────────────────────────────────────
 
+/** Serialized image data for transfer to worker */
+export interface SerializedImage {
+  width: number;
+  height: number;
+  /** RGBA pixel data */
+  data: ArrayBuffer;
+}
+
 export interface WorkerCompileRequest {
   type: "compile";
   id: number;
@@ -31,6 +39,8 @@ export interface WorkerCompileRequest {
   values: Record<string, number | boolean | string | number[]>;
   /** SVG files keyed by filename (lowercase) for import() support */
   svgs?: Record<string, string>;
+  /** Image files keyed by filename for surface() support */
+  images?: Record<string, SerializedImage>;
 }
 
 export interface WorkerCompileResponse {

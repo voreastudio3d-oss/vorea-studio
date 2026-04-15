@@ -30,7 +30,7 @@ import { trackAnalyticsEvent } from "../services/analytics";
 import { useNavigate, useSearchParams } from "../nav";
 import { parseScad, regenerateScad } from "../services/scad-parser";
 import type { ScadParseResult } from "../services/scad-parser";
-import type { SerializedMesh } from "../engine/mesh-data";
+import type { SerializedMesh, SerializedImage } from "../engine/mesh-data";
 import { GCodeCollectionService } from "../services/storage";
 import { toast } from "sonner";
 import { fireReward } from "../services/reward-triggers";
@@ -196,6 +196,7 @@ export function Editor() {
   const [communityModelId, setCommunityModelId] = useState<string | null>(null);
   const [communityEditMeta, setCommunityEditMeta] = useState<CommunityEditMeta | null>(null);
   const [loadedSvgs, setLoadedSvgs] = useState<Record<string, string>>({});
+  const [loadedImages, setLoadedImages] = useState<Record<string, SerializedImage>>({});
   const svgInputRef = useRef<HTMLInputElement>(null);
   const imgInputRef = useRef<HTMLInputElement>(null);
 
@@ -544,7 +545,16 @@ export function Editor() {
       const dataUrl = ev.target?.result as string;
       if (dataUrl) {
         const { registerImage } = await import("../engine/image-registry");
-        await registerImage("surface_image", dataUrl);
+        const decoded = await registerImage("surface_image", dataUrl);
+        // Store serialized image data for worker transfer
+        setLoadedImages((prev) => ({
+          ...prev,
+          surface_image: {
+            width: decoded.width,
+            height: decoded.height,
+            data: decoded.data.buffer as ArrayBuffer,
+          },
+        }));
         insertAtCursor(`surface("surface_image", width=100, height=100);`);
         toast.success(`Imagen "${file.name}" cargada e insertada`);
       }
@@ -1007,6 +1017,7 @@ export function Editor() {
             values={model.paramValues}
             onMeshReady={model.setCompiledMesh}
             svgs={loadedSvgs}
+            images={loadedImages}
           />
         </div>
 

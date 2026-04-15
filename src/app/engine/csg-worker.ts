@@ -14,6 +14,7 @@ if (typeof globalThis.DOMParser === "undefined") {
 import { compileScad } from "./scad-interpreter";
 import { regenerateScad } from "../services/scad-parser";
 import { registerSvg, clearSvgs } from "./svg-registry";
+import { registerImageData, clearImages } from "./image-registry";
 import type {
   WorkerCompileRequest,
   WorkerCompileResponse,
@@ -24,7 +25,7 @@ import type {
 // ─── Message handler ──────────────────────────────────────────────────────────
 
 self.onmessage = (e: MessageEvent<WorkerCompileRequest>) => {
-  const { type, id, source, values, svgs } = e.data;
+  const { type, id, source, values, svgs, images } = e.data;
 
   if (type !== "compile") return;
 
@@ -36,6 +37,18 @@ self.onmessage = (e: MessageEvent<WorkerCompileRequest>) => {
       clearSvgs();
       for (const [name, text] of Object.entries(svgs)) {
         registerSvg(name, text);
+      }
+    }
+
+    // Sync image registry in worker context
+    if (images) {
+      clearImages();
+      for (const [name, img] of Object.entries(images)) {
+        registerImageData(name, {
+          width: img.width,
+          height: img.height,
+          data: new Uint8ClampedArray(img.data),
+        });
       }
     }
 

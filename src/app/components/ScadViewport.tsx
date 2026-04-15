@@ -9,10 +9,12 @@ import { useRef, useEffect, useCallback, useState, useMemo, forwardRef, useImper
 import { compileScad } from "../engine/scad-interpreter";
 import { regenerateScad } from "../services/scad-parser";
 import { registerSvg, clearSvgs } from "../engine/svg-registry";
+import { registerImageData, clearImages as clearImageRegistry } from "../engine/image-registry";
 import { estimateComplexity, complexityColor, type ComplexityEstimate } from "../engine/complexity";
 import {
   deserializeToRenderable,
   type SerializedMesh,
+  type SerializedImage,
   type WorkerCompileRequest,
   type WorkerCompileResponse,
   type RenderableMesh,
@@ -70,6 +72,8 @@ interface ScadViewportProps {
   onMeshReady?: (mesh: SerializedMesh | null) => void;
   /** SVG files keyed by filename for import() support */
   svgs?: Record<string, string>;
+  /** Serialized image data keyed by filename for surface() support */
+  images?: Record<string, SerializedImage>;
 }
 
 export interface ScadViewportHandle {
@@ -111,6 +115,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   autoCompile = false,
   onMeshReady,
   svgs,
+  images,
 }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<ThreeSceneContext | null>(null);
@@ -250,6 +255,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
         source,
         values,
         svgs,
+        images,
       };
 
       const handler = (e: MessageEvent<WorkerCompileResponse>) => {
@@ -308,6 +314,18 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
             clearSvgs();
             for (const [name, text] of Object.entries(svgs)) {
               registerSvg(name, text);
+            }
+          }
+
+          // Sync image registry for main-thread compilation
+          if (images) {
+            clearImageRegistry();
+            for (const [name, img] of Object.entries(images)) {
+              registerImageData(name, {
+                width: img.width,
+                height: img.height,
+                data: new Uint8ClampedArray(img.data),
+              });
             }
           }
 
@@ -373,7 +391,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
         setCompiling(false);
       }, 20);
     });
-  }, [source, values, svgs, renderMeshToScene, onMeshReady]);
+  }, [source, values, svgs, images, renderMeshToScene, onMeshReady]);
 
   // ─── Unified compile ──────────────────────────────────────────────
   const compile = useCallback(() => {
