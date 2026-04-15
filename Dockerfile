@@ -14,17 +14,20 @@
 # ── Stage 1: Build ────────────────────────────────────────────────────────────
 FROM node:22-alpine AS builder
 
+# Enable corepack for pnpm support
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+
 WORKDIR /app
 
 # Vite embeds VITE_* vars at build time — pass them as build args
 ARG VITE_OWNER_EMAIL
 ARG VITE_API_URL=/api
 
-# Copy package.json only (no lockfile — fresh resolve for linux platform)
-COPY package.json ./
+# Copy manifests + lockfile for deterministic installs
+COPY package.json pnpm-lock.yaml ./
 
-# Fresh install to get correct platform-specific binaries (rollup-linux-x64-musl)
-RUN npm install
+# Install deps (pnpm resolves correct platform binaries from lockfile)
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -33,16 +36,19 @@ COPY . .
 RUN npx prisma generate 2>/dev/null || true
 
 # Build the frontend and static SEO assets
-RUN npm run build
+RUN pnpm run build
 
 # ── Stage 2: Production ──────────────────────────────────────────────────────
 FROM node:22-alpine AS production
 
+# Enable corepack for pnpm support
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+
 WORKDIR /app
 
-# Copy package.json (the runtime still executes TypeScript via tsx)
-COPY package.json ./
-RUN npm install && npm cache clean --force
+# Copy manifests + lockfile for production install
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile && pnpm store prune
 
 # Copy built frontend from builder
 COPY --from=builder /app/dist ./dist
