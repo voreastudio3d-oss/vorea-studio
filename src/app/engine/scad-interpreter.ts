@@ -2411,17 +2411,19 @@ class Evaluator {
         ext.dispose();
 
         // Scale and center the shape, flip Y (SVG Y goes down, SCAD Y goes up)
+        // Also mirror X to prevent horizontal flip, then reverse winding
         for (const poly of shapeCSG.polygons) {
           const verts = poly.vertices.map(v =>
             new Vertex(
               new Vec3(
-                (v.pos.x - svgMinX) * scaleFactor,
+                (svgMaxX - v.pos.x) * scaleFactor,
                 (svgMaxY - v.pos.y) * scaleFactor,
                 v.pos.z
               ),
-              new Vec3(v.normal.x, -v.normal.y, v.normal.z)
+              new Vec3(-v.normal.x, -v.normal.y, v.normal.z)
             )
           );
+          verts.reverse();
           allPolygons.push(new Polygon(verts, poly.shared));
         }
       }
@@ -2442,18 +2444,19 @@ class Evaluator {
     const rawCSG = bufferGeometryToCSG(ext);
     ext.dispose();
 
-    // Scale, flip Y, and center
+    // Scale, flip Y and mirror X, then reverse winding to fix orientation
     const polygons = rawCSG.polygons.map(poly => {
       const verts = poly.vertices.map(v =>
         new Vertex(
           new Vec3(
-            (v.pos.x - svgMinX) * scaleFactor,
+            (svgMaxX - v.pos.x) * scaleFactor,
             (svgMaxY - v.pos.y) * scaleFactor,
             v.pos.z
           ),
-          new Vec3(v.normal.x, -v.normal.y, v.normal.z)
+          new Vec3(-v.normal.x, -v.normal.y, v.normal.z)
         )
       );
+      verts.reverse();
       return new Polygon(verts, poly.shared);
     });
 
