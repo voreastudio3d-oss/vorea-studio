@@ -1,5 +1,27 @@
 import "@testing-library/jest-dom/vitest";
 
+// Polyfill SVG CSS properties for happy-dom / jsdom.
+// Three.js SVGLoader accesses node.style['fill'] etc. via bracket notation.
+// In real browsers these return '' when unset; in happy-dom they return undefined,
+// which causes SVGLoader's addStyle() to crash ("undefined.startsWith is not a function").
+if (typeof CSSStyleDeclaration !== "undefined") {
+  const svgProps = [
+    "fill", "fill-opacity", "fill-rule", "opacity",
+    "stroke", "stroke-opacity", "stroke-width",
+    "stroke-linejoin", "stroke-linecap", "stroke-miterlimit",
+    "visibility",
+  ];
+  for (const prop of svgProps) {
+    if (!(prop in CSSStyleDeclaration.prototype)) {
+      Object.defineProperty(CSSStyleDeclaration.prototype, prop, {
+        get() { return this.getPropertyValue(prop) || ""; },
+        set(v: string) { this.setProperty(prop, v); },
+        configurable: true,
+      });
+    }
+  }
+}
+
 // Mock localStorage for happy-dom
 const localStorageMock: Storage = (() => {
   let store: Record<string, string> = {};

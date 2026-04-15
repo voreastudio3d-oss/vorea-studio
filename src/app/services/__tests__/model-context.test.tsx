@@ -156,6 +156,6 @@ describe("DEFAULT_SOURCE", () => {
 
   it("contains SCAD code", () => {
     expect(DEFAULT_SOURCE).toContain("$fn");
-    expect(DEFAULT_SOURCE).toContain("cube");
+    expect(DEFAULT_SOURCE).toContain("difference");
   });
 });

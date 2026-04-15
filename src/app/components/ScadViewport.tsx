@@ -8,7 +8,7 @@
 import { useRef, useEffect, useCallback, useState, useMemo, forwardRef, useImperativeHandle } from "react";
 import { compileScad } from "../engine/scad-interpreter";
 import { regenerateScad } from "../services/scad-parser";
-import { registerImage } from "../engine/image-registry";
+import { registerSvg, clearSvgs } from "../engine/svg-registry";
 import { estimateComplexity, complexityColor, type ComplexityEstimate } from "../engine/complexity";
 import {
   deserializeToRenderable,
@@ -47,7 +47,6 @@ import {
   Copy,
   CheckCircle2,
   Axis3D,
-  ImagePlus,
 } from "lucide-react";
 
 interface ScadViewportProps {
@@ -59,6 +58,8 @@ interface ScadViewportProps {
   autoCompile?: boolean;
   /** Callback with serialized mesh (for GCode generation) */
   onMeshReady?: (mesh: SerializedMesh | null) => void;
+  /** SVG files keyed by filename for import() support */
+  svgs?: Record<string, string>;
 }
 
 export interface ScadViewportHandle {
@@ -99,6 +100,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   values,
   autoCompile = false,
   onMeshReady,
+  svgs,
 }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<ThreeSceneContext | null>(null);
@@ -121,8 +123,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   const [usedWorker, setUsedWorker] = useState(false);
   const [errorCopied, setErrorCopied] = useState(false);
   const [renderMode, setRenderMode] = useState<RenderMode>("smooth");
-  const [loadedImages, setLoadedImages] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const autoRef = useRef(false);
   autoRef.current = autoRecompile;
   const lastFingerprintRef = useRef<string>("");
@@ -207,6 +207,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
         id,
         source,
         values,
+        svgs,
       };
 
       const handler = (e: MessageEvent<WorkerCompileResponse>) => {
@@ -253,13 +254,21 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
       worker.addEventListener("message", handler);
       worker.postMessage(msg);
     });
-  }, [source, values, renderMeshToScene, onMeshReady]);
+  }, [source, values, svgs, renderMeshToScene, onMeshReady]);
 
   // ─── Compile fallback (main thread, setTimeout) ───────────────────
   const compileMainThread = useCallback(() => {
     requestAnimationFrame(() => {
       setTimeout(() => {
         try {
+          // Sync SVG registry for main-thread compilation
+          if (svgs) {
+            clearSvgs();
+            for (const [name, text] of Object.entries(svgs)) {
+              registerSvg(name, text);
+            }
+          }
+
           const updatedSource = regenerateScad(source, values);
           const result = compileScad(updatedSource, values);
           const polys = result.geometry.toPolygons();
@@ -322,7 +331,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
         setCompiling(false);
       }, 20);
     });
-  }, [source, values, renderMeshToScene, onMeshReady]);
+  }, [source, values, svgs, renderMeshToScene, onMeshReady]);
 
   // ─── Unified compile ──────────────────────────────────────────────
   const compile = useCallback(() => {
@@ -395,26 +404,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   // ─── Toggle auto-recompile with recommendation check ──────────────
   const toggleAutoRecompile = useCallback(() => {
     setAutoRecompile(prev => !prev);
-  }, []);
-
-  // ─── Image upload handler ─────────────────────────────────────────
-  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    // Use the first file, register with fixed alias
-    const file = files[0];
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const dataUrl = ev.target?.result as string;
-      if (dataUrl) {
-        // Always register as "surface_image" so SCAD code doesn't need the filename
-        await registerImage("surface_image", dataUrl);
-        setLoadedImages([file.name]);
-      }
-    };
-    reader.readAsDataURL(file);
-    // Reset input so the same file can be re-uploaded
-    e.target.value = "";
   }, []);
 
   const showIdleOverlay = !hasCompiled && !compiling;
@@ -594,26 +583,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
             L
           </button>
           <div className="w-7 h-px" />
-          {/* ─── Image upload ──────────────────────────────────────────── */}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-              loadedImages.length > 0
-                ? "bg-[#C6E36C]/20 text-[#C6E36C] border border-[#C6E36C]/30"
-                : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
-            }`}
-            title={loadedImages.length > 0 ? `Imagen cargada: ${loadedImages[0]} (alias: surface_image)` : "Subir imagen para surface()"}
-          >
-            <ImagePlus className="w-3.5 h-3.5" />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/png,image/jpeg,image/jpg,image/webp"
-            multiple
-            className="hidden"
-            onChange={handleImageUpload}
-          />
           <button
             onClick={toggleAutoRecompile}
             className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${

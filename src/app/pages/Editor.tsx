@@ -55,6 +55,8 @@ import {
   Printer,
   ArrowRight,
   Globe,
+  FileUp,
+  ImagePlus,
 } from "lucide-react";
 
 // ─── Built-in templates ───────────────────────────────────────────────────────
@@ -189,6 +191,9 @@ export function Editor() {
   const [publishMode, setPublishMode] = useState<CommunityPublishMode>("create");
   const [communityModelId, setCommunityModelId] = useState<string | null>(null);
   const [communityEditMeta, setCommunityEditMeta] = useState<CommunityEditMeta | null>(null);
+  const [loadedSvgs, setLoadedSvgs] = useState<Record<string, string>>({});
+  const svgInputRef = useRef<HTMLInputElement>(null);
+  const imgInputRef = useRef<HTMLInputElement>(null);
 
   const consumeStudioAction = useCallback((actionId: string, authMessage: string, deniedMessage?: string) => {
     return consumeProtectedToolAction({
@@ -449,6 +454,78 @@ export function Editor() {
     input.click();
   }, [model, setSearchParams]);
 
+  // ─── Insert text at cursor position in textarea ───────────────────
+  const insertAtCursor = useCallback((text: string) => {
+    const ta = textareaRef.current;
+    if (!ta) {
+      // Fallback: append at end
+      const newSource = localSource + "\n" + text;
+      setLocalSource(newSource);
+      model.setScadSource(newSource, projectTitle, communityModelId);
+      prevSourceRef.current = newSource;
+      return;
+    }
+    const start = ta.selectionStart;
+    const before = localSource.slice(0, start);
+    const after = localSource.slice(start);
+    // Add newline if cursor is not at line start
+    const prefix = before.length > 0 && !before.endsWith("\n") ? "\n" : "";
+    const newSource = before + prefix + text + "\n" + after;
+    setLocalSource(newSource);
+    model.setScadSource(newSource, projectTitle, communityModelId);
+    prevSourceRef.current = newSource;
+    // Move cursor after inserted text
+    requestAnimationFrame(() => {
+      const pos = start + prefix.length + text.length + 1;
+      ta.focus();
+      ta.setSelectionRange(pos, pos);
+    });
+  }, [localSource, model, projectTitle, communityModelId]);
+
+  // ─── SVG upload → register + insert import() ─────────────────────
+  const handleSvgImport = useCallback(() => {
+    svgInputRef.current?.click();
+  }, []);
+
+  const handleSvgFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.name.toLowerCase().endsWith(".svg")) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      if (text) {
+        const name = file.name.toLowerCase();
+        setLoadedSvgs(prev => ({ ...prev, [name]: text }));
+        insertAtCursor(`import("${file.name}");`);
+        toast.success(`SVG "${file.name}" cargado e insertado`);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  }, [insertAtCursor]);
+
+  // ─── Image upload → register + insert surface() ──────────────────
+  const handleImageImport = useCallback(() => {
+    imgInputRef.current?.click();
+  }, []);
+
+  const handleImageFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target?.result as string;
+      if (dataUrl) {
+        const { registerImage } = await import("../engine/image-registry");
+        await registerImage("surface_image", dataUrl);
+        insertAtCursor(`surface("surface_image", width=100, height=100);`);
+        toast.success(`Imagen "${file.name}" cargada e insertada`);
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }, [insertAtCursor]);
+
   // Copy code
   const handleCopy = useCallback(() => {
     try {
@@ -664,7 +741,43 @@ export function Editor() {
             >
               <Upload className="w-3 h-3" />
             </button>
+            <div className="w-px h-4 bg-[rgba(168,187,238,0.12)]" />
+            <button
+              onClick={handleSvgImport}
+              className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
+                Object.keys(loadedSvgs).length > 0
+                  ? "bg-[#C6E36C]/20 text-[#C6E36C]"
+                  : "hover:bg-white/10 text-gray-500 hover:text-gray-300"
+              }`}
+              title={Object.keys(loadedSvgs).length > 0
+                ? `SVG: ${Object.keys(loadedSvgs).join(", ")}`
+                : "Importar SVG (inserta import() en cursor)"}
+            >
+              <FileUp className="w-3 h-3" />
+            </button>
+            <button
+              onClick={handleImageImport}
+              className="w-6 h-6 rounded flex items-center justify-center hover:bg-white/10 text-gray-500 hover:text-gray-300 transition-colors"
+              title="Importar imagen (inserta surface() en cursor)"
+            >
+              <ImagePlus className="w-3 h-3" />
+            </button>
           </div>
+          {/* Hidden file inputs for SVG and image import */}
+          <input
+            ref={svgInputRef}
+            type="file"
+            accept=".svg,image/svg+xml"
+            className="hidden"
+            onChange={handleSvgFileChange}
+          />
+          <input
+            ref={imgInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            className="hidden"
+            onChange={handleImageFileChange}
+          />
         </div>
 
         {/* Template selector */}
@@ -840,6 +953,7 @@ export function Editor() {
             source={localSource}
             values={model.paramValues}
             onMeshReady={model.setCompiledMesh}
+            svgs={loadedSvgs}
           />
         </div>
 

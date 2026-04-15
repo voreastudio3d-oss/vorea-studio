@@ -5,8 +5,15 @@
  * Receives source + values, returns serialized mesh data.
  */
 
+// Polyfill DOMParser for Web Worker context (needed by SVGLoader)
+import { DOMParser as XmlDomParser } from "@xmldom/xmldom";
+if (typeof globalThis.DOMParser === "undefined") {
+  (globalThis as any).DOMParser = XmlDomParser;
+}
+
 import { compileScad } from "./scad-interpreter";
 import { regenerateScad } from "../services/scad-parser";
+import { registerSvg, clearSvgs } from "./svg-registry";
 import type {
   WorkerCompileRequest,
   WorkerCompileResponse,
@@ -17,13 +24,21 @@ import type {
 // ─── Message handler ──────────────────────────────────────────────────────────
 
 self.onmessage = (e: MessageEvent<WorkerCompileRequest>) => {
-  const { type, id, source, values } = e.data;
+  const { type, id, source, values, svgs } = e.data;
 
   if (type !== "compile") return;
 
   const start = performance.now();
 
   try {
+    // Sync SVG registry in worker context
+    if (svgs) {
+      clearSvgs();
+      for (const [name, text] of Object.entries(svgs)) {
+        registerSvg(name, text);
+      }
+    }
+
     // Regenerate source with current parameter values
     const updatedSource = regenerateScad(source, values);
 

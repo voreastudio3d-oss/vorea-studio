@@ -11,8 +11,10 @@ import {
   mat4Scale, mat4Multiply
 } from "./csg";
 import { getImage, sampleBrightness } from "./image-registry";
+import { getSvg, getRegisteredSvgNames } from "./svg-registry";
 import { Vector2, ShapeUtils, ExtrudeGeometry } from "three";
 import { Font } from 'three/examples/jsm/loaders/FontLoader.js';
+import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import helvetikerJson from 'three/examples/fonts/helvetiker_regular.typeface.json';
 
 const SYSTEM_FONT = new Font(helvetikerJson as any);
@@ -1971,10 +1973,31 @@ class Evaluator {
         return csg;
       }
 
-      // ─── import() – unsupported but don't crash ────────────────
+      // ─── import() – SVG vector import ──────────────────────────
       case "import": {
-        console.log(`[SCAD] import() no soportado en Vorea Studio: ${args[0]}`);
-        return null;
+        const importFile = (args[0] || named.file) as string;
+        if (!importFile || typeof importFile !== "string") {
+          console.log(`[SCAD] import() requires a filename argument`);
+          return null;
+        }
+
+        // Only SVG is supported
+        if (!importFile.toLowerCase().endsWith(".svg")) {
+          console.log(`[SCAD] import(): only .svg files supported. Got: "${importFile}"`);
+          return null;
+        }
+
+        const svgText = getSvg(importFile);
+        if (!svgText) {
+          console.warn(`[SCAD] import(): SVG "${importFile}" not found in registry. Available:`, getRegisteredSvgNames());
+          // Return a flat placeholder so the model doesn't break
+          return CSG.cube({ center: new Vec3(5, 5, 0.05), radius: new Vec3(5, 5, 0.05) });
+        }
+
+        console.log(`[SCAD] import(): Found SVG "${importFile}", ${svgText.length} chars. Parsing...`);
+        const svgResult = this.parseSvgToCSG(svgText, named);
+        console.log(`[SCAD] import(): parseSvgToCSG returned ${svgResult ? svgResult.polygons.length + ' polys' : 'null'}`);
+        return svgResult;
       }
 
       // ─── surface() – heightmap from image ─────────────────────────
@@ -2316,6 +2339,125 @@ class Evaluator {
       return (child as any).__polygon2d as number[][];
     }
     return [];
+  }
+
+  /**
+   * Parse SVG text into 2D CSG shapes using Three.js SVGLoader.
+   * Returns a CSG with __polygon2d for use with linear_extrude,
+   * or pre-extruded 3D geometry if used standalone.
+   */
+  private parseSvgToCSG(svgText: string, named: Record<string, unknown>): CSG | null {
+    const loader = new SVGLoader();
+    let svgData;
+    try {
+      svgData = loader.parse(svgText);
+    } catch (err) {
+      console.error("[SCAD] import(): SVG parse error", err);
+      return null;
+    }
+
+    if (!svgData.paths || svgData.paths.length === 0) {
+      console.log("[SCAD] import(): SVG has no renderable paths");
+      return null;
+    }
+
+    // Collect all shapes from all paths
+    const allShapes: InstanceType<typeof import("three").Shape>[] = [];
+    for (const path of svgData.paths) {
+      const shapes = SVGLoader.createShapes(path);
+      allShapes.push(...shapes);
+    }
+
+    if (allShapes.length === 0) {
+      console.log("[SCAD] import(): SVG produced no shapes");
+      return null;
+    }
+
+    // Compute SVG bounding box for normalization
+    let svgMinX = Infinity, svgMinY = Infinity, svgMaxX = -Infinity, svgMaxY = -Infinity;
+    for (const shape of allShapes) {
+      const pts = shape.getPoints(12);
+      for (const p of pts) {
+        if (p.x < svgMinX) svgMinX = p.x;
+        if (p.y < svgMinY) svgMinY = p.y;
+        if (p.x > svgMaxX) svgMaxX = p.x;
+        if (p.y > svgMaxY) svgMaxY = p.y;
+      }
+    }
+    const svgW = svgMaxX - svgMinX || 1;
+    const svgH = svgMaxY - svgMinY || 1;
+
+    // Target size: default 100mm, user can override with scale parameter
+    const targetSize = (named.size as number) || 100;
+    const scaleFactor = targetSize / Math.max(svgW, svgH);
+
+    // Check if we're inside a linear_extrude (has height from parent)
+    const extHeight = this.env.get("$linear_extrude_height") as number | undefined;
+
+    if (extHeight !== undefined) {
+      // 2D mode: return polygon data for the parent linear_extrude to handle
+      // Use the first shape's outer contour for simple polygon mode
+      const result = new CSG();
+      const allPolygons: Polygon[] = [];
+
+      for (const shape of allShapes) {
+        const ext = new ExtrudeGeometry([shape], {
+          depth: extHeight,
+          bevelEnabled: false,
+          curveSegments: Math.max(2, Math.min(((named.$fn || this.env.get("$fn") || 12) as number) / 2, 32)),
+        });
+
+        const shapeCSG = bufferGeometryToCSG(ext);
+        ext.dispose();
+
+        // Scale and center the shape, flip Y (SVG Y goes down, SCAD Y goes up)
+        for (const poly of shapeCSG.polygons) {
+          const verts = poly.vertices.map(v =>
+            new Vertex(
+              new Vec3(
+                (v.pos.x - svgMinX) * scaleFactor,
+                (svgMaxY - v.pos.y) * scaleFactor,
+                v.pos.z
+              ),
+              new Vec3(v.normal.x, -v.normal.y, v.normal.z)
+            )
+          );
+          allPolygons.push(new Polygon(verts, poly.shared));
+        }
+      }
+
+      return CSG.fromPolygons(allPolygons);
+    }
+
+    // 3D standalone mode: extrude to a thin slab (1mm default)
+    const depth = (named.height as number) || 1;
+    const curveSegs = Math.max(2, Math.min(((named.$fn || this.env.get("$fn") || 12) as number) / 2, 32));
+
+    const ext = new ExtrudeGeometry(allShapes, {
+      depth: depth,
+      bevelEnabled: false,
+      curveSegments: curveSegs,
+    });
+
+    const rawCSG = bufferGeometryToCSG(ext);
+    ext.dispose();
+
+    // Scale, flip Y, and center
+    const polygons = rawCSG.polygons.map(poly => {
+      const verts = poly.vertices.map(v =>
+        new Vertex(
+          new Vec3(
+            (v.pos.x - svgMinX) * scaleFactor,
+            (svgMaxY - v.pos.y) * scaleFactor,
+            v.pos.z
+          ),
+          new Vec3(v.normal.x, -v.normal.y, v.normal.z)
+        )
+      );
+      return new Polygon(verts, poly.shared);
+    });
+
+    return CSG.fromPolygons(polygons);
   }
 
   private linearExtrudePolygon(pts: number[][], height: number, twist: number, center: boolean, slices: number): CSG {

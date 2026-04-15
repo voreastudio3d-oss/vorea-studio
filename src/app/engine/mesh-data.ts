@@ -27,6 +27,8 @@ export interface WorkerCompileRequest {
   id: number;
   source: string;
   values: Record<string, number | boolean | string | number[]>;
+  /** SVG files keyed by filename (lowercase) for import() support */
+  svgs?: Record<string, string>;
 }
 
 export interface WorkerCompileResponse {
