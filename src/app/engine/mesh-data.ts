@@ -13,6 +13,8 @@ export interface SerializedVertex {
 export interface SerializedPolygon {
   vertices: SerializedVertex[];
   planeNx: number; planeNy: number; planeNz: number; planeW: number;
+  /** Optional RGB color [0-1, 0-1, 0-1] for per-polygon coloring */
+  color?: [number, number, number];
 }
 
 export interface SerializedMesh {
@@ -55,6 +57,7 @@ export interface RenderablePolygon {
     normal: { x: number; y: number; z: number };
     w: number;
   };
+  color?: [number, number, number];
 }
 
 /**
@@ -71,6 +74,7 @@ export function deserializeToRenderable(mesh: SerializedMesh): RenderableMesh {
       normal: { x: sp.planeNx, y: sp.planeNy, z: sp.planeNz },
       w: sp.planeW,
     },
+    ...(sp.color ? { color: sp.color } : {}),
   }));
 
   return { toPolygons: () => polygons };

@@ -27,8 +27,14 @@ import {
   setCameraPreset,
   resetView,
   getFaceCount,
+  handleClick,
+  selectMesh,
+  deselectMesh,
+  setTransformMode,
+  getTransformMode,
   type ThreeSceneContext,
   type RenderMode,
+  type TransformMode,
 } from "../engine/threejs-renderer";
 import { CompilationLogService, copyToClipboard } from "../services/compilation-log";
 import { Badge } from "./ui/badge";
@@ -47,6 +53,10 @@ import {
   Copy,
   CheckCircle2,
   Axis3D,
+  Move,
+  RotateCw,
+  Maximize2,
+  MousePointerClick,
 } from "lucide-react";
 
 interface ScadViewportProps {
@@ -123,6 +133,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   const [usedWorker, setUsedWorker] = useState(false);
   const [errorCopied, setErrorCopied] = useState(false);
   const [renderMode, setRenderMode] = useState<RenderMode>("smooth");
+  const [transformMode, setTransformModeState] = useState<TransformMode | null>(null);
   const autoRef = useRef(false);
   autoRef.current = autoRecompile;
   const lastFingerprintRef = useRef<string>("");
@@ -145,6 +156,37 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
     return () => {
       disposeScene(ctx);
       sceneRef.current = null;
+    };
+  }, []);
+
+  // ─── Click-to-select handler ──────────────────────────────────────
+  useEffect(() => {
+    const ctx = sceneRef.current;
+    if (!ctx) return;
+
+    let downPos: { x: number; y: number } | null = null;
+
+    const onPointerDown = (e: PointerEvent) => {
+      downPos = { x: e.clientX, y: e.clientY };
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      if (!downPos) return;
+      // Only treat as click if pointer didn't move much (ignore drags)
+      const dx = e.clientX - downPos.x;
+      const dy = e.clientY - downPos.y;
+      if (dx * dx + dy * dy > 9) return; // 3px threshold
+
+      const selected = handleClick(ctx, e as unknown as MouseEvent);
+      setTransformModeState(selected ? (getTransformMode(ctx) || "translate") : null);
+    };
+
+    const dom = ctx.renderer.domElement;
+    dom.addEventListener("pointerdown", onPointerDown);
+    dom.addEventListener("pointerup", onPointerUp);
+    return () => {
+      dom.removeEventListener("pointerdown", onPointerDown);
+      dom.removeEventListener("pointerup", onPointerUp);
     };
   }, []);
 
@@ -600,13 +642,54 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           >
             <Zap className="w-3.5 h-3.5" />
           </button>
+          <div className="w-7 h-px" />
+          {/* ─── Transform mode buttons ──────────────────────────────── */}
+          {(["translate", "rotate", "scale"] as TransformMode[]).map((mode) => {
+            const Icon = mode === "translate" ? Move : mode === "rotate" ? RotateCw : Maximize2;
+            const label = mode === "translate" ? "Mover" : mode === "rotate" ? "Rotar" : "Escalar";
+            const active = transformMode === mode;
+            return (
+              <button
+                key={mode}
+                onClick={() => {
+                  const ctx = sceneRef.current;
+                  if (!ctx) return;
+                  if (active) {
+                    // Deselect
+                    deselectMesh(ctx);
+                    setTransformModeState(null);
+                  } else {
+                    // Set mode; auto-select if mesh exists
+                    setTransformMode(ctx, mode);
+                    setTransformModeState(mode);
+                    if (!ctx.selectedMesh && ctx.meshGroup.children.length > 0) {
+                      const firstMesh = ctx.meshGroup.children.find(
+                        (c) => (c as any).isMesh
+                      );
+                      if (firstMesh) {
+                        selectMesh(ctx, firstMesh as any);
+                      }
+                    }
+                  }
+                }}
+                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                  active
+                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                    : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)] hover:text-gray-300"
+                }`}
+                title={label}
+              >
+                <Icon className="w-3.5 h-3.5" />
+              </button>
+            );
+          })}
         </div>
       )}
 
       {/* ─── Help text ─────────────────────────────────────────────────── */}
       {hasCompiled && !compiling && (
         <div className="absolute bottom-12 right-3 text-[9px] text-gray-600 select-none z-10">
-          Orbitar · Click derecho pan · Scroll zoom
+          Orbitar · Click derecho pan · Scroll zoom · Click seleccionar
         </div>
       )}
 

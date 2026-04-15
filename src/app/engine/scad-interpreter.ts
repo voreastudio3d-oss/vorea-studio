@@ -11,7 +11,7 @@ import {
   mat4Scale, mat4Multiply
 } from "./csg";
 import { getImage, sampleBrightness } from "./image-registry";
-import { getSvg, getRegisteredSvgNames } from "./svg-registry";
+import { getSvg } from "./svg-registry";
 import { Vector2, ShapeUtils, ExtrudeGeometry } from "three";
 import { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
@@ -1780,8 +1780,34 @@ class Evaluator {
       }
 
       case "color": {
-        // Color is visual-only; just pass through children
-        return this.evalChildrenGeometry(children);
+        // Apply color metadata to all polygons of children
+        const colorChild = this.evalChildrenGeometry(children);
+        if (!colorChild) return null;
+
+        // Parse color argument: color("red"), color([r,g,b]), color([r,g,b,a])
+        let r = 0.78, g = 0.89, b = 0.42; // default VOREA_GREEN
+        const colorArg = args[0] ?? named.c;
+        if (Array.isArray(colorArg)) {
+          r = Number(colorArg[0]) || r;
+          g = Number(colorArg[1]) || g;
+          b = Number(colorArg[2]) || b;
+        } else if (typeof colorArg === "string") {
+          const namedColors: Record<string, [number, number, number]> = {
+            red: [1, 0, 0], green: [0, 0.5, 0], blue: [0, 0, 1],
+            yellow: [1, 1, 0], cyan: [0, 1, 1], magenta: [1, 0, 1],
+            white: [1, 1, 1], black: [0, 0, 0], orange: [1, 0.647, 0],
+            purple: [0.5, 0, 0.5], pink: [1, 0.753, 0.796],
+            gray: [0.5, 0.5, 0.5], grey: [0.5, 0.5, 0.5],
+          };
+          const nc = namedColors[colorArg.toLowerCase()];
+          if (nc) { r = nc[0]; g = nc[1]; b = nc[2]; }
+        }
+
+        // Tag all polygons with color metadata via shared field
+        const coloredPolygons = colorChild.polygons.map(p => {
+          return new Polygon(p.vertices.map(v => v.clone()), { color: [r, g, b] as [number, number, number] });
+        });
+        return CSG.fromPolygons(coloredPolygons);
       }
 
       case "multmatrix": {
@@ -1989,14 +2015,12 @@ class Evaluator {
 
         const svgText = getSvg(importFile);
         if (!svgText) {
-          console.warn(`[SCAD] import(): SVG "${importFile}" not found in registry. Available:`, getRegisteredSvgNames());
+          console.warn(`[SCAD] import(): SVG "${importFile}" not found in registry.`);
           // Return a flat placeholder so the model doesn't break
           return CSG.cube({ center: new Vec3(5, 5, 0.05), radius: new Vec3(5, 5, 0.05) });
         }
 
-        console.log(`[SCAD] import(): Found SVG "${importFile}", ${svgText.length} chars. Parsing...`);
         const svgResult = this.parseSvgToCSG(svgText, named);
-        console.log(`[SCAD] import(): parseSvgToCSG returned ${svgResult ? svgResult.polygons.length + ' polys' : 'null'}`);
         return svgResult;
       }
 
@@ -2361,17 +2385,40 @@ class Evaluator {
       return null;
     }
 
-    // Collect all shapes from all paths
-    const allShapes: InstanceType<typeof import("three").Shape>[] = [];
+    // Collect shapes grouped by path (each path has its own color)
+    type PathGroup = {
+      shapes: InstanceType<typeof import("three").Shape>[];
+      color: [number, number, number] | null;
+    };
+    const pathGroups: PathGroup[] = [];
+
     for (const path of svgData.paths) {
       const shapes = SVGLoader.createShapes(path);
-      allShapes.push(...shapes);
+      if (shapes.length === 0) continue;
+
+      // Extract fill color from the path
+      let color: [number, number, number] | null = null;
+      const style = (path as any).userData?.style;
+      if (style && style.fill !== undefined && style.fill !== "none" && style.fill !== "") {
+        try {
+          // SVGLoader stores fill as a THREE.Color-compatible integer
+          const fillColor = (path as any).color;
+          if (fillColor && typeof fillColor.r === "number") {
+            color = [fillColor.r, fillColor.g, fillColor.b];
+          }
+        } catch { /* ignore */ }
+      }
+
+      pathGroups.push({ shapes, color });
     }
 
-    if (allShapes.length === 0) {
+    if (pathGroups.length === 0) {
       console.log("[SCAD] import(): SVG produced no shapes");
       return null;
     }
+
+    // Collect all shapes for bounding box computation
+    const allShapes = pathGroups.flatMap(g => g.shapes);
 
     // Compute SVG bounding box for normalization
     let svgMinX = Infinity, svgMinY = Infinity, svgMaxX = -Infinity, svgMaxY = -Infinity;
@@ -2394,25 +2441,55 @@ class Evaluator {
     // Check if we're inside a linear_extrude (has height from parent)
     const extHeight = this.env.get("$linear_extrude_height") as number | undefined;
 
-    if (extHeight !== undefined) {
-      // 2D mode: return polygon data for the parent linear_extrude to handle
-      // Use the first shape's outer contour for simple polygon mode
-      const result = new CSG();
-      const allPolygons: Polygon[] = [];
+    const curveSegs = Math.max(2, Math.min(((named.$fn || this.env.get("$fn") || 12) as number) / 2, 32));
+    const allPolygons: Polygon[] = [];
 
-      for (const shape of allShapes) {
-        const ext = new ExtrudeGeometry([shape], {
-          depth: extHeight,
+    if (extHeight !== undefined) {
+      // 2D mode: extrude each path group separately with its color
+      for (const group of pathGroups) {
+        for (const shape of group.shapes) {
+          const ext = new ExtrudeGeometry([shape], {
+            depth: extHeight,
+            bevelEnabled: false,
+            curveSegments: curveSegs,
+          });
+
+          const shapeCSG = bufferGeometryToCSG(ext);
+          ext.dispose();
+
+          const shared = group.color ? { color: group.color } : undefined;
+          for (const poly of shapeCSG.polygons) {
+            const verts = poly.vertices.map(v =>
+              new Vertex(
+                new Vec3(
+                  (svgMaxX - v.pos.x) * scaleFactor,
+                  (svgMaxY - v.pos.y) * scaleFactor,
+                  v.pos.z
+                ),
+                new Vec3(-v.normal.x, -v.normal.y, v.normal.z)
+              )
+            );
+            verts.reverse();
+            allPolygons.push(new Polygon(verts, shared));
+          }
+        }
+      }
+    } else {
+      // 3D standalone mode: extrude each path group separately with its color
+      const depth = (named.height as number) || 1;
+
+      for (const group of pathGroups) {
+        const ext = new ExtrudeGeometry(group.shapes, {
+          depth,
           bevelEnabled: false,
-          curveSegments: Math.max(2, Math.min(((named.$fn || this.env.get("$fn") || 12) as number) / 2, 32)),
+          curveSegments: curveSegs,
         });
 
-        const shapeCSG = bufferGeometryToCSG(ext);
+        const rawCSG = bufferGeometryToCSG(ext);
         ext.dispose();
 
-        // Scale and center the shape, flip Y (SVG Y goes down, SCAD Y goes up)
-        // Also mirror X to prevent horizontal flip, then reverse winding
-        for (const poly of shapeCSG.polygons) {
+        const shared = group.color ? { color: group.color } : undefined;
+        for (const poly of rawCSG.polygons) {
           const verts = poly.vertices.map(v =>
             new Vertex(
               new Vec3(
@@ -2424,43 +2501,12 @@ class Evaluator {
             )
           );
           verts.reverse();
-          allPolygons.push(new Polygon(verts, poly.shared));
+          allPolygons.push(new Polygon(verts, shared));
         }
       }
-
-      return CSG.fromPolygons(allPolygons);
     }
 
-    // 3D standalone mode: extrude to a thin slab (1mm default)
-    const depth = (named.height as number) || 1;
-    const curveSegs = Math.max(2, Math.min(((named.$fn || this.env.get("$fn") || 12) as number) / 2, 32));
-
-    const ext = new ExtrudeGeometry(allShapes, {
-      depth: depth,
-      bevelEnabled: false,
-      curveSegments: curveSegs,
-    });
-
-    const rawCSG = bufferGeometryToCSG(ext);
-    ext.dispose();
-
-    // Scale, flip Y and mirror X, then reverse winding to fix orientation
-    const polygons = rawCSG.polygons.map(poly => {
-      const verts = poly.vertices.map(v =>
-        new Vertex(
-          new Vec3(
-            (svgMaxX - v.pos.x) * scaleFactor,
-            (svgMaxY - v.pos.y) * scaleFactor,
-            v.pos.z
-          ),
-          new Vec3(-v.normal.x, -v.normal.y, v.normal.z)
-        )
-      );
-      verts.reverse();
-      return new Polygon(verts, poly.shared);
-    });
-
-    return CSG.fromPolygons(polygons);
+    return CSG.fromPolygons(allPolygons);
   }
 
   private linearExtrudePolygon(pts: number[][], height: number, twist: number, center: boolean, slices: number): CSG {

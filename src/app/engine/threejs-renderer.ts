@@ -6,24 +6,29 @@
 
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { TransformControls } from "three/examples/jsm/controls/TransformControls.js";
 import type { RenderableMesh } from "./mesh-data";
 import type { CSG } from "./csg";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type RenderMode = "smooth" | "faceted" | "wireframe";
+export type TransformMode = "translate" | "rotate" | "scale";
 
 export interface ThreeSceneContext {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   controls: OrbitControls;
+  transformControls: TransformControls;
   meshGroup: THREE.Group;
   gridHelper: THREE.GridHelper;
   axesHelper: THREE.AxesHelper;
   orbitLight: THREE.PointLight;
   animFrameId: number;
   disposed: boolean;
+  selectedMesh: THREE.Mesh | null;
+  selectionOutline: THREE.LineSegments | null;
 }
 
 // ─── Vorea Studio Colors ──────────────────────────────────────────────────────
@@ -171,6 +176,19 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
   const meshGroup = new THREE.Group();
   scene.add(meshGroup);
 
+  // ─── Transform Controls (for object manipulation) ──────────────────
+
+  const transformControls = new TransformControls(camera, renderer.domElement);
+  transformControls.setSize(0.8);
+  transformControls.visible = false;
+  transformControls.enabled = false;
+  scene.add(transformControls.getHelper());
+
+  // Disable orbit while dragging transform handle
+  transformControls.addEventListener("dragging-changed", (event) => {
+    controls.enabled = !event.value;
+  });
+
   // ─── Animation Loop ─────────────────────────────────────────────────
 
   const ctx: ThreeSceneContext = {
@@ -178,12 +196,15 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
     scene,
     camera,
     controls,
+    transformControls,
     meshGroup,
     gridHelper,
     axesHelper,
     orbitLight,
     animFrameId: 0,
     disposed: false,
+    selectedMesh: null,
+    selectionOutline: null,
   };
 
   function animate() {
@@ -227,6 +248,9 @@ export function updateMesh(
   mode: RenderMode = "smooth",
   autoCenter: boolean = true
 ) {
+  // Deselect before clearing (removes outline + gizmo references)
+  deselectMesh(ctx);
+
   // Clear existing mesh
   while (ctx.meshGroup.children.length > 0) {
     const child = ctx.meshGroup.children[0];
@@ -248,10 +272,16 @@ export function updateMesh(
   // Each CSG polygon can have N vertices; triangulate by fan
   const positions: number[] = [];
   const normals: number[] = [];
+  const colors: number[] = [];
+  let hasAnyColor = false;
 
   for (const poly of polygons) {
     const verts = poly.vertices;
     if (verts.length < 3) continue;
+
+    // Check for per-polygon color (from SVG paths or color() calls)
+    const polyColor = (poly as any).color as [number, number, number] | undefined;
+    if (polyColor) hasAnyColor = true;
 
     // Fan triangulation: v0, v1, v2; v0, v2, v3; ...
     for (let i = 1; i < verts.length - 1; i++) {
@@ -276,12 +306,27 @@ export function updateMesh(
         normals.push(faceNormal.x, faceNormal.z, faceNormal.y);
         normals.push(faceNormal.x, faceNormal.z, faceNormal.y);
       }
+
+      // Vertex colors (3 vertices per triangle, same color for all)
+      if (polyColor) {
+        for (let j = 0; j < 3; j++) {
+          colors.push(polyColor[0], polyColor[1], polyColor[2]);
+        }
+      } else {
+        // Default VOREA_GREEN as linear RGB (0xc6e36c → ~0.776, 0.890, 0.424)
+        for (let j = 0; j < 3; j++) {
+          colors.push(0.776, 0.890, 0.424);
+        }
+      }
     }
   }
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+  if (hasAnyColor) {
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  }
 
   if (mode === "smooth") {
     // Recompute smooth normals by averaging
@@ -294,18 +339,20 @@ export function updateMesh(
 
   if (mode === "wireframe") {
     material = new THREE.MeshBasicMaterial({
-      color: VOREA_GREEN,
+      color: hasAnyColor ? 0xffffff : VOREA_GREEN,
       wireframe: true,
       transparent: true,
       opacity: 0.6,
+      vertexColors: hasAnyColor,
     });
   } else {
     material = new THREE.MeshStandardMaterial({
-      color: VOREA_GREEN,
+      color: hasAnyColor ? 0xffffff : VOREA_GREEN,
       metalness: 0.08,
       roughness: 0.55,
       flatShading: mode === "faceted",
       side: THREE.DoubleSide,
+      vertexColors: hasAnyColor,
     });
   }
 
@@ -400,11 +447,88 @@ export function resetView(ctx: ThreeSceneContext) {
   setCameraPreset(ctx, "iso");
 }
 
+// ─── Object Selection ─────────────────────────────────────────────────────────
+
+const _raycaster = new THREE.Raycaster();
+const _mouse = new THREE.Vector2();
+
+/** Raycast click into the scene and select/deselect the mesh under the cursor. */
+export function handleClick(ctx: ThreeSceneContext, event: MouseEvent): boolean {
+  const rect = ctx.renderer.domElement.getBoundingClientRect();
+  _mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  _mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+  _raycaster.setFromCamera(_mouse, ctx.camera);
+  const hits = _raycaster.intersectObject(ctx.meshGroup, true);
+
+  if (hits.length > 0) {
+    const hitMesh = hits[0].object as THREE.Mesh;
+    if (ctx.selectedMesh === hitMesh) return true; // already selected
+    selectMesh(ctx, hitMesh);
+    return true;
+  } else {
+    deselectMesh(ctx);
+    return false;
+  }
+}
+
+/** Select a specific mesh and attach transform gizmo + outline. */
+export function selectMesh(ctx: ThreeSceneContext, mesh: THREE.Mesh) {
+  deselectMesh(ctx); // clear previous
+
+  ctx.selectedMesh = mesh;
+
+  // Create selection outline
+  const edges = new THREE.EdgesGeometry(mesh.geometry, 15);
+  const outline = new THREE.LineSegments(
+    edges,
+    new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2 })
+  );
+  outline.position.copy(mesh.position);
+  outline.rotation.copy(mesh.rotation);
+  outline.scale.copy(mesh.scale);
+  ctx.meshGroup.add(outline);
+  ctx.selectionOutline = outline;
+
+  // Attach transform controls
+  ctx.transformControls.attach(mesh);
+  ctx.transformControls.visible = true;
+  ctx.transformControls.enabled = true;
+}
+
+/** Deselect the current mesh, remove outline and transform gizmo. */
+export function deselectMesh(ctx: ThreeSceneContext) {
+  if (ctx.selectionOutline) {
+    ctx.selectionOutline.geometry.dispose();
+    (ctx.selectionOutline.material as THREE.Material).dispose();
+    ctx.meshGroup.remove(ctx.selectionOutline);
+    ctx.selectionOutline = null;
+  }
+  if (ctx.selectedMesh) {
+    ctx.transformControls.detach();
+    ctx.transformControls.visible = false;
+    ctx.transformControls.enabled = false;
+    ctx.selectedMesh = null;
+  }
+}
+
+/** Set the transform gizmo mode. */
+export function setTransformMode(ctx: ThreeSceneContext, mode: TransformMode) {
+  ctx.transformControls.setMode(mode);
+}
+
+/** Get the current transform gizmo mode. */
+export function getTransformMode(ctx: ThreeSceneContext): TransformMode {
+  return ctx.transformControls.getMode() as TransformMode;
+}
+
 // ─── Dispose ──────────────────────────────────────────────────────────────────
 
 export function disposeScene(ctx: ThreeSceneContext) {
   ctx.disposed = true;
   cancelAnimationFrame(ctx.animFrameId);
+  deselectMesh(ctx);
+  ctx.transformControls.dispose();
   ctx.controls.dispose();
 
   // Dispose meshes

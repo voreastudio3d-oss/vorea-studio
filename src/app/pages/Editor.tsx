@@ -4,6 +4,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useHistory } from "../hooks/useHistory";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { ScadCustomizer } from "../components/ScadCustomizer";
@@ -57,6 +58,8 @@ import {
   Globe,
   FileUp,
   ImagePlus,
+  Undo2,
+  Redo2,
 } from "lucide-react";
 
 // ─── Built-in templates ───────────────────────────────────────────────────────
@@ -184,6 +187,7 @@ export function Editor() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [isFixing, setIsFixing] = useState(false);
   const [localSource, setLocalSource] = useState(model.scadSource);
+  const history = useHistory({ source: model.scadSource, paramValues: model.paramValues });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const viewportRef = useRef<ScadViewportHandle>(null);
   const [authOpen, setAuthOpen] = useState(false);
@@ -364,6 +368,7 @@ export function Editor() {
   const handleCodeChange = useCallback(
     (newCode: string) => {
       setLocalSource(newCode);
+      history.push({ source: newCode, paramValues: model.paramValues });
       clearTimeout(applyTimerRef.current);
       applyTimerRef.current = setTimeout(() => {
         model.setScadSource(
@@ -374,7 +379,7 @@ export function Editor() {
         prevSourceRef.current = newCode;
       }, 600);
     },
-    [model, projectTitle, publishMode]
+    [model, projectTitle, publishMode, history]
   );
 
   // Apply immediately
@@ -391,9 +396,31 @@ export function Editor() {
   const handleParamChange = useCallback(
     (name: string, value: number | boolean | string | number[]) => {
       model.setParam(name, value);
+      history.push({ source: localSource, paramValues: { ...model.paramValues, [name]: value } }, true);
     },
-    [model]
+    [model, localSource, history]
   );
+
+  // ─── Undo / Redo handlers ───────────────────────────────────────────
+  const handleUndo = useCallback(() => {
+    const snap = history.undo();
+    if (!snap) return;
+    setLocalSource(snap.source);
+    prevSourceRef.current = snap.source;
+    clearTimeout(applyTimerRef.current);
+    model.setScadSource(snap.source, projectTitle, publishMode === "fork" ? model.forkMeta : null);
+    model.setParamValues(snap.paramValues as Record<string, number | boolean | string | number[]>);
+  }, [history, model, projectTitle, publishMode]);
+
+  const handleRedo = useCallback(() => {
+    const snap = history.redo();
+    if (!snap) return;
+    setLocalSource(snap.source);
+    prevSourceRef.current = snap.source;
+    clearTimeout(applyTimerRef.current);
+    model.setScadSource(snap.source, projectTitle, publishMode === "fork" ? model.forkMeta : null);
+    model.setParamValues(snap.paramValues as Record<string, number | boolean | string | number[]>);
+  }, [history, model, projectTitle, publishMode]);
 
   const handleResetAll = useCallback(() => {
     const init: Record<string, number | boolean | string | number[]> = {};
@@ -721,6 +748,23 @@ export function Editor() {
           </div>
           <div className="flex gap-1">
             <button
+              onClick={handleUndo}
+              className="w-6 h-6 rounded flex items-center justify-center hover:bg-white/10 text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+              title="Deshacer (Ctrl+Z)"
+              disabled={!history.canUndo()}
+            >
+              <Undo2 className="w-3 h-3" />
+            </button>
+            <button
+              onClick={handleRedo}
+              className="w-6 h-6 rounded flex items-center justify-center hover:bg-white/10 text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+              title="Rehacer (Ctrl+Shift+Z)"
+              disabled={!history.canRedo()}
+            >
+              <Redo2 className="w-3 h-3" />
+            </button>
+            <div className="w-px h-4 bg-[rgba(168,187,238,0.12)]" />
+            <button
               onClick={handleCopy}
               className="w-6 h-6 rounded flex items-center justify-center hover:bg-white/10 text-gray-500 hover:text-gray-300 transition-colors"
               title="Copiar"
@@ -819,6 +863,15 @@ export function Editor() {
             value={localSource}
             onChange={(e) => handleCodeChange(e.target.value)}
             onBlur={applyCode}
+            onKeyDown={(e) => {
+              if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+                e.preventDefault();
+                handleUndo();
+              } else if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) {
+                e.preventDefault();
+                handleRedo();
+              }
+            }}
             spellCheck={false}
             className="w-full h-full bg-[#0a0e17] text-gray-300 text-[11px] font-mono leading-relaxed p-3 outline-none resize-none"
             style={{ tabSize: 2 }}

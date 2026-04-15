@@ -50,7 +50,7 @@ self.onmessage = (e: MessageEvent<WorkerCompileRequest>) => {
     const serialized: SerializedPolygon[] = [];
     for (const poly of polys) {
       if (poly.vertices.length < 3) continue;
-      serialized.push({
+      const sp: SerializedPolygon = {
         vertices: poly.vertices.map(v => ({
           px: v.pos.x, py: v.pos.y, pz: v.pos.z,
           nx: v.normal.x, ny: v.normal.y, nz: v.normal.z,
@@ -59,7 +59,12 @@ self.onmessage = (e: MessageEvent<WorkerCompileRequest>) => {
         planeNy: poly.plane.normal.y,
         planeNz: poly.plane.normal.z,
         planeW: poly.plane.w,
-      });
+      };
+      // Propagate color metadata from shared field
+      if (poly.shared?.color) {
+        sp.color = poly.shared.color;
+      }
+      serialized.push(sp);
     }
 
     const mesh: SerializedMesh = {
