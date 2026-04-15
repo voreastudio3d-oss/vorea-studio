@@ -147,6 +147,27 @@ export default function EducationLanding() {
         </div>
       </section>
 
+      {/* ── Lead Magnet ─────────────────────────── */}
+      <section className="edu-lead">
+        <div className="edu-lead__inner">
+          <span className="edu-lead__icon">📘</span>
+          <div>
+            <h3>{t("education.lead.title")}</h3>
+            <p>{t("education.lead.desc")}</p>
+          </div>
+          <a
+            href="/contact?subject=Quiero+la+gu%C3%ADa+de+3+clases+de+Vorea"
+            className="edu-btn edu-btn--primary"
+            onClick={() => {
+              cta("lead_magnet");
+              trackAnalyticsEvent("lead_magnet_click", { intent: "education", asset: "guia_3_clases" });
+            }}
+          >
+            {t("education.lead.cta")}
+          </a>
+        </div>
+      </section>
+
       {/* ── Final CTA ──────────────────────────── */}
       <section className="edu-final">
         <h2>{t("education.finalCta.title")}</h2>
@@ -390,6 +411,29 @@ export default function EducationLanding() {
         }
         .edu-pricing__price span { font-size: 1rem; font-weight: 400; color: #9BA3BF; }
         .edu-pricing__card p { font-size: .88rem; color: #9BA3BF; margin-bottom: 1.4rem; line-height: 1.5; }
+
+        /* ── Lead Magnet ── */
+        .edu-lead {
+          padding: 2.5rem 1.5rem;
+        }
+        .edu-lead__inner {
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+          max-width: 720px;
+          margin: 0 auto;
+          padding: 1.8rem 2rem;
+          background: linear-gradient(135deg, rgba(108,99,255,.12), rgba(0,201,167,.08));
+          border: 1px solid var(--edu-border);
+          border-radius: 18px;
+        }
+        .edu-lead__icon { font-size: 2.2rem; flex-shrink: 0; }
+        .edu-lead__inner h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
+        .edu-lead__inner p { font-size: .88rem; color: #9BA3BF; margin: 0; line-height: 1.5; }
+        .edu-lead__inner .edu-btn { flex-shrink: 0; white-space: nowrap; }
+        @media (max-width: 640px) {
+          .edu-lead__inner { flex-direction: column; text-align: center; }
+        }
 
         /* ── Final CTA ── */
         .edu-final {

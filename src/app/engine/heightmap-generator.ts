@@ -174,6 +174,84 @@ function smoothHeights(heights: Float32Array, cols: number, rows: number, iterat
 
 export type { ReliefSurfaceMode } from "./surface-modes/types";
 
+/** Per-zone face count statistics for part preview. */
+export interface ZoneStats {
+  /** Face count per color zone index. */
+  facesPerZone: number[];
+  /** Total faces across all zones. */
+  totalFaces: number;
+}
+
+/**
+ * Refine boundary vertex colors by majority vote from neighbors.
+ * `iterations` controls how many passes of neighbor-voting to apply.
+ * Each vertex whose color differs from the majority of its 4-neighbors
+ * gets snapped to the dominant neighbor color, reducing isolated islands.
+ */
+function refineBoundaryColors(
+  vertexColors: Float32Array,
+  cols: number,
+  rows: number,
+  palette: RGB[],
+  iterations: number,
+  wrapX: boolean = false,
+): void {
+  if (iterations <= 0 || palette.length <= 1) return;
+
+  const paletteLinear: RGB[] = palette.map(([r, g, b]) => [
+    srgbToLinear(r), srgbToLinear(g), srgbToLinear(b),
+  ]);
+
+  const getZoneIdx = (base: number): number => {
+    const r = vertexColors[base], g = vertexColors[base + 1], b = vertexColors[base + 2];
+    return nearestCentroid(r, g, b, paletteLinear);
+  };
+
+  for (let iter = 0; iter < iterations; iter++) {
+    let changed = 0;
+    for (let iy = 0; iy < rows; iy++) {
+      for (let ix = 0; ix < cols; ix++) {
+        const base = (iy * cols + ix) * 3;
+        const myZone = getZoneIdx(base);
+
+        // Count neighbor zone votes (4-connected)
+        const votes = new Uint16Array(palette.length);
+        const neighbors: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+        let validNeighbors = 0;
+        for (const [dx, dy] of neighbors) {
+          let nx = ix + dx;
+          const ny = iy + dy;
+          if (wrapX) {
+            if (nx < 0) nx = cols - 1;
+            else if (nx >= cols) nx = 0;
+          }
+          if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+            const nBase = (ny * cols + nx) * 3;
+            votes[getZoneIdx(nBase)]++;
+            validNeighbors++;
+          }
+        }
+
+        // If majority of neighbors disagree with current zone, snap to majority
+        if (validNeighbors > 0 && votes[myZone] < validNeighbors / 2) {
+          let bestZone = myZone, bestVotes = votes[myZone];
+          for (let z = 0; z < palette.length; z++) {
+            if (votes[z] > bestVotes) { bestVotes = votes[z]; bestZone = z; }
+          }
+          if (bestZone !== myZone) {
+            const [pr, pg, pb] = paletteLinear[bestZone];
+            vertexColors[base] = pr;
+            vertexColors[base + 1] = pg;
+            vertexColors[base + 2] = pb;
+            changed++;
+          }
+        }
+      }
+    }
+    if (changed === 0) break; // Converged early
+  }
+}
+
 export interface HeightmapOptions {
   image: DecodedImage;
   subdivisions: number;
@@ -209,6 +287,8 @@ export interface HeightmapOptions {
   baseThickness: number;
   /** Number of color zones 1–8. 1 = monochrome Vorea lime. */
   colorZones: number;
+  /** Boundary refinement passes (0–5). Higher = cleaner zone edges, fewer color islands. */
+  colorTolerance?: number;
   // ─── Box mode params ───
   boxHeight?: number;
   boxCapTop?: boolean;
@@ -250,6 +330,8 @@ export interface HeightmapResult {
   /** Quantized palette derived from the image, as [[r,g,b], ...] 0–1 */
   palette: RGB[];
   surfaceMode: ReliefSurfaceMode;
+  /** Per-zone face distribution stats (only when colorZones > 1). */
+  zoneStats?: ZoneStats;
 }
 
 // ─── Main Generator ───────────────────────────────────────────────────────────
@@ -423,6 +505,12 @@ export function generateHeightmapMesh(options: HeightmapOptions): HeightmapResul
     }
   }
   smoothHeights(heights, cols, rows, smoothing, isWrappingMode);
+
+  // ─── Boundary color refinement (reduce isolated color islands) ────
+  const colorTolerancePasses = Math.max(0, Math.min(5, options.colorTolerance ?? 0));
+  if (colorTolerancePasses > 0 && colorZones > 1) {
+    refineBoundaryColors(vertexColors, cols, rows, palette, colorTolerancePasses, isWrappingMode);
+  }
 
   // ─── Create surface strategy ──────────────────────────────────────
   const commonConfig = { gridW, gridH, baseThickness };
@@ -598,6 +686,20 @@ export function generateHeightmapMesh(options: HeightmapOptions): HeightmapResul
   // NOTE: Do NOT call computeVertexNormals() — manual normals from addTri are correct
   //       and consistent with the CCW winding order for manifold export.
 
+  // ─── Compute zone statistics (face count per color zone) ──────────
+  let zoneStats: ZoneStats | undefined;
+  if (colorZones > 1 && vi > 0) {
+    const facesPerZone = new Array<number>(palette.length).fill(0);
+    const totalFaces = vi / 9;
+    for (let f = 0; f < totalFaces; f++) {
+      const base = f * 9; // 3 verts × 3 components
+      const r = colors[base], g = colors[base + 1], b = colors[base + 2];
+      const zIdx = nearestCentroid(r, g, b, paletteLinear);
+      facesPerZone[zIdx]++;
+    }
+    zoneStats = { facesPerZone, totalFaces };
+  }
+
   return {
     geometry,
     heightsRef: heights,
@@ -609,6 +711,7 @@ export function generateHeightmapMesh(options: HeightmapOptions): HeightmapResul
     hasVertexColors: colorZones > 1,
     palette,
     surfaceMode: resolvedSurfaceMode,
+    zoneStats,
   };
 }
 

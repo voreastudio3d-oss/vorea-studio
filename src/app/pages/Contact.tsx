@@ -15,7 +15,13 @@ export function Contact() {
   const { t } = useI18n();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("");
+  const [subject, setSubject] = useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("subject") || "";
+    }
+    return "";
+  });
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [submitted, setSubmitted] = useState<{ contactId: string; email: string } | null>(null);

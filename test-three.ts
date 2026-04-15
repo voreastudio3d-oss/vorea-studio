@@ -1,0 +1,1 @@
+import { Font } from 'three/examples/jsm/loaders/FontLoader.js'; import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'; import fontJson from 'three/examples/fonts/helvetiker_regular.typeface.json'; console.log(new Font(fontJson));

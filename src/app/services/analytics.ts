@@ -47,9 +47,45 @@ export function initAnalytics() {
 
   ensureScriptTag(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(MEASUREMENT_ID)}`);
   window.gtag("js", new Date());
+
+  // Capture UTM params from URL and forward to GA4 config
+  const utmParams = extractUtmParams();
+
   window.gtag("config", MEASUREMENT_ID, {
     send_page_view: false,
+    ...utmParams,
   });
+}
+
+/* ─── UTM helpers ──────────────────────────────────────────────────────────── */
+
+const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"] as const;
+
+function extractUtmParams(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  const params = new URLSearchParams(window.location.search);
+  const result: Record<string, string> = {};
+  for (const key of UTM_KEYS) {
+    const val = params.get(key);
+    if (val) result[key] = val;
+  }
+  // Persist to sessionStorage so SPA navigations keep UTMs
+  if (Object.keys(result).length > 0) {
+    try { sessionStorage.setItem("vorea_utm", JSON.stringify(result)); } catch { /* noop */ }
+  }
+  // Fallback: read from sessionStorage
+  if (Object.keys(result).length === 0) {
+    try {
+      const stored = sessionStorage.getItem("vorea_utm");
+      if (stored) return JSON.parse(stored);
+    } catch { /* noop */ }
+  }
+  return result;
+}
+
+/** Get current UTM params (from URL or session) for enriching events */
+export function getUtmParams(): Record<string, string> {
+  return extractUtmParams();
 }
 
 /* ─── Event helpers ────────────────────────────────────────────────────────── */

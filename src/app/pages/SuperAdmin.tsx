@@ -25,8 +25,9 @@ import { AiStudioAdminTab } from "./AiStudioAdminTab";
 import { RegionalStatsTab } from "./RegionalStatsTab";
 import { FODAAnalysisTab } from "./FODAAnalysisTab";
 import { FinancialDashboardTab } from "./FinancialDashboardTab";
+import { WeeklyAcquisitionTab } from "./WeeklyAcquisitionTab";
 
-type Tab = "dashboard" | "users" | "plans" | "credits" | "activity" | "usage" | "finance" | "donations" | "alerts" | "emails" | "logs" | "content" | "community" | "news" | "analytics" | "feedback" | "aistudiocms" | "regional" | "foda" | "kpi-dashboard";
+type Tab = "dashboard" | "users" | "plans" | "credits" | "activity" | "usage" | "finance" | "donations" | "alerts" | "emails" | "logs" | "content" | "community" | "news" | "analytics" | "feedback" | "aistudiocms" | "regional" | "foda" | "kpi-dashboard" | "acquisition";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <BarChart3 className="w-4 h-4" /> },
@@ -49,6 +50,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "regional", label: "Regional", icon: <Globe className="w-4 h-4" /> },
   { id: "foda", label: "FODA", icon: <Shield className="w-4 h-4" /> },
   { id: "kpi-dashboard", label: "KPIs Dashboard", icon: <TrendingUp className="w-4 h-4" /> },
+  { id: "acquisition", label: "Adquisición", icon: <TrendingUp className="w-4 h-4" /> },
 ];
 
 const NAV_GROUPS: Array<{
@@ -61,7 +63,7 @@ const NAV_GROUPS: Array<{
     id: "ops",
     label: "Operación",
     description: "Estado general, usuarios y actividad diaria.",
-    tabs: ["dashboard", "users", "activity", "usage", "regional"],
+    tabs: ["dashboard", "users", "activity", "usage", "regional", "acquisition"],
   },
   {
     id: "monetization",
@@ -445,6 +447,7 @@ export function SuperAdmin() {
           {tab === "regional" && <RegionalStatsTab />}
           {tab === "foda" && <FODAAnalysisTab />}
           {tab === "kpi-dashboard" && <FinancialDashboardTab />}
+          {tab === "acquisition" && <WeeklyAcquisitionTab />}
         </div>
       </div>
     </div>

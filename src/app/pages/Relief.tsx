@@ -403,6 +403,7 @@ export function Relief() {
   const [solid, setSolid]           = useState(true);
   const [baseThickness, setBaseThickness] = useState(2);
   const [colorZones, setColorZones] = useState(4);
+  const [colorTolerance, setColorTolerance] = useState(0);
 
   // —— State
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -750,6 +751,7 @@ export function Relief() {
     lampshadeHeight, lampshadeCap, lampshadeSides,
     geodesicRadius,
     renderMode,
+    colorTolerance,
   ]);
 
   // ─── Auto-generate on first image load ────────────────────────────
@@ -1335,6 +1337,7 @@ export function Relief() {
       surfaceMode, cylinderRadius, cylinderHeight, cylinderRepeats,
       cylinderFlipH, cylinderFlipV,
       invert, solid: surfaceMode === "geodesic" ? false : solid, baseThickness, colorZones,
+      colorTolerance,
       boxHeight, boxCapTop, boxCapBottom,
       polygonSides, polygonRadius, polygonHeight, polygonCapTop, polygonCapBottom,
       lampshadeOuterRadiusBottom: lampshadeRadiusBottom,
@@ -1449,7 +1452,8 @@ export function Relief() {
           colorZones: e.data.colorZones,
           hasVertexColors: e.data.hasVertexColors,
           palette: e.data.palette,
-          surfaceMode: e.data.surfaceMode
+          surfaceMode: e.data.surfaceMode,
+          zoneStats: e.data.zoneStats,
         });
       };
 
@@ -1501,6 +1505,7 @@ export function Relief() {
     solid,
     baseThickness,
     colorZones,
+    colorTolerance,
     renderMode,
     // Box
     boxHeight, boxCapTop, boxCapBottom,
@@ -2499,6 +2504,50 @@ export function Relief() {
                 onChange={e => setColorZones(Number(e.target.value))}
                 className="w-full h-1.5 rounded-full appearance-none bg-[#1a1f36] accent-[#C6E36C] cursor-pointer"
               />
+              {colorZones > 1 && (
+                <div className="space-y-2">
+                  {/* Color tolerance / boundary refinement */}
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] text-gray-400 uppercase tracking-wider font-medium">Tolerancia</label>
+                    <span className="text-[10px] text-gray-500">
+                      {colorTolerance === 0 ? "Sin refinar" : `${colorTolerance} ${colorTolerance === 1 ? "paso" : "pasos"}`}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    value={colorTolerance}
+                    min={0} max={5} step={1}
+                    onChange={e => setColorTolerance(Number(e.target.value))}
+                    className="w-full h-1.5 rounded-full appearance-none bg-[#1a1f36] accent-[#C6E36C] cursor-pointer"
+                  />
+                  <p className="text-[9px] text-gray-600">
+                    Reduce islas de color aisladas en los bordes de zona. Mayor = zonas más limpias.
+                  </p>
+                </div>
+              )}
+              {/* Zone stats after generation */}
+              {result && result.zoneStats && result.colorZones > 1 && (
+                <div className="mt-2 p-2 rounded-md bg-[#1a1f36]/60 border border-[rgba(168,187,238,0.08)]">
+                  <p className="text-[10px] text-gray-400 font-medium mb-1">Distribución por zona</p>
+                  <div className="space-y-1">
+                    {result.zoneStats.facesPerZone.map((count: number, i: number) => {
+                      const pct = result.zoneStats!.totalFaces > 0 ? (count / result.zoneStats!.totalFaces * 100) : 0;
+                      const pal = result.palette[i];
+                      const bg = pal ? `rgb(${Math.round(pal[0]*255)},${Math.round(pal[1]*255)},${Math.round(pal[2]*255)})` : "#555";
+                      return (
+                        <div key={i} className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-sm shrink-0 border border-white/10" style={{ background: bg }} />
+                          <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                            <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: bg, opacity: 0.8 }} />
+                          </div>
+                          <span className="text-[9px] text-gray-500 w-12 text-right">{pct.toFixed(1)}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[9px] text-gray-600 mt-1">{result.zoneStats.totalFaces.toLocaleString()} caras totales</p>
+                </div>
+              )}
               {colorZones > 1 && (
                 <div className="space-y-1">
                   <div className="grid grid-cols-2 gap-1">

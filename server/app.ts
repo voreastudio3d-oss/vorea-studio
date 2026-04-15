@@ -5183,6 +5183,95 @@ app.get("/api/admin/reports/regional-stats", requireSuperAdmin, async (c) => {
   }
 });
 
+// GET /admin/reports/acquisition – Weekly acquisition funnel data
+app.get("/api/admin/reports/acquisition", requireSuperAdmin, async (c) => {
+  try {
+    const profiles = await listStoredUserProfiles();
+    const now = new Date();
+
+    // Build 8 weekly buckets (last 8 weeks)
+    const weeks: { label: string; start: Date; end: Date }[] = [];
+    for (let i = 7; i >= 0; i--) {
+      const end = new Date(now);
+      end.setDate(end.getDate() - i * 7);
+      end.setHours(23, 59, 59, 999);
+      const start = new Date(end);
+      start.setDate(start.getDate() - 6);
+      start.setHours(0, 0, 0, 0);
+      const label = `${start.toISOString().slice(5, 10)}`;
+      weeks.push({ label, start, end });
+    }
+
+    // Count signups per week and per tier
+    const weeklySignups = weeks.map((w) => {
+      const inWeek = profiles.filter((p: any) => {
+        const created = new Date(p.createdAt || 0);
+        return created >= w.start && created <= w.end;
+      });
+      const tiers: Record<string, number> = {};
+      for (const p of inWeek) {
+        const tier = String((p as any).tier || "FREE");
+        tiers[tier] = (tiers[tier] || 0) + 1;
+      }
+      return { week: w.label, signups: inWeek.length, tiers };
+    });
+
+    // Aggregate totals
+    const totalUsers = profiles.length;
+    const last7d = profiles.filter((p: any) => {
+      const d = new Date(p.createdAt || 0);
+      return now.getTime() - d.getTime() < 7 * 86_400_000;
+    }).length;
+    const prev7d = profiles.filter((p: any) => {
+      const d = new Date(p.createdAt || 0);
+      const age = now.getTime() - d.getTime();
+      return age >= 7 * 86_400_000 && age < 14 * 86_400_000;
+    }).length;
+
+    // Tier distribution
+    const tierDist: Record<string, number> = {};
+    for (const p of profiles) {
+      const tier = String((p as any).tier || "FREE");
+      tierDist[tier] = (tierDist[tier] || 0) + 1;
+    }
+
+    // Contact submissions (leads) from last 30 days
+    const contactKeys = await kv.getByPrefix("contact:");
+    const recentContacts = (contactKeys as any[]).filter((c: any) => {
+      const d = new Date(c.createdAt || 0);
+      return now.getTime() - d.getTime() < 30 * 86_400_000;
+    }).length;
+
+    // Landing events from telemetry (last 7 days)
+    const landingViews: Record<string, number> = {};
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const day = d.toISOString().slice(0, 10);
+      const events = ((await kv.get(`telemetry:${day}`)) as any[]) || [];
+      for (const evt of events) {
+        if (evt.event === "landing_view" && evt.intent) {
+          landingViews[evt.intent] = (landingViews[evt.intent] || 0) + 1;
+        }
+      }
+    }
+
+    return c.json({
+      totalUsers,
+      signupsLast7d: last7d,
+      signupsPrev7d: prev7d,
+      weekOverWeekChange: prev7d > 0 ? Math.round(((last7d - prev7d) / prev7d) * 100) : null,
+      weeklySignups,
+      tierDistribution: tierDist,
+      contactLeadsLast30d: recentContacts,
+      landingViewsLast7d: landingViews,
+    });
+  } catch (e: any) {
+    console.log(`GET /admin/reports/acquisition error: ${e.message}`);
+    return c.json({ error: `Error: ${e.message}` }, 500);
+  }
+});
+
 // GET /admin/reports/revenue – Revenue & expense report
 app.get("/api/admin/reports/revenue", requireSuperAdmin, async (c) => {
   try {

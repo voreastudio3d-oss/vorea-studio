@@ -1004,6 +1004,13 @@ export const ContactApi = {
 
 export const AdminApi = {
 
+  async fetchAcquisitionReport() {
+    const res = await fetchApi("/admin/reports/acquisition");
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Error al obtener datos de adquisición");
+    return json;
+  },
+
   async resetOwnerPassword(email: string, newPassword: string) {
     const res = await fetchApi("/admin/reset-owner-password", {
       method: "POST",

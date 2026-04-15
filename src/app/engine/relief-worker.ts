@@ -54,6 +54,7 @@ self.onmessage = (e: MessageEvent<WorkerPayload>) => {
       hasVertexColors: result.hasVertexColors,
       palette: result.palette,
       surfaceMode: result.surfaceMode,
+      zoneStats: result.zoneStats,
     };
 
     // 4. Transfer the memory ownership of these large arrays to the main thread
