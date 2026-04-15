@@ -46,30 +46,19 @@ export interface ModelContextValue {
 
 // ─── Default SCAD source ──────────────────────────────────────────────────────
 
-const DEFAULT_SOURCE = `// Vorea Studio – Bienvenido
-// Escribe tu codigo SCAD aqui o selecciona un template
-
+const DEFAULT_SOURCE = `// VOREA Text Generator Test
 $fn = 32;
 
-// Dimensiones
-width = 30;   // [10:5:100]
-height = 20;  // [5:5:80]
-depth = 30;   // [10:5:100]
-
-// Forma
-corner_r = 4; // [0:1:15] Radio de esquinas
-
-difference() {
-  minkowski() {
-    cube([width - corner_r*2, depth - corner_r*2, height - corner_r*2], center=true);
-    sphere(r=corner_r);
+module text_test() {
+  difference() {
+    cylinder(h=5, r=30, center=true);
+    translate([0, 0, 1])
+      linear_extrude(height=10)
+        text("A B C O U", size=8, halign="center", valign="center", $fn=100);
   }
-  translate([0, 0, 2])
-    minkowski() {
-      cube([width - 4 - corner_r*2, depth - 4 - corner_r*2, height - corner_r*2], center=true);
-      sphere(r=corner_r - 1);
-    }
 }
+
+text_test();
 `;
 
 // ─── Context ──────────────────────────────────────────────────────────────────

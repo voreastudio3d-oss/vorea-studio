@@ -68,4 +68,13 @@ describe("Llavero debug", () => {
     console.log(`String var text: ${r.geometry.polygons.length} faces, ${r.time.toFixed(0)}ms`);
     expect(r.geometry.polygons.length).toBeGreaterThan(0);
   });
+
+  it("Test 6: multiline text with curved letters has richer geometry", () => {
+    const r = compileScad(`
+      $fn = 48;
+      text("HOLA\nMUNDO", size=15, height=5, halign="left", valign="baseline");
+    `);
+    console.log(`Multiline curved text: ${r.geometry.polygons.length} faces, ${r.time.toFixed(0)}ms`);
+    expect(r.geometry.polygons.length).toBeGreaterThan(400);
+  });
 });

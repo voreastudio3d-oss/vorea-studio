@@ -11,6 +11,11 @@ import {
   mat4Scale, mat4Multiply
 } from "./csg";
 import { getImage, sampleBrightness } from "./image-registry";
+import { Vector2, ShapeUtils, ExtrudeGeometry } from "three";
+import { Font } from 'three/examples/jsm/loaders/FontLoader.js';
+import helvetikerJson from 'three/examples/fonts/helvetiker_regular.typeface.json';
+
+const SYSTEM_FONT = new Font(helvetikerJson as any);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // TOKENIZER
@@ -75,7 +80,16 @@ function tokenize(src: string): Token[] {
     if (src[i] === '"') {
       let s = ""; i++;
       while (i < src.length && src[i] !== '"') {
-        if (src[i] === "\\") { i++; s += src[i++]; } else s += src[i++];
+        if (src[i] === "\\") {
+          i++;
+          const esc = src[i++];
+          if (esc === "n") s += "\n";
+          else if (esc === "t") s += "\t";
+          else if (esc === "r") s += "\r";
+          else if (esc === "\\") s += "\\";
+          else if (esc === '"') s += '"';
+          else s += esc;
+        } else s += src[i++];
       }
       i++; tokens.push({ type: "STRING", value: s, line }); continue;
     }
@@ -1433,9 +1447,30 @@ class Evaluator {
           slices = Math.max(1, Math.ceil(Math.abs(twist) / 10));
         }
 
-        // Evaluate children to get 2D points
-        const pts2d = this.evalChildren2D(children);
-        if (pts2d.length < 3) return null;
+        // Share height with 3D primitives masquerading as 2D (like text)
+        const oldHeight = this.env.get("$linear_extrude_height");
+        this.env.set("$linear_extrude_height", height);
+
+        // Evaluate children to get 2D points or pre-extruded 3D fallback
+        const childCSG = this.evalChildrenGeometry(children);
+        
+        if (oldHeight !== undefined) this.env.set("$linear_extrude_height", oldHeight);
+        else this.env.vars.delete("$linear_extrude_height");
+        
+        if (!childCSG) return null;
+
+        // CHECK 1: Did an inner node (like `text()`) already extrude itself and return real 3D polygons?
+        // Fallback for text: if the child is already a 3D CSG (because it self-extruded holes)
+        if (childCSG.polygons.length > 0) {
+          if (center) {
+             return childCSG.transform(mat4Translate(0, 0, -height / 2));
+          }
+          return childCSG;
+        }
+
+        // CHECK 2: Is it a 2D CSG outputting __polygon2d array?
+        const pts2d = (childCSG as any).__polygon2d as number[][] | undefined;
+        if (!pts2d || pts2d.length < 3) return null;
 
         return this.linearExtrudePolygon(pts2d, height, twist, center, slices);
       }
@@ -1443,9 +1478,6 @@ class Evaluator {
       case "rotate_extrude": {
         let angle = 360;
         if (named.angle !== undefined) angle = named.angle as number;
-        if (named.$fn !== undefined) {
-          // local override
-        }
 
         const pts2d = this.evalChildren2D(children);
         if (pts2d.length < 2) return null;
@@ -1507,45 +1539,116 @@ class Evaluator {
       }
 
       case "text": {
-        // Real text geometry using a segment-based bitmap font
+        // Real vector text generation using Three.js Font parsing and earcut via extrudeWithHoles
         const textStr = (args[0] || named.text || "") as string;
         let fontSize = (named.size || args[1] || 10) as number;
         const halign = (named.halign || "left") as string;
         const valign = (named.valign || "baseline") as string;
-        const spacing = (named.spacing || 1) as number;
+        const spacing = (named.spacing !== undefined ? named.spacing : 1) as number;
+        
+        let textHeight = (named.height || named.h) as number;
+        if (textHeight === undefined) {
+           const extHeight = this.env.get("$linear_extrude_height") as number | undefined;
+           textHeight = extHeight !== undefined ? extHeight : fontSize * 0.3;
+        }
+        
+        let curveSegments = Math.max(2, Math.min(((named.$fn || this.env.get("$fn") || 12) as number) / 2, 32));
 
         if (!textStr || typeof textStr !== "string") {
           return CSG.cube({ center: new Vec3(5, 2, 0.5), radius: new Vec3(5, 2, 0.5) });
         }
 
-        // Generate 2D polygons for each character and extrude them slightly
-        const charWidth = fontSize * 0.7;
-        const charSpacing = charWidth * spacing;
+        const lines = textStr.split("\n");
+        const resolution = SYSTEM_FONT.data.resolution || 1000;
+        const fontScale = fontSize / resolution;
+        const baseLineHeight = (SYSTEM_FONT.data.lineHeight || 1522) * fontScale * 1.2;
+        
         let result = new CSG();
-        let xOff = 0;
 
-        // Horizontal alignment offset
-        const totalWidth = textStr.length * charSpacing;
-        if (halign === "center") xOff = -totalWidth / 2;
-        else if (halign === "right") xOff = -totalWidth;
+        for (let li = 0; li < lines.length; li++) {
+          const line = lines[li];
+          if (!line) continue;
 
-        // Vertical alignment offset
-        let yOff = 0;
-        if (valign === "center") yOff = -fontSize / 2;
-        else if (valign === "top") yOff = -fontSize;
-
-        for (let ci = 0; ci < textStr.length; ci++) {
-          const ch = textStr[ci];
-          const charPolys = getCharPolygons(ch, fontSize);
-          for (const poly of charPolys) {
-            // Translate each character polygon and extrude (negate X to correct mirror)
-            const translated = poly.map(p => [-p[0] - xOff - ci * charSpacing, p[1] + yOff]);
-            if (translated.length >= 3) {
-              const charCSG = this.linearExtrudePolygon(translated, fontSize * 0.3, 0, false, 1);
-              // Concatenate polygons — don't use BSP union (destroys non-overlapping geometry)
-              result = CSG.fromPolygons(result.polygons.concat(charCSG.polygons));
+          // 1. Calculate the exact width of the line to apply horizontal alignment
+          let lineWidth = 0;
+          for (let ci = 0; ci < line.length; ci++) {
+            const ch = line[ci];
+            const glyph = SYSTEM_FONT.data.glyphs[ch] || SYSTEM_FONT.data.glyphs['?'];
+            if (!glyph) continue;
+            
+            // Appply letter-spacing multiplier starting from the second char
+            if (ci > 0 && glyph.ha) {
+              lineWidth += glyph.ha * fontScale * spacing;
+            } else if (glyph.ha) {
+              lineWidth += glyph.ha * fontScale;
             }
           }
+
+          let xOff = 0;
+          if (halign === "center") xOff = -lineWidth / 2;
+          else if (halign === "right") xOff = -lineWidth;
+
+          let yOff = -li * baseLineHeight;
+          if (valign === "center") yOff += -(lines.length - 1) * baseLineHeight / 2 - fontSize / 2;
+          else if (valign === "top") yOff += -fontSize;
+
+          let charX = xOff;
+          for (let ci = 0; ci < line.length; ci++) {
+            const ch = line[ci];
+            const glyph = SYSTEM_FONT.data.glyphs[ch] || SYSTEM_FONT.data.glyphs['?'];
+            if (!glyph) continue;
+
+            const shapes = SYSTEM_FONT.generateShapes(ch, fontSize);
+
+            if (shapes.length > 0) {
+              // Use Three.js ExtrudeGeometry — handles holes, winding, normals correctly
+              const extGeom = new ExtrudeGeometry(shapes, {
+                depth: textHeight,
+                bevelEnabled: false,
+                curveSegments: curveSegments,
+              });
+
+              let charCSG = bufferGeometryToCSG(extGeom);
+              extGeom.dispose();
+
+              // Translate character to correct position
+              if (charX !== 0 || yOff !== 0) {
+                charCSG = charCSG.transform(mat4Translate(charX, yOff, 0));
+              }
+
+              result = CSG.fromPolygons(result.polygons.concat(charCSG.polygons));
+            }
+
+            if (glyph.ha) {
+              if (ci < line.length - 1) {
+                charX += glyph.ha * fontScale * spacing;
+              } else {
+                 charX += glyph.ha * fontScale;
+              }
+            }
+          }
+        }
+
+        // Mirror text on X axis around its center so it reads correctly
+        // from the default camera angle (renderer Y/Z swap changes handedness)
+        if (result.polygons.length > 0) {
+          let xMin = Infinity, xMax = -Infinity;
+          for (const poly of result.polygons)
+            for (const v of poly.vertices) {
+              if (v.pos.x < xMin) xMin = v.pos.x;
+              if (v.pos.x > xMax) xMax = v.pos.x;
+            }
+          const xShift = xMin + xMax; // = 2 * centerX
+          result = CSG.fromPolygons(result.polygons.map(poly => {
+            const verts = poly.vertices.map(v =>
+              new Vertex(
+                new Vec3(-v.pos.x + xShift, v.pos.y, v.pos.z),
+                new Vec3(-v.normal.x, v.normal.y, v.normal.z)
+              )
+            );
+            verts.reverse();
+            return new Polygon(verts, poly.shared);
+          }));
         }
 
         return result.polygons.length > 0 ? result : CSG.cube({ center: new Vec3(5, 2, 0.5), radius: new Vec3(5, 2, 0.5) });
@@ -1748,13 +1851,26 @@ class Evaluator {
           }
         }
 
-        // Limit samples for performance (Minkowski with sphere $fn=24 = 288 vertices)
-        const maxSamples = 64;
+        // Adaptive max samples: scale with shape complexity, cap at 192
+        const maxSamples = Math.min(192, Math.max(64, bPoints.length));
         let sampledB = bPoints;
         if (bPoints.length > maxSamples) {
-          // Uniform sampling: take every Nth point
-          const step = Math.ceil(bPoints.length / maxSamples);
-          sampledB = bPoints.filter((_, i) => i % step === 0);
+          // Priority sampling: keep extremal points (min/max on each axis) + uniform
+          const extremes = new Set<number>();
+          for (const axis of ["x", "y", "z"] as const) {
+            let minI = 0, maxI = 0;
+            for (let i = 1; i < bPoints.length; i++) {
+              if (bPoints[i][axis] < bPoints[minI][axis]) minI = i;
+              if (bPoints[i][axis] > bPoints[maxI][axis]) maxI = i;
+            }
+            extremes.add(minI);
+            extremes.add(maxI);
+          }
+          const extremePts = [...extremes].map(i => bPoints[i]);
+          const remaining = bPoints.filter((_, i) => !extremes.has(i));
+          const step = Math.ceil(remaining.length / (maxSamples - extremePts.length));
+          const uniformPts = remaining.filter((_, i) => i % step === 0);
+          sampledB = [...extremePts, ...uniformPts];
         }
 
         // For each B vertex, translate all A vertices by that offset
@@ -2334,6 +2450,291 @@ function convexHull2D(points: number[][]): number[][] {
 // SEGMENT FONT FOR text() — Generates 2D polygon outlines for characters
 // ═══════════════════════════════════════════════════════════════════════════════
 
+/* ── Text mesh helpers: direct mesh construction with hole-aware triangulation ── */
+
+function signedArea2D(pts: number[][]): number {
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const j = (i + 1) % pts.length;
+    a += pts[i][0] * pts[j][1] - pts[j][0] * pts[i][1];
+  }
+  return a / 2;
+}
+
+function pointInPoly2D(pt: number[], poly: number[][]): boolean {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    if ((poly[i][1] > pt[1]) !== (poly[j][1] > pt[1]) &&
+        pt[0] < (poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1]) / (poly[j][1] - poly[i][1]) + poly[i][0])
+      inside = !inside;
+  }
+  return inside;
+}
+
+function centroid2D(pts: number[][]): number[] {
+  let x = 0, y = 0;
+  for (const p of pts) { x += p[0]; y += p[1]; }
+  return [x / pts.length, y / pts.length];
+}
+
+function ptInTri2D(p: number[], a: number[], b: number[], c: number[]): boolean {
+  const d1 = (p[0] - b[0]) * (a[1] - b[1]) - (a[0] - b[0]) * (p[1] - b[1]);
+  const d2 = (p[0] - c[0]) * (b[1] - c[1]) - (b[0] - c[0]) * (p[1] - c[1]);
+  const d3 = (p[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (p[1] - a[1]);
+  return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
+}
+
+function earClip(pts: number[][]): [number, number, number][] {
+  const tris: [number, number, number][] = [];
+  const idx = pts.map((_, i) => i);
+  const ccw = signedArea2D(pts) > 0;
+  let safe = idx.length * idx.length;
+  while (idx.length > 2 && safe-- > 0) {
+    let found = false;
+    for (let i = 0; i < idx.length; i++) {
+      const pI = (i - 1 + idx.length) % idx.length;
+      const nI = (i + 1) % idx.length;
+      const prev = pts[idx[pI]], curr = pts[idx[i]], next = pts[idx[nI]];
+      const cross = (curr[0] - prev[0]) * (next[1] - prev[1]) - (curr[1] - prev[1]) * (next[0] - prev[0]);
+      if (ccw ? cross <= 1e-10 : cross >= -1e-10) continue;
+      let ok = true;
+      for (let j = 0; j < idx.length; j++) {
+        if (j === pI || j === i || j === nI) continue;
+        if (ptInTri2D(pts[idx[j]], prev, curr, next)) { ok = false; break; }
+      }
+      if (!ok) continue;
+      tris.push([idx[pI], idx[i], idx[nI]]);
+      idx.splice(i, 1);
+      found = true;
+      break;
+    }
+    if (!found) break;
+  }
+  return tris;
+}
+
+function bridgeMerge(outer: number[][], holes: number[][]): number[][] {
+  let merged = outer.map(p => [...p]);
+  for (const hole of holes) {
+    let maxX = -Infinity, hI = 0;
+    for (let i = 0; i < hole.length; i++) {
+      if (hole[i][0] > maxX) { maxX = hole[i][0]; hI = i; }
+    }
+    let minD = Infinity, mI = 0;
+    for (let i = 0; i < merged.length; i++) {
+      const d = (merged[i][0] - hole[hI][0]) ** 2 + (merged[i][1] - hole[hI][1]) ** 2;
+      if (d < minD) { minD = d; mI = i; }
+    }
+    const reordered = [...hole.slice(hI), ...hole.slice(0, hI)];
+    merged = [
+      ...merged.slice(0, mI + 1),
+      ...reordered.map(p => [...p]),
+      [reordered[0][0] + 1e-8, reordered[0][1] + 1e-8],
+      [merged[mI][0] - 1e-8, merged[mI][1] - 1e-8],
+      ...merged.slice(mI + 1)
+    ];
+  }
+  return merged;
+}
+
+/** Convert a Three.js BufferGeometry (triangulated mesh) into CSG polygons */
+function bufferGeometryToCSG(geom: InstanceType<typeof ExtrudeGeometry>): CSG {
+  const csg = new CSG();
+  const pos = geom.getAttribute('position');
+  const norm = geom.getAttribute('normal');
+  const idx = geom.getIndex();
+
+  const triCount = idx ? idx.count / 3 : pos.count / 3;
+
+  for (let t = 0; t < triCount; t++) {
+    const i0 = idx ? idx.getX(t * 3) : t * 3;
+    const i1 = idx ? idx.getX(t * 3 + 1) : t * 3 + 1;
+    const i2 = idx ? idx.getX(t * 3 + 2) : t * 3 + 2;
+
+    const va = new Vec3(pos.getX(i0), pos.getY(i0), pos.getZ(i0));
+    const vb = new Vec3(pos.getX(i1), pos.getY(i1), pos.getZ(i1));
+    const vc = new Vec3(pos.getX(i2), pos.getY(i2), pos.getZ(i2));
+
+    // Skip degenerate triangles
+    const edge1 = vb.minus(va);
+    const edge2 = vc.minus(va);
+    if (edge1.cross(edge2).length() < 1e-10) continue;
+
+    const na = new Vec3(norm.getX(i0), norm.getY(i0), norm.getZ(i0));
+    const nb = new Vec3(norm.getX(i1), norm.getY(i1), norm.getZ(i1));
+    const nc = new Vec3(norm.getX(i2), norm.getY(i2), norm.getZ(i2));
+
+    csg.polygons.push(new Polygon([
+      new Vertex(va, na),
+      new Vertex(vb, nb),
+      new Vertex(vc, nc),
+    ]));
+  }
+
+  return csg;
+}
+
+function extrudeWithHoles(outer: number[][], holes: number[][][], height: number): CSG {
+  const csg = new CSG();
+
+  // Three.js generateShapes returns outer=CW, holes=CCW.
+  // ShapeUtils.triangulateShape expects that convention and returns CCW triangles.
+  // For CSG we need: outer side walls with outward normals, hole side walls with inward normals,
+  // top cap facing +Z (CCW when viewed from +Z), bottom cap facing -Z (CW when viewed from +Z).
+
+  // Normalize: outer must be CW (negative signedArea), holes must be CCW (positive signedArea)
+  // This matches Three.js convention for ShapeUtils.triangulateShape
+  const oCW = signedArea2D(outer) <= 0 ? outer : [...outer].reverse();
+  const hsCCW = holes.map(h => signedArea2D(h) >= 0 ? h : [...h].reverse());
+
+  // Side walls — outer contour (CW in XY → outward normals when extruded along +Z)
+  // For a CW contour, traversing edge i→j: the outward normal is obtained by
+  // cross(along_edge, up) which equals cross(v10-v00, v01-v00)
+  for (let i = 0; i < oCW.length; i++) {
+    const j = (i + 1) % oCW.length;
+    const v00 = new Vec3(oCW[i][0], oCW[i][1], 0);
+    const v10 = new Vec3(oCW[j][0], oCW[j][1], 0);
+    const v01 = new Vec3(oCW[i][0], oCW[i][1], height);
+    const v11 = new Vec3(oCW[j][0], oCW[j][1], height);
+    const n = v01.minus(v00).cross(v10.minus(v00)).unit();
+    if (n.length() > 0.001)
+      csg.polygons.push(new Polygon([new Vertex(v00, n), new Vertex(v10, n), new Vertex(v11, n), new Vertex(v01, n)]));
+  }
+
+  // Side walls — each hole (CCW in XY → normals face inward toward the hole void)
+  for (const hole of hsCCW) {
+    for (let i = 0; i < hole.length; i++) {
+      const j = (i + 1) % hole.length;
+      const v00 = new Vec3(hole[i][0], hole[i][1], 0);
+      const v10 = new Vec3(hole[j][0], hole[j][1], 0);
+      const v01 = new Vec3(hole[i][0], hole[i][1], height);
+      const v11 = new Vec3(hole[j][0], hole[j][1], height);
+      const n = v10.minus(v00).cross(v01.minus(v00)).unit();
+      if (n.length() > 0.001)
+        csg.polygons.push(new Polygon([new Vertex(v00, n), new Vertex(v10, n), new Vertex(v11, n), new Vertex(v01, n)]));
+    }
+  }
+
+  // Triangulate caps using Three.js ShapeUtils (expects CW outer, CCW holes)
+  const contourVec2 = oCW.map(p => new Vector2(p[0], p[1]));
+  const holesVec2 = hsCCW.map(h => h.map(p => new Vector2(p[0], p[1])));
+
+  let tris;
+  try {
+    tris = ShapeUtils.triangulateShape(contourVec2, holesVec2);
+  } catch (err) {
+    console.error("Triangulation error", err);
+    return csg; // Degenerate fallback (missing caps)
+  }
+
+  // Build combined vertex array: contour vertices first, then hole vertices sequentially
+  const combined2d = [...oCW];
+  for (const h of hsCCW) combined2d.push(...h);
+
+  // Top cap (+Z): ShapeUtils returns CCW triangles → CCW vertex order gives +Z normal ✓
+  const tn = new Vec3(0, 0, 1);
+  for (let t = 0; t < tris.length; t++) {
+    const [a, b, c] = tris[t];
+    csg.polygons.push(new Polygon([
+      new Vertex(new Vec3(combined2d[a][0], combined2d[a][1], height), tn),
+      new Vertex(new Vec3(combined2d[b][0], combined2d[b][1], height), tn),
+      new Vertex(new Vec3(combined2d[c][0], combined2d[c][1], height), tn),
+    ]));
+  }
+
+  // Bottom cap (-Z): reverse the winding → CW vertex order gives -Z normal ✓
+  const bn = new Vec3(0, 0, -1);
+  for (let t = 0; t < tris.length; t++) {
+    const [a, b, c] = tris[t];
+    csg.polygons.push(new Polygon([
+      new Vertex(new Vec3(combined2d[c][0], combined2d[c][1], 0), bn),
+      new Vertex(new Vec3(combined2d[b][0], combined2d[b][1], 0), bn),
+      new Vertex(new Vec3(combined2d[a][0], combined2d[a][1], 0), bn),
+    ]));
+  }
+
+  return csg;
+}
+
+function arcPoints2D(
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  startDeg: number,
+  endDeg: number,
+  steps: number,
+): number[][] {
+  const pts: number[][] = [];
+  const count = Math.max(4, Math.floor(steps));
+  for (let i = 0; i <= count; i++) {
+    const t = i / count;
+    const a = (startDeg + (endDeg - startDeg) * t) * Math.PI / 180;
+    pts.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]);
+  }
+  return pts;
+}
+
+function ellipsePoly2D(cx: number, cy: number, rx: number, ry: number, steps: number): number[][] {
+  const pts: number[][] = [];
+  const count = Math.max(12, Math.floor(steps));
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2;
+    pts.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]);
+  }
+  return pts;
+}
+
+function getProceduralGlyphPolys(ch: string, segments: number): number[][][] | null {
+  const seg = Math.max(12, Math.min(Math.floor(segments), 64));
+  const upper = ch.toUpperCase();
+
+  if (upper === "O") {
+    return [
+      ellipsePoly2D(0.4, 0.5, 0.38, 0.5, seg),
+      ellipsePoly2D(0.4, 0.5, 0.18, 0.28, seg).reverse(),
+    ];
+  }
+
+  if (upper === "0") {
+    return [
+      ellipsePoly2D(0.4, 0.5, 0.36, 0.5, seg),
+      ellipsePoly2D(0.4, 0.5, 0.16, 0.28, seg).reverse(),
+    ];
+  }
+
+  if (upper === "Q") {
+    return [
+      ellipsePoly2D(0.4, 0.5, 0.38, 0.5, seg),
+      ellipsePoly2D(0.4, 0.5, 0.18, 0.28, seg).reverse(),
+      [[0.5, 0.16], [0.8, -0.02], [0.68, -0.02], [0.45, 0.12]],
+    ];
+  }
+
+  if (upper === "D") {
+    const outerArc = arcPoints2D(0.34, 0.5, 0.46, 0.5, 90, -90, seg / 2);
+    const innerArc = arcPoints2D(0.34, 0.5, 0.24, 0.32, 90, -90, seg / 2);
+    return [
+      [[0.06, 0], [0.06, 1], ...outerArc, [0.06, 0]],
+      [[0.2, 0.18], [0.2, 0.82], ...innerArc, [0.2, 0.18]].reverse(),
+    ];
+  }
+
+  if (upper === "U") {
+    const outerBottom = arcPoints2D(0.4, 0.32, 0.32, 0.32, 180, 0, seg / 2);
+    const innerBottom = arcPoints2D(0.4, 0.32, 0.15, 0.14, 0, 180, seg / 3);
+    return [[
+      [0.08, 1], [0.08, 0.32],
+      ...outerBottom,
+      [0.72, 1], [0.55, 1], [0.55, 0.34],
+      ...innerBottom,
+      [0.25, 0.34], [0.25, 1],
+    ]];
+  }
+
+  return null;
+}
+
 /**
  * Bitmap-segment font: each character is defined as a list of polygons
  * (closed paths of 2D points). Coordinates are normalized to a 0-1 unit cell
@@ -2418,9 +2819,10 @@ const GLYPH_DATA: Record<string, number[][][]> = {
  * Get character polygons scaled to fontSize. Returns array of polygons
  * (each polygon is an array of [x, y] points).
  */
-function getCharPolygons(ch: string, fontSize: number): number[][][] {
+function getCharPolygons(ch: string, fontSize: number, curveSegments = 24): number[][][] {
   const upper = ch.toUpperCase();
-  const glyphPolys = GLYPH_DATA[upper] || GLYPH_DATA[ch];
+  const procedural = getProceduralGlyphPolys(upper, curveSegments);
+  const glyphPolys = procedural || GLYPH_DATA[upper] || GLYPH_DATA[ch];
   if (!glyphPolys || glyphPolys.length === 0) return [];
 
   return glyphPolys.map(poly =>
