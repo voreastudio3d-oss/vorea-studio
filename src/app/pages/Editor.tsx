@@ -23,6 +23,7 @@ import {
 } from "../services/api-client";
 import {
   getDefaultScadTemplates,
+  getTemplateDescription,
   getTemplateTitle,
   normalizeScadTemplatesConfig,
   type ScadTemplateItem,
@@ -910,23 +911,32 @@ export function Editor() {
             )}
           </button>
           {showTemplates && (
-            <div className="mt-2 flex flex-col gap-2 max-h-[70vh] overflow-y-auto pr-1">
+            <div className="mt-2 grid grid-cols-2 gap-2 max-h-[70vh] overflow-y-auto pr-1">
               {templates.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => loadTemplate(t)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12px] font-medium bg-[#1a1f36] text-gray-200 border border-[rgba(168,187,238,0.12)] hover:border-[#C6E36C]/30 hover:text-gray-100 transition-all"
+                  className="flex flex-col items-center text-center gap-2 p-3 rounded-2xl bg-[#1a1f36] text-gray-200 border border-[rgba(168,187,238,0.12)] hover:border-[#C6E36C]/30 hover:text-gray-100 transition-all h-[200px] w-full"
                 >
                   {t.imageUrl ? (
                     <img
                       src={t.imageUrl}
                       alt={getTemplateTitle(t, locale)}
-                      className="w-16 h-16 rounded-md object-cover border border-[rgba(168,187,238,0.28)]"
+                      className="w-36 h-28 rounded-xl object-cover overflow-hidden"
                     />
                   ) : (
-                    <Box className="w-16 h-16" />
+                    <div className="w-28 h-28 rounded-xl border border-[rgba(168,187,238,0.18)] bg-[#141a2d] flex items-center justify-center">
+                      <Box className="w-10 h-10 text-gray-500" />
+                    </div>
                   )}
-                  {getTemplateTitle(t, locale)}
+                  <span className="w-full min-w-0 flex flex-col items-center h-[58px] justify-start">
+                    <span className="text-[13px] font-semibold leading-tight line-clamp-2 min-h-[25px] w-full">
+                      {getTemplateTitle(t, locale)}
+                    </span>
+                    <span className="text-[11px] text-gray-500 line-clamp-2 leading-snug min-h-[28px] mt-0.5 w-full">
+                      {getTemplateDescription(t, locale)}
+                    </span>
+                  </span>
                 </button>
               ))}
             </div>

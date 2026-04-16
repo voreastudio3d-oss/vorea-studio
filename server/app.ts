@@ -8507,6 +8507,7 @@ type ScadTemplateCmsItem = {
   code: string;
   imageUrl: string;
   localeTitles: Record<ScadTemplateLocale, string>;
+  localeDescriptions: Record<ScadTemplateLocale, string>;
 };
 
 function normalizeScadTemplateItem(input: unknown): ScadTemplateCmsItem | null {
@@ -8520,11 +8521,18 @@ function normalizeScadTemplateItem(input: unknown): ScadTemplateCmsItem | null {
     record.localeTitles && typeof record.localeTitles === "object"
       ? (record.localeTitles as Record<string, unknown>)
       : {};
+  const rawLocaleDescriptions =
+    record.localeDescriptions && typeof record.localeDescriptions === "object"
+      ? (record.localeDescriptions as Record<string, unknown>)
+      : {};
 
   const fallbackTitle = String(record.name || id).trim() || id;
   const es = String(rawLocaleTitles.es || "").trim() || fallbackTitle;
   const en = String(rawLocaleTitles.en || "").trim() || es;
   const pt = String(rawLocaleTitles.pt || "").trim() || es;
+  const esDescription = String(rawLocaleDescriptions.es || "").trim();
+  const enDescription = String(rawLocaleDescriptions.en || "").trim() || esDescription;
+  const ptDescription = String(rawLocaleDescriptions.pt || "").trim() || esDescription;
 
   return {
     id,
@@ -8534,6 +8542,11 @@ function normalizeScadTemplateItem(input: unknown): ScadTemplateCmsItem | null {
       es,
       en,
       pt,
+    },
+    localeDescriptions: {
+      es: esDescription,
+      en: enDescription,
+      pt: ptDescription,
     },
   };
 }

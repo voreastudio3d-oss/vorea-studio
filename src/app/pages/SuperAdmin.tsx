@@ -28,6 +28,7 @@ import { FinancialDashboardTab } from "./FinancialDashboardTab";
 import { WeeklyAcquisitionTab } from "./WeeklyAcquisitionTab";
 import {
   getDefaultScadTemplates,
+  getTemplateDescription,
   getTemplateTitle,
   normalizeScadTemplatesConfig,
   type ScadTemplateItem,
@@ -2962,6 +2963,10 @@ function ScadTemplatesEditor({ onBack }: { onBack: () => void }) {
             ...item.localeTitles,
             ...(patch.localeTitles || {}),
           },
+          localeDescriptions: {
+            ...item.localeDescriptions,
+            ...(patch.localeDescriptions || {}),
+          },
         };
       })
     );
@@ -2993,6 +2998,11 @@ function ScadTemplatesEditor({ onBack }: { onBack: () => void }) {
         es: "Nuevo template",
         en: "New template",
         pt: "Novo template",
+      },
+      localeDescriptions: {
+        es: "Descripcion corta del template",
+        en: "Short template description",
+        pt: "Descricao curta do template",
       },
     };
     setTemplates((prev) => [...prev, next]);
@@ -3126,6 +3136,11 @@ function ScadTemplatesEditor({ onBack }: { onBack: () => void }) {
                       <p className={`text-xs font-medium truncate ${active ? "text-[#C6E36C]" : "text-gray-200"}`}>
                         {getTemplateTitle(item, previewLocale)}
                       </p>
+                      {getTemplateDescription(item, previewLocale) && (
+                        <p className="text-[10px] text-gray-500 truncate">
+                          {getTemplateDescription(item, previewLocale)}
+                        </p>
+                      )}
                       <p className="text-[10px] text-gray-600 font-mono truncate">{item.id}</p>
                     </div>
                     <div className="ml-auto text-gray-600 text-xs" title="Arrastrar para reordenar">
@@ -3214,6 +3229,23 @@ function ScadTemplatesEditor({ onBack }: { onBack: () => void }) {
                     placeholder="Titulo visible en el acoplable"
                   />
                 </div>
+
+                <div>
+                  <label className={labelCls}>Descripcion ({LOCALE_LABELS[previewLocale]})</label>
+                  <input
+                    value={selectedTemplate.localeDescriptions[previewLocale] || ""}
+                    onChange={(e) =>
+                      updateTemplate(selectedTemplate.id, {
+                        localeDescriptions: {
+                          ...selectedTemplate.localeDescriptions,
+                          [previewLocale]: e.target.value,
+                        },
+                      })
+                    }
+                    className={inputCls}
+                    placeholder="Descripcion corta visible en la lista"
+                  />
+                </div>
               </div>
 
               <div className="border-t border-[rgba(168,187,238,0.06)] pt-4">
@@ -3266,7 +3298,7 @@ function ScadTemplatesEditor({ onBack }: { onBack: () => void }) {
                 return (
                   <div
                     key={item.id}
-                    className={`flex items-center gap-2 rounded-full px-3 py-2 border text-[11px] ${
+                    className={`flex items-center gap-2 rounded-xl px-3 py-2 border ${
                       active
                         ? "bg-[#C6E36C]/12 border-[#C6E36C]/30 text-[#C6E36C]"
                         : "bg-[#1a1f36] border-[rgba(168,187,238,0.12)] text-gray-300"
@@ -3284,7 +3316,12 @@ function ScadTemplatesEditor({ onBack }: { onBack: () => void }) {
                     ) : (
                       <Box className="w-4 h-4" />
                     )}
-                    <span className="max-w-[180px] truncate">{getTemplateTitle(item, previewLocale)}</span>
+                    <span className="min-w-0 flex flex-col">
+                      <span className="max-w-[180px] truncate text-[11px] font-medium">{getTemplateTitle(item, previewLocale)}</span>
+                      {getTemplateDescription(item, previewLocale) && (
+                        <span className="max-w-[220px] truncate text-[10px] text-gray-500">{getTemplateDescription(item, previewLocale)}</span>
+                      )}
+                    </span>
                   </div>
                 );
               })}
@@ -3295,6 +3332,9 @@ function ScadTemplatesEditor({ onBack }: { onBack: () => void }) {
             <div className="rounded-xl bg-[#0d1117] border border-[rgba(168,187,238,0.06)] p-4 space-y-2">
               <p className="text-[10px] text-gray-500 uppercase tracking-wide">Template activo</p>
               <p className="text-sm font-medium text-white">{getTemplateTitle(selectedTemplate, previewLocale)}</p>
+              {getTemplateDescription(selectedTemplate, previewLocale) && (
+                <p className="text-[11px] text-gray-400">{getTemplateDescription(selectedTemplate, previewLocale)}</p>
+              )}
               <p className="text-[10px] text-gray-600 font-mono">{selectedTemplate.id}</p>
               <p className="text-[10px] text-gray-500">{selectedTemplate.code.split("\n").length} lineas de SCAD</p>
             </div>
