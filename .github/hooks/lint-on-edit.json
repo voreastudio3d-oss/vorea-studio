@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "pnpm eslint --fix ${filePath} --no-error-on-unmatched-pattern 2>$null; exit 0",
+        "windows": "pnpm eslint --fix ${filePath} --no-error-on-unmatched-pattern 2>$null; exit 0",
+        "linux": "pnpm eslint --fix \"${filePath}\" --no-error-on-unmatched-pattern 2>/dev/null || true",
+        "osx": "pnpm eslint --fix \"${filePath}\" --no-error-on-unmatched-pattern 2>/dev/null || true",
+        "timeout": 15
+      }
+    ]
+  }
+}

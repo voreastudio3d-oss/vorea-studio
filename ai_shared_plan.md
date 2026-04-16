@@ -1,7 +1,7 @@
 # Plan Maestro Compartido (IA) — Vorea Studio
 
-Última actualización: 2026-04-05
-Estado: `LIMPIEZA_OPERATIVA`
+Última actualización: 2026-04-16
+Estado: `PUBLISH_HUB_COMPLETO`
 
 Este archivo es la referencia de ejecución activa del repo.
 Regla: aquí solo vive el bloque vigente. El estado/prioridad consolidado vive en `project_backlog.md` y la evidencia diaria en `ai_handoff_YYYY-MM-DD.md`.
@@ -16,12 +16,23 @@ Regla: aquí solo vive el bloque vigente. El estado/prioridad consolidado vive e
 
 ## Objetivo activo
 
-Siguiente frente recomendado:
+### Bloque cerrado: Publish Hub (2026-04-16)
 
-1. ✅ Estabilización de deuda técnica (`BG-206` y `BG-207` completados).
-2. ✅ Entidades de Comunidad (`BG-106`) migradas a API real (sin mocks), SuperAdmin seguro.
-3. **Próximo foco a decidir**: Certificación final de Monetización (Pagos/Gate), Reparaciones Motor 3D/Relief (`BG-109`), o Marketing.
-   - Si se retoma Monetización: arrancar por el hardening de AI Studio ya consolidado en `project_backlog.md` (`BG-006` / `BG-008`). El fix del refund mixto `monthly + top-up` ya quedó aplicado; la siguiente secuencia es test de integración del endpoint, `reservation -> capture -> release`, persistencia server-side del resultado, helper compartido de créditos y guardrails sobre rutas críticas.
+**Tareas completadas:**
+- **Fase 1 ✅** — Schema Prisma: `PendingReview` en enum `ModelStatus` + campos `rejectionReason`, `moderatedAt`, `externalPublishUrl`
+- **Fase 2 ✅** — Backend: flujo moderación, `getModelStatus()`, `canViewCommunityModel()`, `POST /api/community/models` → `pendingReview`, `PUT /api/admin/community/models/:id/moderate`
+- **Fase 3 ✅** — UI: Publish Hub, `PublishDialog` wired, i18n actualizado
+- **Fase 5 ✅** — Export Pack ZIP: `GET /api/community/models/:id/export-pack` con fflate, `CommunityApi.downloadExportPack()`, botón Archive en Profile
+- **Fase 6 ✅** — Panel admin moderación en `CommunityTab.tsx` (approve/reject + rejectionReason)
+- **Fase 7 ✅** — UX perfil usuario: tab `pendingReview`, banners, campo `rejectionReason`
+- **DB migración ✅** — `0002_publish-hub` creada; se aplica automáticamente en el próximo deploy vía `prisma migrate deploy`
+- **Suite completa**: 1453 tests, 0 fallos, 0 errores TypeScript, 150 rutas API sincronizadas
+
+**Próximo foco a decidir:**
+- **Deploy a Railway** para activar Publish Hub en producción (aplica migración automáticamente)
+- **Fase 4** — MyMiniFactory OAuth2 (publicación directa en plataforma externa)
+- **BG-006** — AI Studio hardening (Monetización)
+- **Backlog**: ver `project_backlog.md`
 
 ## Estado del bloque
 

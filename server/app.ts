@@ -28,6 +28,7 @@ import {
   buildSitemapSectionXml,
   buildSitemapXml,
 } from "./seo.js";
+import { zipSync, strToU8 } from "fflate";
 import {
   amountsMatchUsd,
   extractCapturePaymentInfo,
@@ -856,9 +857,10 @@ function slugifySegment(input: unknown): string {
     .slice(0, 80);
 }
 
-function getModelStatus(model: any): "draft" | "published" | "archived" {
+function getModelStatus(model: any): "draft" | "pendingReview" | "published" | "archived" {
   const raw = String(model?.status || "published").toLowerCase();
   if (raw === "draft") return "draft";
+  if (raw === "pendingreview" || raw === "pending_review") return "pendingReview";
   if (raw === "archived") return "archived";
   return "published";
 }
@@ -867,7 +869,10 @@ function canViewCommunityModel(model: any, viewerId: string | null, viewerIsAdmi
   const status = getModelStatus(model);
   if (status === "published") return true;
   if (!viewerId) return false;
-  return viewerIsAdmin || model?.authorId === viewerId;
+  // Admins see everything; authors see their own drafts and pending models
+  if (viewerIsAdmin) return true;
+  if (status === "draft" || status === "pendingReview") return model?.authorId === viewerId;
+  return false;
 }
 
 function canInteractWithCommunityModel(model: any): boolean {
@@ -3351,7 +3356,7 @@ const DEFAULT_AI_BUDGET = {
 const DEFAULT_IMAGE_LIMITS = {
   free:      { maxBytes: 2 * 1024 * 1024,  resizePx: 1024 },
   pro:       { maxBytes: 10 * 1024 * 1024, resizePx: 2048 },
-  studioPro: { maxBytes: 25 * 1024 * 1024, resizePx: null },
+  studioPro: { maxBytes: 10 * 1024 * 1024, resizePx: null },
 };
 
 // ─── Dynamic Plan Features ─────────────────────────────────────────────────
@@ -7379,6 +7384,136 @@ app.get("/api/community/models/:id", async (c) => {
   }
 });
 
+// GET /community/models/:id/export-pack – Download ZIP with SCAD, params, manifest and images
+app.get("/api/community/models/:id/export-pack", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const model = await communityRepo.getModel(id);
+    if (!model) return c.json({ error: "Modelo no encontrado" }, 404);
+
+    const { viewerId, viewerIsAdmin } = await getViewerContext(c);
+    if (!canViewCommunityModel(model, viewerId, viewerIsAdmin)) {
+      return c.json({ error: "Modelo no encontrado" }, 404);
+    }
+
+    // Only author or admin can download the SCAD source pack
+    if (!viewerId || (!viewerIsAdmin && model.authorId !== viewerId)) {
+      return c.json({ error: "Solo el autor o un administrador puede descargar el paquete de exportación" }, 403);
+    }
+
+    const files: Record<string, Uint8Array> = {};
+    const imageLog: { file: string; url: string; status: "ok" | "skipped"; reason?: string }[] = [];
+
+    // model.scad
+    if (model.scadSource) {
+      files["model.scad"] = strToU8(model.scadSource);
+    }
+
+    // params.json
+    const paramsData = typeof model.params === "object" && model.params !== null
+      ? model.params
+      : {};
+    files["params.json"] = strToU8(JSON.stringify(paramsData, null, 2));
+
+    // relief-config.json (if applicable)
+    if ((model as any).modelType === "relief" && (model as any).reliefConfig) {
+      files["relief-config.json"] = strToU8(JSON.stringify((model as any).reliefConfig, null, 2));
+    }
+
+    // Collect image URLs from media array and thumbnailUrl
+    const mediaItems: Array<{ url: string; label: string }> = [];
+    const rawMedia = Array.isArray((model as any).media) ? (model as any).media : [];
+    rawMedia.forEach((m: any, idx: number) => {
+      if (m?.url && typeof m.url === "string") {
+        mediaItems.push({ url: m.url, label: `images/gallery_${String(idx + 1).padStart(2, "0")}` });
+      }
+    });
+    if ((model as any).thumbnailUrl && typeof (model as any).thumbnailUrl === "string") {
+      const thumbUrl = (model as any).thumbnailUrl as string;
+      if (!mediaItems.some((m) => m.url === thumbUrl)) {
+        mediaItems.unshift({ url: thumbUrl, label: "images/thumbnail" });
+      }
+    }
+
+    // Download images (best-effort, skip on error)
+    const FETCH_TIMEOUT_MS = 10_000;
+    await Promise.all(
+      mediaItems.map(async ({ url, label }) => {
+        try {
+          // Data URLs (base64 embedded)
+          if (url.startsWith("data:")) {
+            const [header, b64] = url.split(",");
+            if (!b64) throw new Error("Formato data URL inválido");
+            const ext = header.match(/\/([a-zA-Z0-9]+)/)?.[1] || "bin";
+            const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+            files[`${label}.${ext}`] = bytes;
+            imageLog.push({ file: `${label}.${ext}`, url, status: "ok" });
+            return;
+          }
+
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+          const res = await fetch(url, { signal: controller.signal });
+          clearTimeout(timer);
+
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+          const contentType = res.headers.get("content-type") || "application/octet-stream";
+          const ext = contentType.includes("png") ? "png"
+            : contentType.includes("webp") ? "webp"
+            : contentType.includes("gif") ? "gif"
+            : "jpg";
+          const buf = await res.arrayBuffer();
+          files[`${label}.${ext}`] = new Uint8Array(buf);
+          imageLog.push({ file: `${label}.${ext}`, url, status: "ok" });
+        } catch (err: any) {
+          imageLog.push({ file: label, url, status: "skipped", reason: err.message });
+        }
+      })
+    );
+
+    // manifest.json
+    const manifest = {
+      exportedAt: new Date().toISOString(),
+      model: {
+        id: model.id,
+        title: (model as any).title,
+        slug: (model as any).slug ?? null,
+        modelType: (model as any).modelType ?? "parametric",
+        license: (model as any).license ?? "CC BY-SA 4.0",
+        tags: (model as any).tags ?? [],
+        authorId: model.authorId,
+        authorUsername: (model as any).authorUsername ?? null,
+        createdAt: (model as any).createdAt,
+        updatedAt: (model as any).updatedAt,
+      },
+      files: Object.keys(files),
+      images: imageLog,
+    };
+    files["manifest.json"] = strToU8(JSON.stringify(manifest, null, 2));
+
+    // Build ZIP synchronously (fflate zipSync)
+    const zipBuffer = zipSync(files, { level: 6 });
+
+    const safeTitle = ((model as any).title as string || "model")
+      .replace(/[^a-zA-Z0-9_\-]/g, "_")
+      .slice(0, 50);
+    const filename = `vorea_${safeTitle}_${model.id.slice(0, 8)}.zip`;
+
+    return new Response(zipBuffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/zip",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": String(zipBuffer.length),
+        "Cache-Control": "no-store",
+      },
+    });
+  } catch (e: any) {
+    return c.json({ error: `Error generando el paquete: ${e.message}` }, 500);
+  }
+});
+
 // POST /api/tool-actions/consume – Generic server-side tool gating + optional usage consume
 app.post("/api/tool-actions/consume", async (c) => {
   try {
@@ -7433,7 +7568,7 @@ app.post("/api/community/models", async (c) => {
 
     const body = await c.req.json();
     const { title, scadSource, tags, thumbnailUrl, media, forkedFromId, status: reqStatus, modelType, reliefConfig } = body;
-    const modelStatus = reqStatus === "draft" ? "draft" : "published";
+    const modelStatus = reqStatus === "draft" ? "draft" : "pendingReview";
     const type = modelType === "relief" ? "relief" : "parametric";
     const userProfile = (await kv.get(`user:${userId}:profile`)) || {};
 
@@ -7460,7 +7595,7 @@ app.post("/api/community/models", async (c) => {
     // Server-side monetization gating (cannot be bypassed from frontend)
     let publishGateToConsume: ToolActionGateResult | undefined;
     let forkGateToConsume: ToolActionGateResult | undefined;
-    if (modelStatus === "published") {
+    if (modelStatus === "pendingReview") {
       const publishGate = await checkToolActionAllowed(userId, userProfile, "community", "publish");
       if (!publishGate.allowed) {
         return c.json({ error: publishGate.error || "Acción no permitida" }, (publishGate.status || 403) as ContentfulStatusCode);
@@ -7544,34 +7679,11 @@ app.post("/api/community/models", async (c) => {
 
     await communityRepo.upsertModel(modelId, model);
 
-    // Update tag counters (only for published)
-    if (modelStatus === "published") {
-      for (const tag of model.tags) {
-        const tagData = (await communityRepo.getTag(tag)) || {
-          name: tag,
-          slug: tag,
-          modelCount: 0,
-          createdAt: now,
-        };
-        tagData.modelCount++;
-        await communityRepo.upsertTag(tag, tagData);
-      }
+    // Update tag counters (only for published — happens on admin approval)
+    // Tag counters and rewards deferred to moderation approval
 
-      // Award points
-      if (forkedFromId) {
-        await addRewardPoints(userId, "FORK_PUBLISHED", { modelId, forkedFromId });
-        // Reward original author(s)
-        await addForkRoyalty(model, "FORK_CREDIT", { forkModelId: modelId });
-        // Check fork badges on the original author
-        const original = await communityRepo.getModel(forkedFromId);
-        if (original?.authorId) await checkForkBadges(original.authorId);
-      } else {
-        await addRewardPoints(userId, "MODEL_PUBLISHED", { modelId });
-      }
-    }
-
-    // Consume usage counters only after successful create
-    if (modelStatus === "published") {
+    // Consume usage counters on submission (pendingReview)
+    if (modelStatus === "pendingReview") {
       await consumeToolActionUsage(userId, userProfile, publishGateToConsume);
       if (forkedFromId) {
         await consumeToolActionUsage(userId, userProfile, forkGateToConsume);
@@ -8138,6 +8250,76 @@ app.post("/api/admin/community/cleanup", requireSuperAdmin, async (c) => {
     return c.json({ dryRun, suspiciousCount: suspicious.length, deleted: dryRun ? 0 : deleted, models: suspicious });
   } catch (e: any) {
     return c.json({ error: `Error: ${e.message}` }, 500);
+  }
+});
+
+// PUT /admin/community/models/:id/moderate – Approve or reject a pending model
+app.put("/api/admin/community/models/:id/moderate", requireSuperAdmin, async (c) => {
+  try {
+    const id = c.req.param("id");
+    const model = await communityRepo.getModel(id);
+    if (!model) return c.json({ error: "Modelo no encontrado" }, 404);
+
+    const currentStatus = getModelStatus(model);
+    if (currentStatus !== "pendingReview") {
+      return c.json({ error: `Solo se pueden moderar modelos en revisión (estado actual: ${currentStatus})` }, 400);
+    }
+
+    const body = await c.req.json();
+    const { action, rejectionReason } = body;
+    if (action !== "approve" && action !== "reject") {
+      return c.json({ error: "action debe ser 'approve' o 'reject'" }, 400);
+    }
+
+    const now = new Date().toISOString();
+    const { userId: adminId } = await isSuperAdmin(c);
+
+    if (action === "approve") {
+      model.status = "published";
+      model.moderatedAt = now;
+      model.rejectionReason = null;
+
+      // Award tag counters now that model is published
+      if (Array.isArray(model.tags)) {
+        for (const tag of model.tags) {
+          const tagData = (await communityRepo.getTag(tag)) || {
+            name: tag,
+            slug: tag,
+            modelCount: 0,
+            createdAt: now,
+          };
+          tagData.modelCount++;
+          await communityRepo.upsertTag(tag, tagData);
+        }
+      }
+
+      // Award points
+      if (model.forkedFromId) {
+        await addRewardPoints(model.authorId, "FORK_PUBLISHED", { modelId: id, forkedFromId: model.forkedFromId });
+        await addForkRoyalty(model, "FORK_CREDIT", { forkModelId: id });
+        const original = await communityRepo.getModel(model.forkedFromId);
+        if (original?.authorId) await checkForkBadges(original.authorId);
+      } else {
+        await addRewardPoints(model.authorId, "MODEL_PUBLISHED", { modelId: id });
+      }
+    } else {
+      // reject
+      if (!rejectionReason || !String(rejectionReason).trim()) {
+        return c.json({ error: "rejectionReason es requerido al rechazar" }, 400);
+      }
+      model.status = "draft";
+      model.moderatedAt = now;
+      model.rejectionReason = String(rejectionReason).trim();
+    }
+
+    model.updatedAt = now;
+    await communityRepo.upsertModel(id, model);
+    await auditLog("community_moderate", { modelId: id, action, adminId, rejectionReason: rejectionReason || null });
+
+    console.log(`Community model ${action}d: ${id} by admin ${adminId}`);
+    return c.json({ model: sanitizeCommunityModel(model, false), action });
+  } catch (e: any) {
+    return c.json({ error: `Error al moderar: ${e.message}` }, 500);
   }
 });
 

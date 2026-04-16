@@ -10,7 +10,9 @@ import { Card, CardContent } from "../components/ui/card";
 import { useNavigate } from "../nav";
 import { useModel } from "../services/model-context";
 import { useAuth } from "../services/auth-context";
+import { useI18n } from "../services/i18n-context";
 import { AuthDialog } from "../components/AuthDialog";
+import { PublishDialog } from "../components/PublishDialog";
 import { regenerateScad } from "../services/scad-parser";
 import { consumeProtectedToolAction } from "../services/protected-tool-actions";
 import { toast } from "sonner";
@@ -122,7 +124,7 @@ function analyzeMesh(mesh: NonNullable<ReturnType<typeof useModel>["compiledMesh
   };
 }
 
-function runLintChecks(stats: MeshStats): LintCheck[] {
+function runLintChecks(stats: MeshStats, t: (key: string, r?: Record<string, string | number>) => string): LintCheck[] {
   const { boundingBox: bb } = stats;
   const sizeX = bb.maxX - bb.minX;
   const sizeY = bb.maxY - bb.minY;
@@ -132,55 +134,54 @@ function runLintChecks(stats: MeshStats): LintCheck[] {
   return [
     {
       id: "manifold",
-      name: "Manifold Check",
-      description: "Verifica que la malla sea cerrada y sin agujeros",
+      name: t("mw.lint.manifold"),
+      description: t("mw.lint.manifoldDesc"),
       status: stats.faceCount > 4 ? "pass" : "fail",
       detail: stats.faceCount > 4
-        ? `Malla cerrada con ${stats.faceCount} caras, ${stats.triangleCount} triangulos`
-        : `Solo ${stats.faceCount} caras — modelo probablemente incompleto`,
+        ? t("mw.lint.manifoldPass", { faces: stats.faceCount, triangles: stats.triangleCount })
+        : t("mw.lint.manifoldFail", { faces: stats.faceCount }),
     },
     {
       id: "thickness",
-      name: "Espesor Minimo",
-      description: "Todas las paredes superan 0.8mm",
+      name: t("mw.lint.thickness"),
+      description: t("mw.lint.thicknessDesc"),
       status: Math.min(sizeX, sizeY, sizeZ) > 0.8 ? "pass" : "warn",
-      detail: `Dimension minima: ${Math.min(sizeX, sizeY, sizeZ).toFixed(1)}mm`,
+      detail: t("mw.lint.thicknessDetail", { value: Math.min(sizeX, sizeY, sizeZ).toFixed(1) }),
     },
     {
       id: "overhang",
-      name: "Overhangs",
-      description: "Angulos de voladizo dentro de limites seguros",
+      name: t("mw.lint.overhang"),
+      description: t("mw.lint.overhangDesc"),
       status: stats.faceCount < 500 ? "pass" : "warn",
       detail: stats.faceCount < 500
-        ? "Geometria simple — overhangs probablemente seguros"
-        : `${stats.faceCount} caras — verificar overhangs manualmente en slicer`,
+        ? t("mw.lint.overhangPass")
+        : t("mw.lint.overhangWarn", { faces: stats.faceCount }),
     },
     {
       id: "scale",
-      name: "Escala y Dimensiones",
-      description: "El modelo cabe en el volumen de impresion (256x256x256mm)",
+      name: t("mw.lint.scale"),
+      description: t("mw.lint.scaleDesc"),
       status: maxDim <= 256 ? "pass" : maxDim <= 300 ? "warn" : "fail",
-      detail: `Bounding box: ${sizeX.toFixed(1)} x ${sizeY.toFixed(1)} x ${sizeZ.toFixed(1)}mm${
-        maxDim > 256 ? " — excede volumen estandar" : ""
-      }`,
+      detail: t("mw.lint.scaleDetail", { x: sizeX.toFixed(1), y: sizeY.toFixed(1), z: sizeZ.toFixed(1) }) +
+        (maxDim > 256 ? t("mw.lint.scaleExceeds") : ""),
     },
     {
       id: "normals",
-      name: "Normales Invertidas",
-      description: "Todas las normales apuntan hacia afuera",
+      name: t("mw.lint.normals"),
+      description: t("mw.lint.normalsDesc"),
       status: stats.hasNormalIssues ? "warn" : "pass",
       detail: stats.hasNormalIssues
-        ? "Algunas normales tienen magnitud inconsistente"
-        : "Todas las normales correctas",
+        ? t("mw.lint.normalsWarn")
+        : t("mw.lint.normalsPass"),
     },
     {
       id: "degenerate",
-      name: "Caras Degeneradas",
-      description: "Sin caras con menos de 3 vertices",
+      name: t("mw.lint.degenerate"),
+      description: t("mw.lint.degenerateDesc"),
       status: stats.hasDegenerateFaces ? "fail" : "pass",
       detail: stats.hasDegenerateFaces
-        ? "Caras con menos de 3 vertices detectadas"
-        : "Todas las caras validas",
+        ? t("mw.lint.degenerateFail")
+        : t("mw.lint.degeneratePass"),
     },
   ];
 }
@@ -198,11 +199,13 @@ export function MakerWorld() {
   const navigate = useNavigate();
   const model = useModel();
   const { isLoggedIn, refreshCredits } = useAuth();
+  const { t } = useI18n();
   const [checks, setChecks] = useState<LintCheck[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [hasRun, setHasRun] = useState(false);
   const [meshStats, setMeshStats] = useState<MeshStats | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
 
   const hasModel = !!model.compiledMesh;
 
@@ -213,7 +216,7 @@ export function MakerWorld() {
 
     const stats = analyzeMesh(model.compiledMesh);
     setMeshStats(stats);
-    const results = runLintChecks(stats);
+    const results = runLintChecks(stats, t);
 
     // Animate checks appearing sequentially
     results.forEach((check, i) => {
@@ -232,7 +235,7 @@ export function MakerWorld() {
         }
       }, 300 + i * 350);
     });
-  }, [isRunning, model.compiledMesh]);
+  }, [isRunning, model.compiledMesh, t]);
 
   const passCount = checks.filter((c) => c.status === "pass").length;
   const warnCount = checks.filter((c) => c.status === "warn").length;
@@ -245,7 +248,7 @@ export function MakerWorld() {
       toolId: "makerworld",
       actionId,
       onAuthRequired: () => setAuthOpen(true),
-      authMessage: "Inicia sesión para exportar o preparar tu modelo para MakerWorld.",
+      authMessage: t("mw.authMessage"),
       onConsumed: refreshCredits,
     });
   }, [isLoggedIn, refreshCredits]);
@@ -278,9 +281,9 @@ export function MakerWorld() {
     a.download = `${model.modelName.replace(/\s+/g, "_")}.stl`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("STL exportado");
+    toast.success(t("mw.stlExported"));
     trackAnalyticsEvent("export_stl", { tool: "makerworld", surface: "editor" });
-  }, [model.compiledMesh, model.modelName, consumeMakerworldAction]);
+  }, [model.compiledMesh, model.modelName, consumeMakerworldAction, t]);
 
   const handleExportOBJ = useCallback(async () => {
     if (!model.compiledMesh) return;
@@ -308,9 +311,9 @@ export function MakerWorld() {
     a.download = `${model.modelName.replace(/\s+/g, "_")}.obj`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("OBJ exportado");
+    toast.success(t("mw.objExported"));
     trackAnalyticsEvent("export_obj", { tool: "makerworld", surface: "editor" });
-  }, [model.compiledMesh, model.modelName, consumeMakerworldAction]);
+  }, [model.compiledMesh, model.modelName, consumeMakerworldAction, t]);
 
   const handleExportSCAD = useCallback(async () => {
     const allowed = await consumeMakerworldAction("upload_scad");
@@ -323,9 +326,9 @@ export function MakerWorld() {
     a.download = `${model.modelName.replace(/\s+/g, "_")}.scad`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("SCAD exportado");
+    toast.success(t("mw.scadExported"));
     trackAnalyticsEvent("export_scad", { tool: "makerworld", surface: "editor" });
-  }, [model.scadSource, model.paramValues, model.modelName, consumeMakerworldAction]);
+  }, [model.scadSource, model.paramValues, model.modelName, consumeMakerworldAction, t]);
 
   const bb = meshStats?.boundingBox;
 
@@ -346,7 +349,7 @@ export function MakerWorld() {
               <Printer className="w-5 h-5 text-green-400" />
             </div>
             <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-              QUALITY GATE
+              {t("mw.badge")}
             </Badge>
           </div>
           <h1
@@ -358,10 +361,10 @@ export function MakerWorld() {
               animation: "vsHeroIn 0.55s cubic-bezier(.22,1,.36,1) 0.05s both",
             }}
           >
-            MakerWorld Ready
+            {t("mw.title")}
           </h1>
           <p className="text-base text-gray-400 max-w-2xl mb-6" style={{ animation: "vsHeroIn 0.55s cubic-bezier(.22,1,.36,1) 0.1s both" }}>
-            Valida, exporta y publica tu modelo. Lint de calidad automatizado basado en la geometria real de tu mesh CSG.
+            {t("mw.subtitle")}
           </p>
 
           {/* No model warning */}
@@ -369,12 +372,12 @@ export function MakerWorld() {
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3 max-w-xl" style={{ animation: "vsHeroIn 0.55s cubic-bezier(.22,1,.36,1) 0.15s both" }}>
               <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm text-amber-200 mb-1">No hay modelo compilado</p>
+                <p className="text-sm text-amber-200 mb-1">{t("mw.noModel")}</p>
                 <p className="text-xs text-amber-400/70 mb-3">
-                  Necesitas compilar un modelo en el Editor antes de ejecutar el lint de calidad.
+                  {t("mw.noModelDesc")}
                 </p>
                 <Button size="sm" onClick={() => navigate("/studio")} className="gap-2">
-                  <ArrowLeft className="w-3.5 h-3.5" /> Ir al Editor
+                  <ArrowLeft className="w-3.5 h-3.5" /> {t("mw.goEditor")}
                 </Button>
               </div>
             </div>
@@ -383,7 +386,7 @@ export function MakerWorld() {
           {hasModel && (
             <div className="flex gap-3" style={{ animation: "vsHeroIn 0.55s cubic-bezier(.22,1,.36,1) 0.15s both" }}>
               <Button onClick={() => navigate("/studio")} variant="secondary" className="gap-2">
-                <ArrowLeft className="w-4 h-4" /> Editor
+                <ArrowLeft className="w-4 h-4" /> {t("mw.editor")}
               </Button>
               <Badge className="bg-[#1a1f36] text-gray-300 border-[rgba(168,187,238,0.12)] flex items-center gap-1.5 px-3">
                 <Box className="w-3 h-3 text-[#C6E36C]" />
@@ -407,7 +410,7 @@ export function MakerWorld() {
                   ) : (
                     <RefreshCw className="w-4 h-4" />
                   )}
-                  {isRunning ? "Analizando..." : hasRun ? "Re-analizar" : "Ejecutar Lint"}
+                  {isRunning ? t("mw.analyzing") : hasRun ? t("mw.reAnalyze") : t("mw.runLint")}
                 </Button>
 
                 {hasRun && (
@@ -434,10 +437,10 @@ export function MakerWorld() {
                 <div className="rounded-xl border border-[rgba(168,187,238,0.08)] bg-[rgba(26,31,54,0.3)] p-8 text-center">
                   <ShieldCheck className="w-10 h-10 text-gray-700 mx-auto mb-3" />
                   <p className="text-sm text-gray-500">
-                    Presiona "Ejecutar Lint" para analizar tu modelo
+                    {t("mw.lintPrompt")}
                   </p>
                   <p className="text-[10px] text-gray-600 mt-1">
-                    Se verificaran 6 aspectos de calidad basados en la geometria real
+                    {t("mw.lintPromptDetail")}
                   </p>
                 </div>
               )}
@@ -492,27 +495,27 @@ export function MakerWorld() {
                 <CardContent className="p-5">
                   <div className="flex items-center gap-2 mb-4">
                     <FileDown className="w-4 h-4 text-green-400" />
-                    <span className="text-sm font-semibold">Exportar Modelo</span>
+                    <span className="text-sm font-semibold">{t("mw.export")}</span>
                   </div>
                   <div className="space-y-2">
                     <button onClick={handleExportSTL} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#1a1f36] border border-[rgba(168,187,238,0.08)] hover:border-green-500/30 transition-all text-left">
                       <div>
                         <span className="text-xs text-white font-mono">.STL</span>
-                        <p className="text-[10px] text-gray-500 mt-0.5">Standard Tessellation</p>
+                        <p className="text-[10px] text-gray-500 mt-0.5">{t("mw.exportStl")}</p>
                       </div>
                       <Download className="w-3.5 h-3.5 text-gray-500" />
                     </button>
                     <button onClick={handleExportOBJ} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#1a1f36] border border-[rgba(168,187,238,0.08)] hover:border-green-500/30 transition-all text-left">
                       <div>
                         <span className="text-xs text-white font-mono">.OBJ</span>
-                        <p className="text-[10px] text-gray-500 mt-0.5">Wavefront Object</p>
+                        <p className="text-[10px] text-gray-500 mt-0.5">{t("mw.exportObj")}</p>
                       </div>
                       <Download className="w-3.5 h-3.5 text-gray-500" />
                     </button>
                     <button onClick={handleExportSCAD} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#1a1f36] border border-[rgba(168,187,238,0.08)] hover:border-green-500/30 transition-all text-left">
                       <div>
                         <span className="text-xs text-white font-mono">.SCAD</span>
-                        <p className="text-[10px] text-gray-500 mt-0.5">OpenSCAD Source</p>
+                        <p className="text-[10px] text-gray-500 mt-0.5">{t("mw.exportScad")}</p>
                       </div>
                       <Download className="w-3.5 h-3.5 text-gray-500" />
                     </button>
@@ -525,19 +528,19 @@ export function MakerWorld() {
                 <CardContent className="p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <Upload className="w-4 h-4 text-green-400" />
-                    <span className="text-sm font-semibold">Publicar a MakerWorld</span>
+                    <span className="text-sm font-semibold">{t("mw.publish")}</span>
                   </div>
                   {!hasRun ? (
-                    <p className="text-xs text-gray-500 mb-4">Ejecuta el lint antes de publicar</p>
+                    <p className="text-xs text-gray-500 mb-4">{t("mw.publishRunLint")}</p>
                   ) : allPass ? (
-                    <p className="text-xs text-green-400/80 mb-4">Tu modelo cumple todos los gates</p>
+                    <p className="text-xs text-green-400/80 mb-4">{t("mw.publishAllPass")}</p>
                   ) : (
                     <p className="text-xs text-yellow-400/80 mb-4">
-                      {failCount > 0 ? "Corrige los errores antes de publicar" : "Advertencias detectadas, publicacion posible"}
+                      {failCount > 0 ? t("mw.publishFixErrors") : t("mw.publishWarnings")}
                     </p>
                   )}
-                  <Button className="w-full gap-2" disabled={!hasRun || failCount > 0}>
-                    <Upload className="w-3.5 h-3.5" /> Publicar
+                  <Button className="w-full gap-2" disabled={!hasRun || failCount > 0} onClick={() => setPublishOpen(true)}>
+                    <Upload className="w-3.5 h-3.5" /> {t("mw.publishBtn")}
                     <span className="opacity-80 text-[10px] bg-black/20 px-1.5 py-0.5 rounded leading-none flex items-center">-3 Cr</span>
                   </Button>
                 </CardContent>
@@ -548,24 +551,24 @@ export function MakerWorld() {
                 <CardContent className="p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <BarChart3 className="w-4 h-4 text-green-400" />
-                    <span className="text-sm font-semibold">Estadisticas del Modelo</span>
+                    <span className="text-sm font-semibold">{t("mw.stats")}</span>
                   </div>
                   {meshStats ? (
                     <div className="space-y-2 text-xs text-gray-400">
                       <div className="flex justify-between">
-                        <span>Caras</span>
+                        <span>{t("mw.statsFaces")}</span>
                         <span className="text-green-300 font-mono">{meshStats.faceCount.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Triangulos</span>
+                        <span>{t("mw.statsTriangles")}</span>
                         <span className="text-green-300 font-mono">{meshStats.triangleCount.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Vertices</span>
+                        <span>{t("mw.statsVertices")}</span>
                         <span className="text-green-300 font-mono">{meshStats.vertexCount.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Volumen</span>
+                        <span>{t("mw.statsVolume")}</span>
                         <span className="text-green-300 font-mono">
                           {meshStats.volume < 1000
                             ? `${meshStats.volume.toFixed(1)} mm3`
@@ -574,7 +577,7 @@ export function MakerWorld() {
                       </div>
                       {bb && (
                         <div className="flex justify-between">
-                          <span>Bounding Box</span>
+                          <span>{t("mw.statsBBox")}</span>
                           <span className="text-green-300 font-mono text-[10px]">
                             {(bb.maxX - bb.minX).toFixed(0)}x{(bb.maxY - bb.minY).toFixed(0)}x{(bb.maxZ - bb.minZ).toFixed(0)}mm
                           </span>
@@ -582,7 +585,7 @@ export function MakerWorld() {
                       )}
                       {meshStats.volume > 0 && (
                         <div className="flex justify-between">
-                          <span>Peso PLA (~1.24g/cm3)</span>
+                          <span>{t("mw.statsWeight")}</span>
                           <span className="text-green-300 font-mono">
                             ~{((meshStats.volume / 1000) * 1.24 * 0.2).toFixed(0)}g (20% infill)
                           </span>
@@ -590,7 +593,7 @@ export function MakerWorld() {
                       )}
                     </div>
                   ) : (
-                    <p className="text-xs text-gray-600">Ejecuta el lint para ver estadisticas</p>
+                    <p className="text-xs text-gray-600">{t("mw.statsRunLint")}</p>
                   )}
                 </CardContent>
               </Card>
@@ -602,30 +605,30 @@ export function MakerWorld() {
       {/* Features */}
       <div className="border-t border-[rgba(168,187,238,0.12)] bg-[rgba(26,31,54,0.15)]">
         <div className="max-w-7xl mx-auto px-6 py-14">
-          <h2 className="text-2xl font-bold mb-2">Pipeline de Publicacion</h2>
+          <h2 className="text-2xl font-bold mb-2">{t("mw.pipelineTitle")}</h2>
           <p className="text-sm text-gray-400 mb-8 max-w-xl">
-            Del diseno a la comunidad en cuatro pasos automatizados.
+            {t("mw.pipelineSubtitle")}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                title: "Lint Real",
-                desc: "6 verificaciones basadas en la geometria real de tu mesh CSG: manifold, espesor, normales, escala.",
+                title: t("mw.feat.lint"),
+                desc: t("mw.feat.lintDesc"),
                 icon: <ShieldCheck className="w-5 h-5 text-green-400" />,
               },
               {
-                title: "Quality Gates",
-                desc: "El modelo debe pasar los gates criticos. Warnings informativos no bloquean la publicacion.",
+                title: t("mw.feat.gates"),
+                desc: t("mw.feat.gatesDesc"),
                 icon: <CheckCircle2 className="w-5 h-5 text-green-400" />,
               },
               {
-                title: "Multi-formato",
-                desc: "Exporta en STL, OBJ o SCAD con un click. Archivos generados directamente desde la mesh.",
+                title: t("mw.feat.multiFormat"),
+                desc: t("mw.feat.multiFormatDesc"),
                 icon: <FileDown className="w-5 h-5 text-green-400" />,
               },
               {
-                title: "Publicacion",
-                desc: "Publica a la comunidad con metadata, estadisticas y parametros Customizer incluidos.",
+                title: t("mw.feat.publish"),
+                desc: t("mw.feat.publishDesc"),
                 icon: <Upload className="w-5 h-5 text-green-400" />,
               },
             ].map((f, i) => (
@@ -665,6 +668,12 @@ export function MakerWorld() {
         }
       `}</style>
       <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
+      <PublishDialog
+        open={publishOpen}
+        onOpenChange={setPublishOpen}
+        sceneCtx={null}
+        mode="create"
+      />
     </div>
   );
 }

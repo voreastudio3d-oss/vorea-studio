@@ -45,6 +45,7 @@ import {
   History,
   MessageCircle,
   Lock,
+  Archive,
 } from "lucide-react";
 
 const BADGE_ICONS: Record<string, string> = {
@@ -159,7 +160,7 @@ export function Profile() {
   const [communityModels, setCommunityModels] = useState<CommunityModelResponse[]>([]);
   const [communityStats, setCommunityStats] = useState({ totalModels: 0, totalLikes: 0, totalDownloads: 0 });
   const [loadingModels, setLoadingModels] = useState(false);
-  const [profileTab, setProfileTab] = useState<"published" | "draft" | "keys">("published");
+  const [profileTab, setProfileTab] = useState<"published" | "pendingReview" | "draft" | "keys">("published");
 
   const [editingProfile, setEditingProfile] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -973,10 +974,10 @@ export function Profile() {
 
         {/* Tabs: Published vs Drafts vs Keys */}
         <div className="flex gap-2 mb-6 border-b border-[rgba(168,187,238,0.12)] pb-4">
-          {(["published", "draft", "keys"] as const).map((tab) => {
+          {(["published", "pendingReview", "draft", "keys"] as const).map((tab) => {
             const isKeys = tab === "keys";
             const count = isKeys ? null : communityModels.filter((m) => m.status === tab).length;
-            const label = isKeys ? "API Keys / IA" : tab === "published" ? t("profile.tab.published") : t("profile.tab.drafts");
+            const label = isKeys ? "API Keys / IA" : tab === "published" ? t("profile.tab.published") : tab === "pendingReview" ? "⏳ En revisión" : t("profile.tab.drafts");
 
             return (
               <button
@@ -1021,12 +1022,15 @@ export function Profile() {
                     )}
                     <div className="absolute top-3 left-3 flex gap-2">
                       <Badge
-                        className={`backdrop-blur-md ${model.status === "draft"
+                        className={`backdrop-blur-md ${
+                          model.status === "draft"
                             ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                            : model.status === "pendingReview"
+                            ? "bg-orange-500/20 text-orange-400 border-orange-500/30"
                             : "bg-green-500/20 text-green-400 border-green-500/30"
-                          }`}
+                        }`}
                       >
-                        {model.status === "draft" ? t("profile.modelDraft") : t("profile.tab.published")}
+                        {model.status === "draft" ? t("profile.modelDraft") : model.status === "pendingReview" ? "En revisión" : t("profile.tab.published")}
                       </Badge>
                       {model.featured && (
                         <Badge className="backdrop-blur-md bg-[#C6E36C]/20 text-[#C6E36C] border-[#C6E36C]/30">
@@ -1051,6 +1055,16 @@ export function Profile() {
                   </div>
 
                   <div className="p-5 flex-1 flex flex-col">
+                    {model.status === "pendingReview" && (
+                      <div className="mb-3 px-3 py-2 bg-orange-500/10 border border-orange-500/20 rounded-lg text-xs text-orange-300">
+                        🕐 Tu modelo está siendo revisado por el equipo de Vorea. Te notificaremos cuando sea aprobado.
+                      </div>
+                    )}
+                    {model.status === "draft" && model.rejectionReason && (
+                      <div className="mb-3 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-300">
+                        ❌ <span className="font-semibold">Motivo de rechazo:</span> {model.rejectionReason}
+                      </div>
+                    )}
                     <h3 className="text-lg font-semibold text-white mb-1 line-clamp-1">
                       {model.title}
                     </h3>
@@ -1096,6 +1110,18 @@ export function Profile() {
                         onClick={() => void handleEdit(model, "copy")}
                       >
                         <Copy className="w-3.5 h-3.5" /> Editar copia
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="gap-2 text-xs flex-1 min-w-[130px]"
+                        onClick={() => {
+                          CommunityApi.downloadExportPack(model.id, model.title)
+                            .catch((e: Error) => toast.error(e.message));
+                        }}
+                        title="Descargar paquete ZIP con SCAD, params e imágenes"
+                      >
+                        <Archive className="w-3.5 h-3.5" /> Export Pack
                       </Button>
                       <Button
                         variant="secondary"
