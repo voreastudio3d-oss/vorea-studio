@@ -453,10 +453,18 @@ export function Editor() {
     prevSourceRef.current = localSource;
   }, [model, localSource, projectTitle, publishMode]);
 
+  const applyAndCompile = useCallback(() => {
+    applyCode();
+    viewportRef.current?.compile();
+  }, [applyCode]);
+
   const handleParamChange = useCallback(
     (name: string, value: number | boolean | string | number[]) => {
+      const nextParamValues = { ...model.paramValues, [name]: value };
+      const syncedSource = regenerateScad(localSource, nextParamValues);
       model.setParam(name, value);
-      history.push({ source: localSource, paramValues: { ...model.paramValues, [name]: value } }, true);
+      setLocalSource(syncedSource);
+      history.push({ source: syncedSource, paramValues: nextParamValues }, true);
     },
     [model, localSource, history]
   );
@@ -978,9 +986,9 @@ export function Editor() {
           <Button
             size="sm"
             className="text-[10px] h-7 gap-1"
-            onClick={applyCode}
+            onClick={applyAndCompile}
           >
-            <Play className="w-3 h-3" /> Aplicar
+            <Play className="w-3 h-3" /> Aplicar y Compilar
           </Button>
           <span className="text-[9px] text-gray-600 ml-auto flex items-center gap-2">
             {diagSummary.errors > 0 && (

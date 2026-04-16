@@ -78,6 +78,7 @@ interface ScadViewportProps {
 
 export interface ScadViewportHandle {
   getSceneCtx(): ThreeSceneContext | null;
+  compile: () => void;
 }
 
 // ─── Worker singleton ─────────────────────────────────────────────────────────
@@ -120,11 +121,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<ThreeSceneContext | null>(null);
   const meshRef = useRef<RenderableMesh | null>(null);
-
-  // Expose scene ctx to parent
-  useImperativeHandle(ref, () => ({
-    getSceneCtx: () => sceneRef.current,
-  }));
+  const [externalCompileTick, setExternalCompileTick] = useState(0);
 
   const [hasCompiled, setHasCompiled] = useState(false);
   const [compiling, setCompiling] = useState(false);
@@ -134,12 +131,13 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   const [showGrid, setShowGrid] = useState(true);
   const [showAxes, setShowAxes] = useState(true);
   const [stale, setStale] = useState(false);
-  const [autoRecompile, setAutoRecompile] = useState(false);
+  const [autoRecompile, setAutoRecompile] = useState(true);
   const [autoCenterOnCompile, setAutoCenterOnCompile] = useState(false);
   const [usedWorker, setUsedWorker] = useState(false);
   const [errorCopied, setErrorCopied] = useState(false);
   const [renderMode, setRenderMode] = useState<RenderMode>("smooth");
   const [transformMode, setTransformModeState] = useState<TransformMode | null>(null);
+  const handledExternalCompileTickRef = useRef(0);
   const autoRef = useRef(false);
   autoRef.current = autoRecompile;
   const lastFingerprintRef = useRef<string>("");
@@ -412,17 +410,33 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
     }
   }, [compileWithWorker, compileMainThread]);
 
+  // Expose scene ctx + compile trigger to parent
+  useImperativeHandle(ref, () => ({
+    getSceneCtx: () => sceneRef.current,
+    compile: () => setExternalCompileTick((v) => v + 1),
+  }), []);
+
+  useEffect(() => {
+    if (externalCompileTick === 0) return;
+    if (externalCompileTick === handledExternalCompileTickRef.current) return;
+    if (compiling) return;
+
+    handledExternalCompileTickRef.current = externalCompileTick;
+    compile();
+  }, [externalCompileTick, compile, compiling]);
+
   // ─── Detect staleness ─────────────────────────────────────────────
   useEffect(() => {
     const fp = JSON.stringify({ source, values });
     if (lastFingerprintRef.current && fp !== lastFingerprintRef.current) {
       setStale(true);
+      onMeshReady?.(null);
       if (autoRef.current && !compiling) {
         const timer = setTimeout(compile, 400);
         return () => clearTimeout(timer);
       }
     }
-  }, [source, values, compile, compiling]);
+  }, [source, values, compile, compiling, onMeshReady]);
 
   // ─── Auto-compile on mount (opt-in) ───────────────────────────────
   const didAutoCompile = useRef(false);
@@ -432,30 +446,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
       compile();
     }
   }, [autoCompile, compile]);
-
-  // ─── Reset when source changes completely ─────────────────────────
-  const prevSourceRef = useRef(source);
-  useEffect(() => {
-    if (source !== prevSourceRef.current) {
-      prevSourceRef.current = source;
-      meshRef.current = null;
-      setHasCompiled(false);
-      setStale(false);
-      setError(null);
-      setFaceCount(0);
-      setCompileTime(0);
-      lastFingerprintRef.current = "";
-      didAutoCompile.current = false;
-      onMeshReady?.(null);
-      // Clear Three.js mesh
-      const ctx = sceneRef.current;
-      if (ctx) {
-        while (ctx.meshGroup.children.length > 0) {
-          ctx.meshGroup.remove(ctx.meshGroup.children[0]);
-        }
-      }
-    }
-  }, [source, onMeshReady]);
 
   // ─── Cycle render mode ─────────────────────────────────────────────
   const cycleRenderMode = useCallback(() => {
@@ -530,14 +520,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
       {/* ─── Status badges ─────────────────────────────────────────────── */}
       {hasCompiled && !compiling && (
         <div className="absolute top-14 left-3 flex gap-2 flex-wrap z-10">
-          <Badge className="bg-[#1a1f36]/90 backdrop-blur text-gray-300 border-[rgba(168,187,238,0.12)]">
-            <Eye className="w-3 h-3 mr-1.5" /> WebGL Render
-          </Badge>
-          {usedWorker && (
-            <Badge className="bg-green-500/15 text-green-400/80 border-green-500/20 backdrop-blur text-[9px]">
-              Worker
-            </Badge>
-          )}
           {stale && (
             <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/25 backdrop-blur">
               <RefreshCw className="w-3 h-3 mr-1.5" /> Desactualizado
@@ -586,7 +568,11 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
 
       {/* ─── Controls ──────────────────────────────────────────────────── */}
       {hasCompiled && !compiling && (
-        <div className="absolute top-14 right-3 flex flex-col gap-1.5 z-10">
+        <div className="absolute top-14 right-3 flex flex-col items-end gap-1.5 z-10">
+          <div className="w-full flex items-center justify-end gap-2 text-[9px] text-gray-500">
+            <span className="h-px w-6 bg-[rgba(168,187,238,0.15)]" />
+            <span className="uppercase tracking-wide">Gismos</span>
+          </div>
           {/* ─── Render mode cycle ───────────────────────────────────── */}
           <button
             onClick={cycleRenderMode}
@@ -636,7 +622,10 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           >
             AC
           </button>
-          <div className="w-7 h-px" />
+          <div className="w-full flex items-center justify-end gap-2 text-[9px] text-gray-500 mt-1">
+            <span className="h-px w-6 bg-[rgba(168,187,238,0.15)]" />
+            <span className="uppercase tracking-wide">Vistas</span>
+          </div>
           {/* ─── View presets ─────────────────────────────────────────── */}
           <button
             onClick={() => { const ctx = sceneRef.current; if (ctx) setCameraPreset(ctx, "top"); }}
@@ -659,7 +648,10 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           >
             L
           </button>
-          <div className="w-7 h-px" />
+          <div className="w-full flex items-center justify-end gap-2 text-[9px] text-gray-500 mt-1">
+            <span className="h-px w-6 bg-[rgba(168,187,238,0.15)]" />
+            <span className="uppercase tracking-wide">Modificadores</span>
+          </div>
           <button
             onClick={toggleAutoRecompile}
             className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
@@ -677,7 +669,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           >
             <Zap className="w-3.5 h-3.5" />
           </button>
-          <div className="w-7 h-px" />
           {/* ─── Transform mode buttons ──────────────────────────────── */}
           {(["translate", "rotate", "scale"] as TransformMode[]).map((mode) => {
             const Icon = mode === "translate" ? Move : mode === "rotate" ? RotateCw : Maximize2;
