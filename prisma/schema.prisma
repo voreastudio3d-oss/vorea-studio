@@ -58,6 +58,7 @@ model User {
 
 enum ModelStatus {
   Draft
+  PendingReview
   Published
   Archived
 }
@@ -74,9 +75,12 @@ model Model {
   downloads    Int         @default(0)
   thumbnailUrl String?
   tags         String[]    @default([])
-  featured     Boolean     @default(false)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  featured           Boolean     @default(false)
+  rejectionReason    String?
+  moderatedAt        DateTime?
+  externalPublishUrl String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
