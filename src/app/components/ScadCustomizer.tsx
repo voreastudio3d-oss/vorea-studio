@@ -264,6 +264,11 @@ function Section({
       <div className="space-y-4 pb-1 pl-1">
         {params.map((param) => {
           const val = values[param.name] ?? param.value;
+          const translatedLabel =
+            typeof param.comment === "string" && param.comment.trim().length > 0
+              ? param.comment.trim()
+              : friendlyName(param.name);
+          const showTechnicalKey = translatedLabel !== param.name;
           return (
             <div key={param.name}>
               <div className="flex items-center justify-between mb-1.5">
@@ -271,9 +276,16 @@ function Section({
                   <span className="text-gray-500">
                     {TYPE_ICON[param.type]}
                   </span>
-                  <span className="text-sm text-gray-300">
-                    {friendlyName(param.name)}
-                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm text-gray-200 leading-tight">
+                      {translatedLabel}
+                    </span>
+                    {showTechnicalKey && (
+                      <span className="text-[10px] text-gray-500 font-mono leading-none">
+                        {param.name}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <span className="font-mono text-[#C6E36C] text-xs">
                   {typeof val === "boolean"
@@ -285,15 +297,6 @@ function Section({
                     : String(val)}
                 </span>
               </div>
-
-              {param.comment && (
-                <div className="flex items-start gap-1 mb-2">
-                  <Info className="w-3 h-3 text-gray-600 mt-0.5 shrink-0" />
-                  <span className="text-[10px] text-gray-500 leading-relaxed">
-                    {param.comment}
-                  </span>
-                </div>
-              )}
 
               {param.choices && param.choices.length > 0 ? (
                 <ChoiceControl

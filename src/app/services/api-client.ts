@@ -1460,6 +1460,24 @@ export const AdminApi = {
     return json.config;
   },
 
+  // CMS - SCAD Templates
+  async getScadTemplates() {
+    const res = await fetchApi("/content/scad-templates");
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Error al obtener templates SCAD");
+    return json.templates;
+  },
+
+  async updateScadTemplates(templates: unknown[]) {
+    const res = await fetchApi("/content/scad-templates", {
+      method: "PUT",
+      body: JSON.stringify({ templates }),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Error al actualizar templates SCAD");
+    return json.templates;
+  },
+
   async listDonations(params?: {
     q?: string;
     status?: "all" | "completed" | "created" | "capturing" | "failed";
@@ -1513,6 +1531,18 @@ export const ContentApi = {
       if (!res.ok) return null;
       const json = await res.json();
       return json.config || null;
+    } catch {
+      return null;
+    }
+  },
+
+  /** Get SCAD templates content (public, no auth) */
+  async getScadTemplates(): Promise<Record<string, any>[] | null> {
+    try {
+      const res = await fetch(`${BASE_URL}/content/scad-templates`);
+      if (!res.ok) return null;
+      const json = await res.json();
+      return Array.isArray(json.templates) ? json.templates : null;
     } catch {
       return null;
     }

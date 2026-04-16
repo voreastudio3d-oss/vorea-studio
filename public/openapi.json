@@ -7294,6 +7294,137 @@
         }
       }
     },
+    "/api/content/scad-templates": {
+      "get": {
+        "operationId": "get_api_content_scad_templates",
+        "tags": [
+          "Content"
+        ],
+        "summary": "Obtener /api/content/scad-templates",
+        "description": "Endpoint real detectado en `server/app.ts`.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          }
+        },
+        "x-vorea-meta": {
+          "authPolicy": "public",
+          "role": "public",
+          "status": "active",
+          "dependencies": [
+            "kv"
+          ],
+          "source": "server/app.ts"
+        }
+      },
+      "put": {
+        "operationId": "put_api_content_scad_templates",
+        "tags": [
+          "Content"
+        ],
+        "summary": "Actualizar /api/content/scad-templates",
+        "description": "Endpoint real detectado en `server/app.ts`.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Respuesta exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticación requerida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos suficientes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericError"
+                }
+              }
+            }
+          }
+        },
+        "x-vorea-meta": {
+          "authPolicy": "superadmin",
+          "role": "superadmin",
+          "status": "active",
+          "dependencies": [
+            "kv"
+          ],
+          "source": "server/app.ts"
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "templates": []
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/contributors": {
       "get": {
         "operationId": "get_api_contributors",

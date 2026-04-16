@@ -1,16 +1,16 @@
-/** Drawer Organizer Tray – Parametric OpenSCAD model */
-export const DRAWER_ORGANIZER_TRAY_SCAD = `// Drawer Organizer Tray
+/** Bandeja organizadora de cajon - Modelo OpenSCAD parametrico */
+export const DRAWER_ORGANIZER_TRAY_SCAD = `// Bandeja organizadora de cajon
 $fn = 32;
 
-tray_w = 140; // [50:5:280] Outer width
-tray_d = 95; // [40:5:220] Outer depth
-tray_h = 34; // [12:2:90] Total height
-wall = 2.4; // [1.2:0.2:6] Wall thickness
-floor = 1.8; // [1:0.2:5] Floor thickness
-cells_x = 3; // [1:8] Columns
-cells_y = 2; // [1:6] Rows
-corner_r = 6; // [0:1:18] Corner radius
-lip = 1.2; // [0:0.2:4] Top reinforcement
+tray_w = 140; // [50:5:280] Ancho exterior
+tray_d = 95; // [40:5:220] Profundidad exterior
+tray_h = 34; // [12:2:90] Altura total
+wall = 2.4; // [1.2:0.2:6] Espesor de pared
+floor = 1.8; // [1:0.2:5] Espesor de base
+cells_x = 3; // [1:8] Columnas
+cells_y = 2; // [1:6] Filas
+corner_r = 6; // [0:1:18] Radio de esquina
+lip = 1.2; // [0:0.2:4] Refuerzo superior
 
 outer_w = tray_w;
 outer_d = tray_d;

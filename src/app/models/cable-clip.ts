@@ -1,42 +1,42 @@
-/** Cable Management Clip – Parametric OpenSCAD model */
-export const CABLE_CLIP_SCAD = `// Cable Management Clip
+/** Clip para cables - Modelo OpenSCAD parametrico */
+export const CABLE_CLIP_SCAD = `// Clip para cables
 $fn = 24;
 
-// Cable Parameters
-cable_diameter = 6; // [2:0.5:20] Cable diameter in mm
-num_slots = 3; // [1:6] Number of cable slots
-slot_spacing = 4; // [2:1:12] Space between slots
+// Parametros de cable
+cable_diameter = 6; // [2:0.5:20] Diametro del cable en mm
+num_slots = 3; // [1:6] Cantidad de ranuras
+slot_spacing = 4; // [2:1:12] Espacio entre ranuras
 
-// Clip Body
-clip_height = 12; // [8:1:25] Total height
-clip_depth = 8; // [5:1:15] Depth (front to back)
-wall = 2; // [1:0.5:4] Wall thickness
+// Cuerpo del clip
+clip_height = 12; // [8:1:25] Altura total
+clip_depth = 8; // [5:1:15] Profundidad (frente a fondo)
+wall = 2; // [1:0.5:4] Espesor de pared
 
-// Opening
-opening_angle = 45; // [30:5:90] Clip opening angle in degrees
+// Abertura
+opening_angle = 45; // [30:5:90] Angulo de apertura en grados
 include_grip_ridges = true;
 
-// Mount
-mount_type = 0; // 0=flat, 1=screw
+// Montaje
+mount_type = 0; // 0=plano, 1=tornillo
 screw_hole_diameter = 3.5; // [2:0.1:6]
 mount_width = 10; // [6:1:20]
 mount_height = 3; // [2:0.5:6]
 
-// Calculated
+// Calculado
 cable_r = cable_diameter / 2;
 total_width = num_slots * (cable_diameter + wall * 2) + (num_slots - 1) * slot_spacing;
 
 module cable_slot(x_offset) {
     translate([x_offset, 0, 0]) {
-        // Outer cylinder (clip body)
+        // Cilindro externo (cuerpo del clip)
         difference() {
             cylinder(h = clip_height, r = cable_r + wall);
 
-            // Cable channel
+            // Canal del cable
             translate([0, 0, -0.1])
             cylinder(h = clip_height + 0.2, r = cable_r);
 
-            // Opening cut
+            // Corte de abertura
             translate([0, 0, -0.1])
             rotate([0, 0, 90 - opening_angle / 2])
             cube([cable_r + wall + 1, cable_r + wall + 1, clip_height + 0.2]);
@@ -45,12 +45,12 @@ module cable_slot(x_offset) {
 }
 
 module mount_base() {
-    // Flat mount plate
+    // Base de montaje plana
     translate([-mount_width / 2, -(cable_r + wall + clip_depth), 0])
     cube([total_width + mount_width, clip_depth, mount_height]);
 
     if (mount_type == 1) {
-        // Screw hole
+        // Orificio para tornillo
         translate([total_width / 2, -(cable_r + wall + clip_depth / 2), 0])
         difference() {
             cylinder(h = mount_height, r = screw_hole_diameter);
@@ -72,7 +72,7 @@ module grip_ridges(x_offset) {
     }
 }
 
-// Build the clip
+// Construir clip
 translate([-total_width / 2, 0, 0]) {
     for (i = [0 : num_slots - 1]) {
         x = i * (cable_diameter + wall * 2 + slot_spacing);

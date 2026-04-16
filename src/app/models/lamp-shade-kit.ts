@@ -1,17 +1,17 @@
-/** Lamp Shade Kit – Parametric OpenSCAD model */
-export const LAMP_SHADE_KIT_SCAD = `// Lamp Shade Kit
+/** Kit de pantalla de lampara - Modelo OpenSCAD parametrico */
+export const LAMP_SHADE_KIT_SCAD = `// Kit de pantalla de lampara
 $fn = 48;
 
-top_d = 158; // [80:2:260] Top diameter
-bottom_d = 92; // [50:2:180] Bottom diameter
-shade_h = 148; // [60:2:280] Shade height
-wall = 1.8; // [1.2:0.1:4] Wall thickness
-openings = 18; // [6:36] Openings per row
-vent_rows = 4; // [1:8] Vent rows
-vent_d = 9; // [3:0.5:18] Opening diameter
-seat_d = 42; // [20:0.5:80] Kit seat diameter
-seat_h = 12; // [4:1:28] Seat collar height
-fit = 0.5; // [0.1:0.1:2] Fit tolerance
+top_d = 158; // [80:2:260] Diametro superior
+bottom_d = 92; // [50:2:180] Diametro inferior
+shade_h = 148; // [60:2:280] Altura de pantalla
+wall = 1.8; // [1.2:0.1:4] Espesor de pared
+openings = 18; // [6:36] Aberturas por fila
+vent_rows = 4; // [1:8] Filas de ventilacion
+vent_d = 9; // [3:0.5:18] Diametro de abertura
+seat_d = 42; // [20:0.5:80] Diametro del asiento del kit
+seat_h = 12; // [4:1:28] Altura del collar de asiento
+fit = 0.5; // [0.1:0.1:2] Tolerancia de ajuste
 
 outer_r_bottom = bottom_d / 2;
 outer_r_top = top_d / 2;

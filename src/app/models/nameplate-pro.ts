@@ -1,15 +1,15 @@
-/** Nameplate Pro – Parametric OpenSCAD model */
-export const NAMEPLATE_PRO_SCAD = `// Nameplate Pro
+/** Placa identificatoria Pro - Modelo OpenSCAD parametrico */
+export const NAMEPLATE_PRO_SCAD = `// Placa identificatoria Pro
 $fn = 48;
 
-plate_w = 120; // [60:2:220] Plate width
-plate_h = 36; // [20:1:80] Plate height
-plate_d = 4.2; // [2:0.2:10] Body thickness
-corner_r = 4; // [0:0.5:16] Corner radius
-text_size = 14; // [6:0.5:28] Text size
-text_depth = 1.2; // [0.4:0.1:4] Text depth
-border_w = 2.2; // [0.8:0.2:6] Border width
-stand_angle = 74; // [60:1:88] Reading angle
+plate_w = 120; // [60:2:220] Ancho de placa
+plate_h = 36; // [20:1:80] Alto de placa
+plate_d = 4.2; // [2:0.2:10] Espesor del cuerpo
+corner_r = 4; // [0:0.5:16] Radio de esquina
+text_size = 14; // [6:0.5:28] Tamano del texto
+text_depth = 1.2; // [0.4:0.1:4] Profundidad del texto
+border_w = 2.2; // [0.8:0.2:6] Ancho de borde
+stand_angle = 74; // [60:1:88] Angulo de lectura
 label_text = "VOREA";
 primary_text = "VOREA";
 secondary_text = "";

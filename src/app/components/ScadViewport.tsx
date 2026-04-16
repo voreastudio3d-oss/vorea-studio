@@ -135,6 +135,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   const [showAxes, setShowAxes] = useState(true);
   const [stale, setStale] = useState(false);
   const [autoRecompile, setAutoRecompile] = useState(false);
+  const [autoCenterOnCompile, setAutoCenterOnCompile] = useState(false);
   const [usedWorker, setUsedWorker] = useState(false);
   const [errorCopied, setErrorCopied] = useState(false);
   const [renderMode, setRenderMode] = useState<RenderMode>("smooth");
@@ -143,6 +144,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   autoRef.current = autoRecompile;
   const lastFingerprintRef = useRef<string>("");
   const activeCompileId = useRef(0);
+  const hasAutoCenteredOnceRef = useRef(false);
 
   // ─── Complexity estimate ──────────────────────────────────────────
   const complexity: ComplexityEstimate = useMemo(
@@ -270,7 +272,9 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           meshRef.current = renderable;
           setFaceCount(e.data.faceCount);
           onMeshReady?.(e.data.mesh);
-          renderMeshToScene(renderable, !hasCompiled);
+          const shouldAutoCenter = autoCenterOnCompile || !hasAutoCenteredOnceRef.current;
+          renderMeshToScene(renderable, shouldAutoCenter);
+          hasAutoCenteredOnceRef.current = true;
         }
         setCompileTime(Math.round(e.data.time));
         setError(e.data.error || null);
@@ -302,7 +306,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
       worker.addEventListener("message", handler);
       worker.postMessage(msg);
     });
-  }, [source, values, svgs, renderMeshToScene, onMeshReady]);
+  }, [source, values, svgs, renderMeshToScene, onMeshReady, autoCenterOnCompile]);
 
   // ─── Compile fallback (main thread, setTimeout) ───────────────────
   const compileMainThread = useCallback(() => {
@@ -343,7 +347,9 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           lastFingerprintRef.current = JSON.stringify({ source, values });
 
           // Update Three.js scene
-          renderMeshToScene(result.geometry as any, !hasCompiled);
+          const shouldAutoCenter = autoCenterOnCompile || !hasAutoCenteredOnceRef.current;
+          renderMeshToScene(result.geometry as any, shouldAutoCenter);
+          hasAutoCenteredOnceRef.current = true;
 
           // Serialize for GCode panel
           if (onMeshReady) {
@@ -391,7 +397,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
         setCompiling(false);
       }, 20);
     });
-  }, [source, values, svgs, images, renderMeshToScene, onMeshReady]);
+  }, [source, values, svgs, images, renderMeshToScene, onMeshReady, autoCenterOnCompile]);
 
   // ─── Unified compile ──────────────────────────────────────────────
   const compile = useCallback(() => {
@@ -618,6 +624,17 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
             title="Reset vista"
           >
             <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setAutoCenterOnCompile((prev) => !prev)}
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-[8px] font-bold ${
+              autoCenterOnCompile
+                ? "bg-[#C6E36C]/20 text-[#C6E36C] border border-[#C6E36C]/30"
+                : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
+            }`}
+            title={autoCenterOnCompile ? "Auto-centrado al compilar: ON" : "Auto-centrado al compilar: OFF"}
+          >
+            AC
           </button>
           <div className="w-7 h-px" />
           {/* ─── View presets ─────────────────────────────────────────── */}

@@ -1,40 +1,40 @@
-/** Phone/Tablet Stand – Parametric OpenSCAD model */
-export const PHONE_STAND_SCAD = `// Phone/Tablet Stand
+/** Soporte para telefono/tablet - Modelo OpenSCAD parametrico */
+export const PHONE_STAND_SCAD = `// Soporte para telefono/tablet
 $fn = 24;
 
-// Device Dimensions
-device_thickness = 10; // [6:0.5:20] Device thickness with case
-device_width = 80; // [50:5:200] Stand opening width
+// Dimensiones del dispositivo
+device_thickness = 10; // [6:0.5:20] Espesor del dispositivo con funda
+device_width = 80; // [50:5:200] Ancho de abertura del soporte
 
-// Stand Geometry
-stand_angle = 65; // [30:5:85] Viewing angle from horizontal
-base_depth = 80; // [50:5:120] Base depth
-base_width = 100; // [60:5:200] Base width
-base_height = 5; // [3:1:10] Base thickness
+// Geometria del soporte
+stand_angle = 65; // [30:5:85] Angulo de vision desde la horizontal
+base_depth = 80; // [50:5:120] Profundidad de base
+base_width = 100; // [60:5:200] Ancho de base
+base_height = 5; // [3:1:10] Espesor de base
 
-// Back Support
-back_height = 60; // [30:5:120] Back support height
-back_thickness = 4; // [3:0.5:8]
+// Respaldo
+back_height = 60; // [30:5:120] Altura del respaldo
+back_thickness = 4; // [3:0.5:8] Espesor del respaldo
 
-// Lip (front stopper)
-lip_height = 15; // [8:1:30] Front lip height
-lip_depth = 12; // [8:1:25] Front lip depth
+// Labio (tope frontal)
+lip_height = 15; // [8:1:30] Altura del labio frontal
+lip_depth = 12; // [8:1:25] Profundidad del labio frontal
 
-// Slot
-slot_width = 14; // [8:1:30] Cable/charger slot width
+// Ranura
+slot_width = 14; // [8:1:30] Ancho de ranura para cable/cargador
 include_cable_slot = true;
 
-// Rubber Pads
+// Patas de goma
 include_pads = true;
 pad_diameter = 8;
 pad_height = 1;
 
-// Aesthetics
+// Estetica
 include_fillet = true;
 fillet_r = 8; // [3:1:15]
 corner_r = 3;
 
-// Calculated
+// Calculado
 back_offset = base_depth - back_thickness;
 slot_offset = device_thickness + 2;
 
@@ -61,7 +61,7 @@ module front_lip() {
     translate([0, 0, base_height])
     cube([base_width, lip_depth, lip_height]);
 
-    // Device slot
+    // Ranura para dispositivo
     translate([(base_width - device_width) / 2, lip_depth - device_thickness, base_height])
     cube([device_width, device_thickness, lip_height + 5]);
 }

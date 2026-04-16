@@ -1,18 +1,18 @@
-/** Peg Label System – Parametric OpenSCAD model */
-export const PEG_LABEL_SYSTEM_SCAD = `// Peg Label System
+/** Sistema de etiquetas para pegboard - Modelo OpenSCAD parametrico */
+export const PEG_LABEL_SYSTEM_SCAD = `// Sistema de etiquetas para pegboard
 $fn = 48;
 
-label_w = 84; // [40:2:180] Front width
-label_h = 24; // [16:1:60] Front height
-label_d = 3.2; // [2:0.2:8] Body thickness
-corner_r = 4; // [0:0.5:14] Corner radius
-text_size = 8.5; // [4:0.5:20] Text size
-text_depth = 1; // [0.4:0.1:3] Text depth
-border_w = 1.6; // [0.6:0.2:5] Border width
-hook_gap = 4.2; // [1.5:0.2:12] Support thickness
-hook_depth = 8; // [4:0.5:20] Clip depth
-hook_drop = 12; // [6:0.5:32] Clip drop
-hook_spacing = 42; // [18:1:120] Clip spacing
+label_w = 84; // [40:2:180] Ancho frontal
+label_h = 24; // [16:1:60] Alto frontal
+label_d = 3.2; // [2:0.2:8] Espesor del cuerpo
+corner_r = 4; // [0:0.5:14] Radio de esquina
+text_size = 8.5; // [4:0.5:20] Tamano de texto
+text_depth = 1; // [0.4:0.1:3] Profundidad de texto
+border_w = 1.6; // [0.6:0.2:5] Ancho de borde
+hook_gap = 4.2; // [1.5:0.2:12] Espesor de soporte
+hook_depth = 8; // [4:0.5:20] Profundidad de clip
+hook_drop = 12; // [6:0.5:32] Caida de clip
+hook_spacing = 42; // [18:1:120] Separacion de clips
 label_text = "BITS";
 primary_text = "BITS";
 secondary_text = "";

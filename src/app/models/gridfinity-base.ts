@@ -1,34 +1,34 @@
-/** Gridfinity Baseplate – Parametric OpenSCAD model */
-export const GRIDFINITY_BASE_SCAD = `// Gridfinity Baseplate Generator
+/** Base Gridfinity - Modelo OpenSCAD parametrico */
+export const GRIDFINITY_BASE_SCAD = `// Generador de Base Gridfinity
 $fn = 32;
 
-// Grid Configuration
-grid_x = 3; // [1:8] Number of units in X
-grid_y = 2; // [1:6] Number of units in Y
+// Configuracion de grilla
+grid_x = 3; // [1:8] Cantidad de unidades en X
+grid_y = 2; // [1:6] Cantidad de unidades en Y
 
-// Unit Dimensions (mm)
-unit_size = 42; // Standard gridfinity unit
-base_height = 5; // [3:0.5:10] Base plate height
+// Dimensiones de unidad (mm)
+unit_size = 42; // Unidad estandar Gridfinity
+base_height = 5; // [3:0.5:10] Altura de la base
 
-// Corner and Edge
+// Esquinas y borde
 corner_radius = 4; // [1:0.5:8]
 wall_thickness = 2; // [1:0.5:4]
 
-// Magnet Holes
+// Orificios para imanes
 include_magnets = true;
 magnet_diameter = 6.2; // [5:0.1:8]
 magnet_depth = 2.4; // [1:0.1:4]
 
-// Screw Holes
+// Orificios para tornillos
 include_screws = false;
 screw_diameter = 3.2; // [2:0.1:5]
 screw_depth = 4; // [2:0.1:8]
 
-// Lip Profile
+// Perfil de labio
 lip_height = 2.6;
 lip_width = 1.2;
 
-// Calculated
+// Calculado
 total_x = grid_x * unit_size;
 total_y = grid_y * unit_size;
 
@@ -54,7 +54,7 @@ module single_base_unit(x_pos, y_pos) {
             rounded_plate(unit_size - wall_thickness * 2, unit_size - wall_thickness * 2, base_height, corner_radius - wall_thickness / 2);
         }
 
-        // Lip profile
+        // Perfil de labio
         translate([0, 0, base_height])
         difference() {
             rounded_plate(unit_size, unit_size, lip_height, corner_radius);
@@ -62,7 +62,7 @@ module single_base_unit(x_pos, y_pos) {
             rounded_plate(unit_size - lip_width * 2, unit_size - lip_width * 2, lip_height, corner_radius - lip_width / 2);
         }
 
-        // Magnet holes
+        // Orificios para imanes
         if (include_magnets) {
             magnet_r = magnet_diameter / 2;
             magnet_inset = 8;
@@ -76,7 +76,7 @@ module single_base_unit(x_pos, y_pos) {
             cylinder(h = magnet_depth, r = magnet_r);
         }
 
-        // Screw holes
+        // Orificios para tornillos
         if (include_screws) {
             screw_r = screw_diameter / 2;
             translate([unit_size / 2, unit_size / 2, 0])
@@ -85,7 +85,7 @@ module single_base_unit(x_pos, y_pos) {
     }
 }
 
-// Generate grid
+// Generar grilla
 for (ix = [0 : grid_x - 1]) {
     for (iy = [0 : grid_y - 1]) {
         single_base_unit(ix, iy);

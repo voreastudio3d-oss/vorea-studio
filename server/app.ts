@@ -8501,6 +8501,50 @@ app.get("/api/rewards/leaderboard", async (c) => {
 // SITE CONTENT MANAGEMENT (CMS) ROUTES
 // ═══════════════════════════════════════════════════════════════════════════════
 
+type ScadTemplateLocale = "es" | "en" | "pt";
+type ScadTemplateCmsItem = {
+  id: string;
+  code: string;
+  imageUrl: string;
+  localeTitles: Record<ScadTemplateLocale, string>;
+};
+
+function normalizeScadTemplateItem(input: unknown): ScadTemplateCmsItem | null {
+  if (!input || typeof input !== "object") return null;
+  const record = input as Record<string, unknown>;
+  const id = String(record.id || "").trim();
+  const code = String(record.code || "");
+  if (!id || !code.trim()) return null;
+
+  const rawLocaleTitles =
+    record.localeTitles && typeof record.localeTitles === "object"
+      ? (record.localeTitles as Record<string, unknown>)
+      : {};
+
+  const fallbackTitle = String(record.name || id).trim() || id;
+  const es = String(rawLocaleTitles.es || "").trim() || fallbackTitle;
+  const en = String(rawLocaleTitles.en || "").trim() || es;
+  const pt = String(rawLocaleTitles.pt || "").trim() || es;
+
+  return {
+    id,
+    code,
+    imageUrl: String(record.imageUrl || "").trim(),
+    localeTitles: {
+      es,
+      en,
+      pt,
+    },
+  };
+}
+
+function normalizeScadTemplateList(input: unknown): ScadTemplateCmsItem[] {
+  if (!Array.isArray(input)) return [];
+  return input
+    .map((item) => normalizeScadTemplateItem(item))
+    .filter((item): item is ScadTemplateCmsItem => !!item);
+}
+
 // GET /content/hero-banner – Public: returns the hero banner configuration
 app.get("/api/content/hero-banner", async (c) => {
   try {
@@ -8538,6 +8582,38 @@ app.put("/api/content/hero-banner", async (c) => {
 
     console.log(`[CMS] Hero banner updated by ${userId}`);
     return c.json({ success: true, config: saved });
+  } catch (e: any) {
+    return c.json({ error: `Error: ${e.message}` }, 500);
+  }
+});
+
+// GET /content/scad-templates - Public: returns the Studio SCAD templates configuration
+app.get("/api/content/scad-templates", async (c) => {
+  try {
+    const templates = await kv.get("site_content:scad_templates");
+    return c.json({ templates: Array.isArray(templates) ? templates : null });
+  } catch (e: any) {
+    return c.json({ error: `Error: ${e.message}` }, 500);
+  }
+});
+
+// PUT /content/scad-templates - Superadmin only: update Studio SCAD templates
+app.put("/api/content/scad-templates", async (c) => {
+  try {
+    const { ok, userId } = await isSuperAdmin(c);
+    if (!ok || !userId) {
+      return c.json({ error: "Acceso denegado: se requiere superadmin" }, 403);
+    }
+
+    const body = await c.req.json();
+    const templates = normalizeScadTemplateList(body?.templates);
+    if (!templates.length) {
+      return c.json({ error: "El campo 'templates' debe contener al menos un template valido" }, 400);
+    }
+
+    await kv.set("site_content:scad_templates", templates);
+    await auditLog("scad_templates_updated", { adminId: userId, count: templates.length });
+    return c.json({ success: true, templates });
   } catch (e: any) {
     return c.json({ error: `Error: ${e.message}` }, 500);
   }
