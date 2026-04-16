@@ -30,6 +30,9 @@ export function Explore() {
   const [tags, setTags] = useState<CommunityTag[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 24;
   const [authOpen, setAuthOpen] = useState(false);
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
@@ -47,12 +50,14 @@ export function Explore() {
   // Fetch models when filters change (debounced search)
   const fetchModels = useCallback(async () => {
     setLoading(true);
+    setCurrentPage(1);
     try {
       const res = await CommunityApi.listModels({
         search: search || undefined,
         tag: activeTag || undefined,
         sort,
-        limit: 50,
+        limit: PAGE_SIZE,
+        page: 1,
       });
       setModels(res.models);
       setTotal(res.total);
@@ -62,6 +67,27 @@ export function Explore() {
       setLoading(false);
     }
   }, [search, activeTag, sort]);
+
+  const loadMore = useCallback(async () => {
+    const nextPage = currentPage + 1;
+    setLoadingMore(true);
+    try {
+      const res = await CommunityApi.listModels({
+        search: search || undefined,
+        tag: activeTag || undefined,
+        sort,
+        limit: PAGE_SIZE,
+        page: nextPage,
+      });
+      setModels((prev) => [...prev, ...res.models]);
+      setTotal(res.total);
+      setCurrentPage(nextPage);
+    } catch (e) {
+      console.error("Error loading more:", e);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [search, activeTag, sort, currentPage]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -320,6 +346,22 @@ export function Explore() {
           <Search className="w-12 h-12 mb-4 opacity-20" />
           <p className="text-lg font-medium">{t("explore.noResults")}</p>
           <p className="text-sm">{t("explore.noResultsHint")}</p>
+        </div>
+      )}
+
+      {/* Load more */}
+      {!loading && models.length > 0 && models.length < total && (
+        <div className="flex justify-center mt-10">
+          <button
+            onClick={() => void loadMore()}
+            disabled={loadingMore}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-[rgba(168,187,238,0.15)] text-sm text-gray-400 hover:border-[#C6E36C]/40 hover:text-[#C6E36C] disabled:opacity-50 transition-all"
+          >
+            {loadingMore ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : null}
+            {loadingMore ? "Cargando..." : `Cargar más (${models.length} de ${total})`}
+          </button>
         </div>
       )}
 

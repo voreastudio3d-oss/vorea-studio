@@ -218,11 +218,14 @@ export function Editor() {
   useEffect(() => {
     const routeContext = parseCommunityRouteContext(searchParams);
     const templateId = searchParams.get("template");
+    const libId = searchParams.get("lib");
     const bootstrapKey = routeContext
       ? `${routeContext.intent}:${routeContext.modelId}`
       : templateId
         ? `template:${templateId}`
-        : "create";
+        : libId
+          ? `lib:${libId}`
+          : "create";
 
     if (initializedRef.current === bootstrapKey) return;
     initializedRef.current = bootstrapKey;
@@ -290,6 +293,51 @@ export function Editor() {
           prevSourceRef.current = tmpl.source;
           return;
         }
+      }
+
+      // ─── lib: SCAD Library model from MakerWorld ──────────────────
+      if (libId) {
+        let scadCode: string | null = null;
+        let modelTitle = "Modelo SCAD";
+        try {
+          // Try sessionStorage cache first (set by ScadLibrary on same navigation)
+          const stored = sessionStorage.getItem("vorea_import_scad");
+          if (stored) {
+            const data = JSON.parse(stored) as { name: string; code: string; sourceId: string };
+            if (data.sourceId === libId) {
+              scadCode = data.code;
+              modelTitle = data.name;
+              sessionStorage.removeItem("vorea_import_scad");
+            }
+          }
+          // Fallback: fetch from catalog (bookmarked / shared URL)
+          if (!scadCode) {
+            const catRes = await fetch("/scad-library/catalog.json");
+            if (catRes.ok) {
+              const catalog = await catRes.json() as Array<{ id: string; title: string; hasScad: boolean; scadFile: string | null }>;
+              const entry = catalog.find((m) => m.id === libId);
+              if (entry?.hasScad && entry.scadFile) {
+                modelTitle = entry.title;
+                const scadRes = await fetch(`/scad-library/models/${entry.scadFile}`);
+                if (scadRes.ok) scadCode = await scadRes.text();
+              }
+            }
+          }
+          if (scadCode && !cancelled) {
+            setPublishMode("create");
+            setCommunityModelId(null);
+            setCommunityEditMeta(null);
+            setLocalSource(scadCode);
+            setProjectTitle(modelTitle);
+            model.setScadSource(scadCode, modelTitle, null);
+            prevSourceRef.current = scadCode;
+          } else if (!cancelled) {
+            toast.error("No se pudo cargar el modelo de la biblioteca");
+          }
+        } catch {
+          if (!cancelled) toast.error("Error al cargar el modelo de la biblioteca");
+        }
+        return;
       }
 
       if (restoredLocalStateRef.current) return;
