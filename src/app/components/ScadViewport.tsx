@@ -20,6 +20,7 @@ import {
   type RenderableMesh,
 } from "../engine/mesh-data";
 import {
+  applyLightingPreset,
   initScene,
   updateMesh,
   resizeScene,
@@ -34,6 +35,7 @@ import {
   deselectMesh,
   setTransformMode,
   getTransformMode,
+  type LightingPreset,
   type ThreeSceneContext,
   type RenderMode,
   type TransformMode,
@@ -59,6 +61,8 @@ import {
   RotateCw,
   Maximize2,
   MousePointerClick,
+  Lightbulb,
+  SlidersHorizontal,
 } from "lucide-react";
 
 interface ScadViewportProps {
@@ -110,6 +114,13 @@ function getWorker(): Worker | null {
 
 let compileIdCounter = 0;
 
+const LIGHTING_PRESET_OPTIONS: Array<{ value: LightingPreset; label: string }> = [
+  { value: "balanced", label: "Balanceada" },
+  { value: "detail", label: "Detalle" },
+  { value: "showroom", label: "Showroom" },
+  { value: "soft", label: "Suave" },
+];
+
 export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(function ScadViewport({
   source,
   values,
@@ -133,6 +144,9 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   const [stale, setStale] = useState(false);
   const [autoRecompile, setAutoRecompile] = useState(true);
   const [autoCenterOnCompile, setAutoCenterOnCompile] = useState(false);
+  const [lightingPreset, setLightingPreset] = useState<LightingPreset>("balanced");
+  const [lightingIntensity, setLightingIntensity] = useState(1.15);
+  const [lightingPanelOpen, setLightingPanelOpen] = useState(false);
   const [usedWorker, setUsedWorker] = useState(false);
   const [errorCopied, setErrorCopied] = useState(false);
   const [renderMode, setRenderMode] = useState<RenderMode>("smooth");
@@ -235,6 +249,12 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
     if (!ctx || !meshRef.current) return;
     updateMesh(ctx, meshRef.current as any, renderMode);
   }, [renderMode]);
+
+  useEffect(() => {
+    const ctx = sceneRef.current;
+    if (!ctx) return;
+    applyLightingPreset(ctx, lightingPreset, lightingIntensity);
+  }, [lightingPreset, lightingIntensity]);
 
   // ─── Render helper (update Three.js scene with mesh) ──────────────
   const renderMeshToScene = useCallback((mesh: RenderableMesh, autoCenter: boolean = false) => {
@@ -566,14 +586,65 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
         </div>
       )}
 
+      {/* ─── Lighting Controls ─────────────────────────────────────────── */}
+      {hasCompiled && !compiling && (
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 pointer-events-auto flex flex-col items-start gap-1.5">
+          <button
+            onClick={() => setLightingPanelOpen((prev) => !prev)}
+            className={`h-8 w-8 rounded-lg border flex items-center justify-center transition-colors ${lightingPanelOpen
+                ? "bg-[#C6E36C]/18 text-[#C6E36C] border-[#C6E36C]/35"
+                : "bg-[#0f1320]/82 text-gray-400 border-[rgba(168,187,238,0.16)] hover:text-gray-200"
+              }`}
+            title={lightingPanelOpen ? "Ocultar iluminacion" : "Mostrar iluminacion"}
+          >
+            <Lightbulb className="w-4 h-4" />
+          </button>
+
+          {lightingPanelOpen && (
+            <div className="w-40 rounded-xl bg-[#0f1320]/92 backdrop-blur border border-[rgba(168,187,238,0.12)] p-2 space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] text-gray-400 uppercase tracking-wide">
+                <span>Iluminacion</span>
+                <span className="text-[9px] text-gray-500">{LIGHTING_PRESET_OPTIONS.find((p) => p.value === lightingPreset)?.label}</span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-1">
+                {LIGHTING_PRESET_OPTIONS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    onClick={() => setLightingPreset(preset.value)}
+                    className={`h-6.5 px-2 rounded-md text-[10px] border transition-colors text-left ${lightingPreset === preset.value
+                        ? "bg-[#C6E36C]/16 text-[#C6E36C] border-[#C6E36C]/30"
+                        : "bg-[#1a1f36]/80 text-gray-400 border-[rgba(168,187,238,0.12)] hover:text-gray-200"
+                      }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="pt-1 border-t border-[rgba(168,187,238,0.12)] space-y-1">
+                <div className="flex items-center justify-between text-[10px] text-gray-500">
+                  <span className="flex items-center gap-1"><SlidersHorizontal className="w-3 h-3" /> Intensidad</span>
+                  <span className="font-mono text-gray-300">{lightingIntensity.toFixed(2)}x</span>
+                </div>
+                <input
+                  type="range"
+                  min={0.35}
+                  max={2.8}
+                  step={0.05}
+                  value={lightingIntensity}
+                  onChange={(e) => setLightingIntensity(Number(e.target.value))}
+                  className="w-full accent-[#C6E36C]"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ─── Controls ──────────────────────────────────────────────────── */}
       {hasCompiled && !compiling && (
         <div className="absolute top-14 right-3 flex flex-col items-end gap-1.5 z-10">
-          <div className="w-full flex items-center justify-end gap-2 text-[9px] text-gray-500">
-            <span className="h-px w-6 bg-[rgba(168,187,238,0.15)]" />
-            <span className="uppercase tracking-wide">Gismos</span>
-          </div>
-          {/* ─── Render mode cycle ───────────────────────────────────── */}
           <button
             onClick={cycleRenderMode}
             className="h-7 px-2 rounded-lg bg-[#C6E36C]/15 text-[#C6E36C] border border-[#C6E36C]/25 flex items-center justify-center gap-1 transition-colors hover:bg-[#C6E36C]/25 text-[9px] font-semibold min-w-[28px]"
@@ -582,24 +653,28 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
             <Box className="w-3 h-3" />
             <span className="hidden sm:inline">{renderModeLabel}</span>
           </button>
+          <div className="w-full flex items-center justify-end gap-2 text-[9px] text-gray-500">
+            <span className="h-px w-6 bg-[rgba(168,187,238,0.15)]" />
+            <span className="uppercase tracking-wide">Gismos</span>
+          </div>
+          {/* ─── Render mode cycle ───────────────────────────────────── */}
+
           <button
             onClick={() => setShowGrid(!showGrid)}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-              showGrid
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${showGrid
                 ? "bg-[#C6E36C]/20 text-[#C6E36C] border border-[#C6E36C]/30"
                 : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
-            }`}
+              }`}
             title="Grid"
           >
             <Grid3x3 className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setShowAxes(!showAxes)}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-              showAxes
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${showAxes
                 ? "bg-[#C6E36C]/20 text-[#C6E36C] border border-[#C6E36C]/30"
                 : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
-            }`}
+              }`}
             title="Ejes"
           >
             <Axis3D className="w-3.5 h-3.5" />
@@ -613,11 +688,10 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           </button>
           <button
             onClick={() => setAutoCenterOnCompile((prev) => !prev)}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-[8px] font-bold ${
-              autoCenterOnCompile
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-[8px] font-bold ${autoCenterOnCompile
                 ? "bg-[#C6E36C]/20 text-[#C6E36C] border border-[#C6E36C]/30"
                 : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
-            }`}
+              }`}
             title={autoCenterOnCompile ? "Auto-centrado al compilar: ON" : "Auto-centrado al compilar: OFF"}
           >
             AC
@@ -654,11 +728,10 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           </div>
           <button
             onClick={toggleAutoRecompile}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-              autoRecompile
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${autoRecompile
                 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                 : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
-            }`}
+              }`}
             title={
               autoRecompile
                 ? "Auto-recompilacion ON"
@@ -698,11 +771,10 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
                     }
                   }
                 }}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-                  active
+                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${active
                     ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
                     : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)] hover:text-gray-300"
-                }`}
+                  }`}
                 title={label}
               >
                 <Icon className="w-3.5 h-3.5" />
