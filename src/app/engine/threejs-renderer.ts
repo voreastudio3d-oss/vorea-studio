@@ -25,7 +25,7 @@ export interface ThreeSceneContext {
   meshGroup: THREE.Group;
   gridHelper: THREE.GridHelper;
   axesHelper: THREE.AxesHelper;
-  orbitLight: THREE.PointLight;
+  orbitLight: THREE.SpotLight;
   animFrameId: number;
   disposed: boolean;
   selectedMesh: THREE.Mesh | null;
@@ -60,19 +60,19 @@ const LIGHTING_PRESET_MULTIPLIERS: Record<
     orbit: 2.0,
   },
   showroom: {
-    ambient: 0.35,
-    hemi: 0.4,
-    key: 2.7,
-    fill: 0.25,
-    rim: 2.9,
-    zenith: 1.1,
-    under: 0.12,
-    pointA: 1.95,
-    pointB: 1.55,
-    pointFront: 1.45,
-    pointBack: 0.9,
-    head: 0.45,
-    orbit: 2.6,
+    ambient: 0.08,
+    hemi: 0.12,
+    key: 0.22,
+    fill: 0.09,
+    rim: 0.35,
+    zenith: 0.16,
+    under: 0.04,
+    pointA: 0.18,
+    pointB: 0.14,
+    pointFront: 0.11,
+    pointBack: 0.1,
+    head: 0.02,
+    orbit: 4.4,
   },
   soft: {
     ambient: 1.95,
@@ -97,8 +97,15 @@ const ORBIT_LIGHT_MOTION: Record<
 > = {
   balanced: { radius: 120, height: 50, speed: 0.8, wobble: 3 },
   detail: { radius: 96, height: 44, speed: 1.25, wobble: 7 },
-  showroom: { radius: 62, height: 36, speed: 2.6, wobble: 18 },
+  showroom: { radius: 88, height: 52, speed: 2.1, wobble: 16 },
   soft: { radius: 142, height: 62, speed: 0.58, wobble: 2 },
+};
+
+const GROUND_SHADOW_OPACITY: Record<LightingPreset, number> = {
+  balanced: 0.08,
+  detail: 0.18,
+  showroom: 0.42,
+  soft: 0.12,
 };
 
 function registerLight(light: THREE.Light, key: string) {
@@ -128,6 +135,12 @@ export function applyLightingPreset(
     const presetMult = multipliers[key] ?? 1;
     obj.intensity = base * presetMult * intensityScale;
   });
+
+  const groundShadowMat = ctx.scene.userData.groundShadowMaterial as THREE.ShadowMaterial | undefined;
+  if (groundShadowMat) {
+    groundShadowMat.opacity = GROUND_SHADOW_OPACITY[preset] ?? GROUND_SHADOW_OPACITY.balanced;
+    groundShadowMat.needsUpdate = true;
+  }
 }
 
 // ─── Scene Initialization ─────────────────────────────────────────────────────
@@ -250,15 +263,20 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
   camera.add(headLight);
   scene.add(camera);
 
-  // Slow-orbiting accent light to reveal surface detail.
-  const orbitLight = new THREE.PointLight(0xfff0d4, 1.2, 600, 1.2);
+  // Orbiting spotlight for dramatic directed highlights and shadows.
+  const orbitLight = new THREE.SpotLight(0xffefcf, 1.35, 260, Math.PI / 9, 0.22, 1.15);
   registerLight(orbitLight, "orbit");
   orbitLight.castShadow = true;
-  orbitLight.shadow.mapSize.set(1024, 1024);
-  orbitLight.shadow.bias = -0.0002;
-  orbitLight.shadow.normalBias = 0.02;
+  orbitLight.shadow.mapSize.set(2048, 2048);
+  orbitLight.shadow.camera.near = 8;
+  orbitLight.shadow.camera.far = 260;
+  orbitLight.shadow.bias = -0.00035;
+  orbitLight.shadow.normalBias = 0.015;
+  orbitLight.shadow.focus = 1;
   orbitLight.position.set(120, 50, 0);
+  orbitLight.target.position.set(0, 12, 0);
   scene.add(orbitLight);
+  scene.add(orbitLight.target);
 
   // ─── Grid ───────────────────────────────────────────────────────────
 
@@ -276,6 +294,7 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
 
   const groundGeo = new THREE.PlaneGeometry(400, 400);
   const groundMat = new THREE.ShadowMaterial({ opacity: 0.08 });
+  scene.userData.groundShadowMaterial = groundMat;
   const ground = new THREE.Mesh(groundGeo, groundMat);
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.1;
@@ -340,6 +359,8 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
       y,
       target.z + Math.sin(t * speed) * motion.radius
     );
+    orbitLight.target.position.set(target.x, target.y + 8, target.z);
+    orbitLight.target.updateMatrixWorld();
 
     controls.update();
     renderer.render(scene, camera);
