@@ -55,6 +55,8 @@ export function ScadLibrary() {
   const [sort, setSort] = useState<SortMode>("popular");
   const [filterScad, setFilterScad] = useState(false);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 24;
 
   // Load catalog
   useEffect(() => {
@@ -72,6 +74,9 @@ export function ScadLibrary() {
       }
     })();
   }, []);
+
+  // Reset page when filters change
+  useEffect(() => { setPage(0); }, [search, sort, filterScad]);
 
   // Filter and sort
   const filtered = useMemo(() => {
@@ -105,6 +110,10 @@ export function ScadLibrary() {
 
   const scadCount = catalog.filter((m) => m.hasScad).length;
 
+  // Paginated slice
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
   // Use model in editor
   const handleUseModel = useCallback(
     async (model: CatalogModel) => {
@@ -119,6 +128,7 @@ export function ScadLibrary() {
         const scadCode = await res.text();
 
         // Store in sessionStorage for the editor to pick up
+        // Store SCAD in sessionStorage (transport for large text)
         sessionStorage.setItem(
           "vorea_import_scad",
           JSON.stringify({
@@ -130,7 +140,8 @@ export function ScadLibrary() {
         );
 
         toast.success(`"${model.title}" cargado — abriendo editor...`);
-        setTimeout(() => navigate("/studio?mode=parametric"), 400);
+        // Include lib param so the URL identifies the model
+        setTimeout(() => navigate(`/studio?mode=parametric&lib=${encodeURIComponent(model.id)}`), 400);
       } catch (e) {
         toast.error("Error al cargar el modelo");
       } finally {
@@ -216,7 +227,7 @@ export function ScadLibrary() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((model, i) => (
+          {paged.map((model, i) => (
             <Card
               key={model.id}
               className="group bg-[rgba(26,31,54,0.4)] border-[rgba(168,187,238,0.08)] hover:border-[#C6E36C]/30 transition-all duration-200 overflow-hidden"
@@ -351,6 +362,31 @@ export function ScadLibrary() {
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-8 pt-6 border-t border-[rgba(168,187,238,0.08)]">
+          <button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="px-3 py-1.5 text-xs rounded-lg border border-[rgba(168,187,238,0.12)] text-gray-400 hover:border-[#C6E36C]/40 hover:text-[#C6E36C] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            ← Anterior
+          </button>
+          <span className="text-xs text-gray-500">
+            Página <span className="text-white font-medium">{page + 1}</span> de{" "}
+            <span className="text-white font-medium">{totalPages}</span>
+            <span className="text-gray-600 ml-1">({filtered.length} modelos)</span>
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page >= totalPages - 1}
+            className="px-3 py-1.5 text-xs rounded-lg border border-[rgba(168,187,238,0.12)] text-gray-400 hover:border-[#C6E36C]/40 hover:text-[#C6E36C] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          >
+            Siguiente →
+          </button>
         </div>
       )}
     </div>

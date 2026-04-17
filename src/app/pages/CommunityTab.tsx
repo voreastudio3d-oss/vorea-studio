@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { AdminApi, CommunityApi } from "../services/api-client";
 import type { CommunityModelResponse } from "../services/api-client";
-import { Search, RefreshCw, Box, Globe, Loader2, Star, Trash2, ExternalLink, Image as ImageIcon, Check, Edit2 } from "lucide-react";
+import { Search, RefreshCw, Box, Globe, Loader2, Star, Trash2, ExternalLink, Image as ImageIcon, Check, Edit2, ShieldCheck, ShieldX } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -18,6 +18,8 @@ export function CommunityTab() {
   const [editTitle, setEditTitle] = useState("");
   const [editStatus, setEditStatus] = useState("published");
   const [isSaving, setIsSaving] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [isModerating, setIsModerating] = useState(false);
 
   const fetchModels = useCallback(async () => {
     setLoading(true);
@@ -96,6 +98,30 @@ export function CommunityTab() {
     }
   };
 
+  const handleModerate = async (action: "approve" | "reject") => {
+    if (!selectedModel) return;
+    if (action === "reject" && !rejectionReason.trim()) {
+      toast.error("Debes indicar el motivo del rechazo");
+      return;
+    }
+    setIsModerating(true);
+    try {
+      const result = await AdminApi.moderateModel(
+        selectedModel.id,
+        action,
+        action === "reject" ? rejectionReason.trim() : undefined
+      );
+      toast.success(action === "approve" ? "Modelo aprobado y publicado" : "Modelo rechazado");
+      setSelectedModel(result.model);
+      setRejectionReason("");
+      fetchModels();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setIsModerating(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Filters */}
@@ -117,6 +143,7 @@ export function CommunityTab() {
           className="w-full sm:w-auto bg-[#131829] border border-[rgba(168,187,238,0.12)] rounded-lg text-sm text-white px-3 py-2 outline-none focus:border-[#C6E36C]/30"
         >
           <option value="all">Todos los estados</option>
+          <option value="pendingReview">🔶 Pendientes de Revisión</option>
           <option value="published">Publicados</option>
           <option value="draft">Borradores</option>
           <option value="archived">Archivados</option>
@@ -171,8 +198,8 @@ export function CommunityTab() {
                   <span className={`text-[9px] px-1.5 py-0.5 rounded border ${m.modelType === "relief" ? "text-purple-400 border-purple-500/20 bg-purple-500/10" : "text-[#C6E36C] border-[#C6E36C]/20 bg-[#C6E36C]/10"}`}>
                     {m.modelType?.toUpperCase() || "UNKNOWN"}
                   </span>
-                  <span className={`text-[9px] px-1.5 py-0.5 rounded border ${m.status === "published" ? "text-green-400 border-green-500/20 bg-green-500/10" : "text-gray-400 border-gray-500/20 bg-gray-500/10"}`}>
-                    {m.status?.toUpperCase() || "UNKNOWN"}
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded border ${m.status === "published" ? "text-green-400 border-green-500/20 bg-green-500/10" : m.status === "pendingReview" ? "text-orange-400 border-orange-500/20 bg-orange-500/10" : "text-gray-400 border-gray-500/20 bg-gray-500/10"}`}>
+                    {m.status === "pendingReview" ? "PENDING" : m.status?.toUpperCase() || "UNKNOWN"}
                   </span>
                 </div>
               </div>
@@ -260,11 +287,47 @@ export function CommunityTab() {
                    <div className="flex flex-wrap gap-2 mb-4">
                      <span className="text-[10px] px-2 py-1 rounded bg-gray-800 text-gray-300">ID: {selectedModel.id}</span>
                      <span className="text-[10px] px-2 py-1 rounded bg-[#C6E36C]/10 text-[#C6E36C] border border-[#C6E36C]/20">{selectedModel.modelType}</span>
-                     <span className={`text-[10px] px-2 py-1 rounded border ${selectedModel.status === 'published' ? 'bg-green-500/10 text-green-400 border-green-500/20' : selectedModel.status === 'draft' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'}`}>{selectedModel.status}</span>
+                     <span className={`text-[10px] px-2 py-1 rounded border ${selectedModel.status === 'published' ? 'bg-green-500/10 text-green-400 border-green-500/20' : selectedModel.status === 'pendingReview' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : selectedModel.status === 'draft' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'}`}>{selectedModel.status === "pendingReview" ? "PENDING REVIEW" : selectedModel.status}</span>
                    </div>
 
                    <p className="text-sm text-gray-400 mb-4">Autor: <span className="text-gray-200">{selectedModel.authorUsername || selectedModel.authorId}</span></p>
                  </div>
+
+                 {/* MODERATION: Approve/Reject for pendingReview */}
+                 {selectedModel.status === "pendingReview" && (
+                   <div className="p-4 bg-orange-500/5 border border-orange-500/20 rounded-xl space-y-3">
+                     <h4 className="text-sm font-semibold text-orange-400 flex items-center gap-2">
+                       <ShieldCheck className="w-4 h-4" />
+                       Revisión Pendiente
+                     </h4>
+                     <p className="text-xs text-gray-400">Este modelo requiere aprobación antes de publicarse en la comunidad.</p>
+                     <div className="flex gap-2">
+                       <button
+                         onClick={() => handleModerate("approve")}
+                         disabled={isModerating}
+                         className="flex-1 py-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
+                       >
+                         {isModerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                         Aprobar
+                       </button>
+                       <button
+                         onClick={() => handleModerate("reject")}
+                         disabled={isModerating || !rejectionReason.trim()}
+                         className="flex-1 py-2 bg-red-600/80 hover:bg-red-500 text-white font-medium rounded flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
+                       >
+                         {isModerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldX className="w-4 h-4" />}
+                         Rechazar
+                       </button>
+                     </div>
+                     <textarea
+                       value={rejectionReason}
+                       onChange={(e) => setRejectionReason(e.target.value)}
+                       placeholder="Motivo del rechazo (requerido para rechazar)..."
+                       className="w-full bg-black/40 border border-[rgba(168,187,238,0.12)] rounded px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/30 resize-none"
+                       rows={2}
+                     />
+                   </div>
+                 )}
 
                  {/* MODERATION TOOLS */}
                  <div className="p-4 bg-[#131829] border border-[rgba(168,187,238,0.1)] rounded-xl space-y-4">
@@ -280,6 +343,7 @@ export function CommunityTab() {
                             className="w-full bg-black/40 border border-[rgba(168,187,238,0.12)] rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#C6E36C]/30"
                           >
                             <option value="published">Publicado</option>
+                            <option value="pendingReview">Pendiente de Revisión</option>
                             <option value="draft">Borrador</option>
                             <option value="archived">Archivado / Oculto</option>
                           </select>

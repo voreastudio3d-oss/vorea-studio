@@ -14,6 +14,7 @@ import type { CSG } from "./csg";
 
 export type RenderMode = "smooth" | "faceted" | "wireframe";
 export type TransformMode = "translate" | "rotate" | "scale";
+export type LightingPreset = "balanced" | "detail" | "showroom" | "soft";
 
 export interface ThreeSceneContext {
   renderer: THREE.WebGLRenderer;
@@ -24,7 +25,7 @@ export interface ThreeSceneContext {
   meshGroup: THREE.Group;
   gridHelper: THREE.GridHelper;
   axesHelper: THREE.AxesHelper;
-  orbitLight: THREE.PointLight;
+  orbitLight: THREE.SpotLight;
   animFrameId: number;
   disposed: boolean;
   selectedMesh: THREE.Mesh | null;
@@ -37,6 +38,110 @@ const BG_COLOR = 0x0f1320;
 const VOREA_GREEN = 0xc6e36c;
 const GRID_COLOR = 0x2a3040;
 const GRID_CENTER_COLOR = 0x3a4050;
+
+const LIGHTING_PRESET_MULTIPLIERS: Record<
+  LightingPreset,
+  Partial<Record<string, number>>
+> = {
+  balanced: {},
+  detail: {
+    ambient: 0.7,
+    hemi: 0.65,
+    key: 1.85,
+    fill: 0.45,
+    rim: 2.1,
+    zenith: 1.6,
+    under: 0.35,
+    pointA: 1.55,
+    pointB: 1.4,
+    pointFront: 1.25,
+    pointBack: 1.15,
+    head: 0.6,
+    orbit: 2.0,
+  },
+  showroom: {
+    ambient: 0.08,
+    hemi: 0.12,
+    key: 0.22,
+    fill: 0.09,
+    rim: 0.35,
+    zenith: 0.16,
+    under: 0.04,
+    pointA: 0.18,
+    pointB: 0.14,
+    pointFront: 0.11,
+    pointBack: 0.1,
+    head: 0.02,
+    orbit: 4.4,
+  },
+  soft: {
+    ambient: 1.95,
+    hemi: 1.7,
+    key: 0.62,
+    fill: 1.45,
+    rim: 0.35,
+    zenith: 0.72,
+    under: 1.55,
+    pointA: 0.55,
+    pointB: 0.5,
+    pointFront: 0.45,
+    pointBack: 0.45,
+    head: 1.35,
+    orbit: 0.5,
+  },
+};
+
+const ORBIT_LIGHT_MOTION: Record<
+  LightingPreset,
+  { radius: number; height: number; speed: number; wobble: number }
+> = {
+  balanced: { radius: 120, height: 50, speed: 0.8, wobble: 3 },
+  detail: { radius: 96, height: 44, speed: 1.25, wobble: 7 },
+  showroom: { radius: 88, height: 52, speed: 2.1, wobble: 16 },
+  soft: { radius: 142, height: 62, speed: 0.58, wobble: 2 },
+};
+
+const GROUND_SHADOW_OPACITY: Record<LightingPreset, number> = {
+  balanced: 0.08,
+  detail: 0.18,
+  showroom: 0.42,
+  soft: 0.12,
+};
+
+function registerLight(light: THREE.Light, key: string) {
+  light.name = `light:${key}`;
+  light.userData.baseIntensity = light.intensity;
+}
+
+export function applyLightingPreset(
+  ctx: ThreeSceneContext,
+  preset: LightingPreset,
+  intensity = 1
+) {
+  const intensityScale = Math.max(0.35, Math.min(3.2, intensity));
+  const multipliers = LIGHTING_PRESET_MULTIPLIERS[preset] || {};
+
+  ctx.scene.userData.lightingPreset = preset;
+  ctx.scene.userData.lightingIntensity = intensityScale;
+
+  ctx.scene.traverse((obj) => {
+    if (!(obj instanceof THREE.Light)) return;
+    if (!obj.name.startsWith("light:")) return;
+
+    const key = obj.name.slice(6);
+    const base = typeof obj.userData.baseIntensity === "number"
+      ? obj.userData.baseIntensity
+      : obj.intensity;
+    const presetMult = multipliers[key] ?? 1;
+    obj.intensity = base * presetMult * intensityScale;
+  });
+
+  const groundShadowMat = ctx.scene.userData.groundShadowMaterial as THREE.ShadowMaterial | undefined;
+  if (groundShadowMat) {
+    groundShadowMat.opacity = GROUND_SHADOW_OPACITY[preset] ?? GROUND_SHADOW_OPACITY.balanced;
+    groundShadowMat.needsUpdate = true;
+  }
+}
 
 // ─── Scene Initialization ─────────────────────────────────────────────────────
 
@@ -63,6 +168,8 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(BG_COLOR);
   scene.fog = new THREE.FogExp2(BG_COLOR, 0.0018);
+  scene.userData.lightingPreset = "balanced" as LightingPreset;
+  scene.userData.lightingIntensity = 1;
 
   // Camera
   const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 2000);
@@ -82,14 +189,17 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
 
   // Ambient (soft fill)
   const ambient = new THREE.AmbientLight(0xffffff, 0.68);
+  registerLight(ambient, "ambient");
   scene.add(ambient);
 
   // Hemisphere (sky/ground variation)
   const hemi = new THREE.HemisphereLight(0xa6c9ff, 0x4a4437, 0.75);
+  registerLight(hemi, "hemi");
   scene.add(hemi);
 
   // Key light (warm, upper-right-front)
   const keyLight = new THREE.DirectionalLight(0xfff5e6, 1.15);
+  registerLight(keyLight, "key");
   keyLight.position.set(60, 80, 40);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.set(1024, 1024);
@@ -103,51 +213,70 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
 
   // Fill light (cool, side/back)
   const fillLight = new THREE.DirectionalLight(0xcce0ff, 0.62);
+  registerLight(fillLight, "fill");
   fillLight.position.set(-50, 45, -70);
   scene.add(fillLight);
 
   // Rim light (backlight for edge separation)
   const rimLight = new THREE.DirectionalLight(0xffffff, 0.44);
+  registerLight(rimLight, "rim");
   rimLight.position.set(0, 25, -90);
   scene.add(rimLight);
 
   // Zenith light (top-down) to avoid dark plateaus.
   const zenithLight = new THREE.DirectionalLight(0xffffff, 0.88);
+  registerLight(zenithLight, "zenith");
   zenithLight.position.set(0, 130, 0);
   scene.add(zenithLight);
 
   // Underfill light (from below) to softly open dark undersides without flattening contrast.
   const underLight = new THREE.DirectionalLight(0xb8ccff, 0.3);
+  registerLight(underLight, "under");
   underLight.position.set(0, -80, 0);
   scene.add(underLight);
 
   // Side point fills for cylindrical/curved surfaces.
   const pointFillA = new THREE.PointLight(0xf3f7ff, 0.4, 620, 2);
+  registerLight(pointFillA, "pointA");
   pointFillA.position.set(95, 42, 35);
   scene.add(pointFillA);
 
   const pointFillB = new THREE.PointLight(0xe6f0ff, 0.34, 620, 2);
+  registerLight(pointFillB, "pointB");
   pointFillB.position.set(-95, 30, -20);
   scene.add(pointFillB);
 
   const pointFillFront = new THREE.PointLight(0xffffff, 0.24, 560, 2);
+  registerLight(pointFillFront, "pointFront");
   pointFillFront.position.set(0, 34, 120);
   scene.add(pointFillFront);
 
   const pointFillBack = new THREE.PointLight(0xdbe8ff, 0.22, 560, 2);
+  registerLight(pointFillBack, "pointBack");
   pointFillBack.position.set(0, 26, -120);
   scene.add(pointFillBack);
 
   // Camera-attached soft headlight to avoid near-black faces while orbiting.
   const headLight = new THREE.PointLight(0xffffff, 0.22, 0, 2);
+  registerLight(headLight, "head");
   headLight.position.set(0, 0, 0);
   camera.add(headLight);
   scene.add(camera);
 
-  // Slow-orbiting accent light to reveal surface detail.
-  const orbitLight = new THREE.PointLight(0xfff0d4, 1.2, 600, 1.2);
+  // Orbiting spotlight for dramatic directed highlights and shadows.
+  const orbitLight = new THREE.SpotLight(0xffefcf, 1.35, 260, Math.PI / 9, 0.22, 1.15);
+  registerLight(orbitLight, "orbit");
+  orbitLight.castShadow = true;
+  orbitLight.shadow.mapSize.set(2048, 2048);
+  orbitLight.shadow.camera.near = 8;
+  orbitLight.shadow.camera.far = 260;
+  orbitLight.shadow.bias = -0.00035;
+  orbitLight.shadow.normalBias = 0.015;
+  orbitLight.shadow.focus = 1;
   orbitLight.position.set(120, 50, 0);
+  orbitLight.target.position.set(0, 12, 0);
   scene.add(orbitLight);
+  scene.add(orbitLight.target);
 
   // ─── Grid ───────────────────────────────────────────────────────────
 
@@ -165,6 +294,7 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
 
   const groundGeo = new THREE.PlaneGeometry(400, 400);
   const groundMat = new THREE.ShadowMaterial({ opacity: 0.08 });
+  scene.userData.groundShadowMaterial = groundMat;
   const ground = new THREE.Mesh(groundGeo, groundMat);
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.1;
@@ -179,10 +309,11 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
   // ─── Transform Controls (for object manipulation) ──────────────────
 
   const transformControls = new TransformControls(camera, renderer.domElement);
+  const transformControlsHelper = transformControls.getHelper();
   transformControls.setSize(0.8);
-  transformControls.visible = false;
+  transformControlsHelper.visible = false;
   transformControls.enabled = false;
-  scene.add(transformControls.getHelper());
+  scene.add(transformControlsHelper);
 
   // Disable orbit while dragging transform handle
   transformControls.addEventListener("dragging-changed", (event) => {
@@ -211,15 +342,25 @@ export function initScene(container: HTMLElement): ThreeSceneContext {
     if (ctx.disposed) return;
     ctx.animFrameId = requestAnimationFrame(animate);
 
-    // Orbit accent light around the scene target (~8s per revolution)
+    // Orbit accent light around the scene target. In showroom, it moves faster
+    // and closer to create clear moving highlights and dynamic shadows.
     const t = performance.now() * 0.001;
-    const r = 120;
     const target = controls.target;
+    const preset = (scene.userData.lightingPreset as LightingPreset) || "balanced";
+    const intensityScale = typeof scene.userData.lightingIntensity === "number"
+      ? scene.userData.lightingIntensity
+      : 1;
+    const motion = ORBIT_LIGHT_MOTION[preset] || ORBIT_LIGHT_MOTION.balanced;
+    const speed = motion.speed * (0.9 + Math.min(intensityScale, 2.8) * 0.1);
+    const y = target.y + motion.height + Math.sin(t * speed * 1.7) * motion.wobble;
+
     orbitLight.position.set(
-      target.x + Math.cos(t * 0.8) * r,
-      target.y + 50,
-      target.z + Math.sin(t * 0.8) * r
+      target.x + Math.cos(t * speed) * motion.radius,
+      y,
+      target.z + Math.sin(t * speed) * motion.radius
     );
+    orbitLight.target.position.set(target.x, target.y + 8, target.z);
+    orbitLight.target.updateMatrixWorld();
 
     controls.update();
     renderer.render(scene, camera);
@@ -492,7 +633,7 @@ export function selectMesh(ctx: ThreeSceneContext, mesh: THREE.Mesh) {
 
   // Attach transform controls
   ctx.transformControls.attach(mesh);
-  ctx.transformControls.visible = true;
+  ctx.transformControls.getHelper().visible = true;
   ctx.transformControls.enabled = true;
 }
 
@@ -506,7 +647,7 @@ export function deselectMesh(ctx: ThreeSceneContext) {
   }
   if (ctx.selectedMesh) {
     ctx.transformControls.detach();
-    ctx.transformControls.visible = false;
+    ctx.transformControls.getHelper().visible = false;
     ctx.transformControls.enabled = false;
     ctx.selectedMesh = null;
   }

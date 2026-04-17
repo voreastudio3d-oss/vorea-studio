@@ -1,21 +1,21 @@
-/** Threaded Jar – Parametric OpenSCAD model */
-export const THREADED_JAR_SCAD = `// Threaded Jar
+/** Frasco roscado - Modelo OpenSCAD parametrico */
+export const THREADED_JAR_SCAD = `// Frasco roscado
 $fn = 48;
 
-body_d = 74; // [36:2:140] Jar outer diameter
-jar_h = 82; // [30:2:180] Jar height
-wall = 2.4; // [1.2:0.2:6] Wall thickness
-floor = 3; // [1.2:0.2:8] Floor thickness
-neck_h = 16; // [8:0.5:36] Threaded zone height
-thread_pitch = 4; // [2:0.2:8] Thread pitch
-thread_turns = 2.5; // [1:0.25:5] Thread turns
-thread_depth_nominal = 1.75; // [0.8:0.05:4] Visible radial thread depth
-thread_clearance = 0.35; // [0.1:0.05:1.2] Radial thread clearance
-fit_slop = 0.12; // [0:0.02:0.6] Extra material/slicer compensation
-lead_in = 1.2; // [0.4:0.1:4] Guided thread entry
-lid_h = 20; // [10:0.5:40] Lid height
-lid_clearance = 0.6; // [0.2:0.05:1.6] Clearance
-lid_knurl = 18; // [0:1:36] Grip ribs
+body_d = 74; // [36:2:140] Diametro exterior del frasco
+jar_h = 82; // [30:2:180] Altura del frasco
+wall = 2.4; // [1.2:0.2:6] Espesor de pared
+floor = 3; // [1.2:0.2:8] Espesor de base
+neck_h = 16; // [8:0.5:36] Altura de zona roscada
+thread_pitch = 4; // [2:0.2:8] Paso de rosca
+thread_turns = 2.5; // [1:0.25:5] Vueltas de rosca
+thread_depth_nominal = 1.75; // [0.8:0.05:4] Profundidad radial visible de rosca
+thread_clearance = 0.35; // [0.1:0.05:1.2] Holgura radial de rosca
+fit_slop = 0.12; // [0:0.02:0.6] Compensacion extra de material/slicer
+lead_in = 1.2; // [0.4:0.1:4] Entrada guiada de rosca
+lid_h = 20; // [10:0.5:40] Altura de tapa
+lid_clearance = 0.6; // [0.2:0.05:1.6] Holgura
+lid_knurl = 18; // [0:1:36] Estriado de agarre
 
 outer_r = body_d / 2;
 inner_r = max(8, outer_r - wall);

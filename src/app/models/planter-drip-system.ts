@@ -1,17 +1,17 @@
-/** Planter with Drip Tray – Parametric OpenSCAD model */
-export const PLANTER_DRIP_SYSTEM_SCAD = `// Planter with Drip Tray
+/** Maceta con bandeja de goteo - Modelo OpenSCAD parametrico */
+export const PLANTER_DRIP_SYSTEM_SCAD = `// Maceta con bandeja de goteo
 $fn = 48;
 
-top_d = 128; // [60:2:240] Top diameter
-bottom_d = 88; // [40:2:200] Bottom diameter
-pot_h = 96; // [40:2:220] Pot height
-wall = 2.2; // [1.2:0.2:6] Wall thickness
-floor = 2.4; // [1.2:0.2:6] Floor thickness
-drain_holes = 5; // [1:12] Drain hole count
-drain_d = 6; // [2:0.5:14] Drain hole diameter
-tray_gap = 3.2; // [1:0.2:10] Clearance with tray
-tray_depth = 14; // [6:1:32] Tray depth
-foot_h = 4; // [0:0.5:12] Foot height
+top_d = 128; // [60:2:240] Diametro superior
+bottom_d = 88; // [40:2:200] Diametro inferior
+pot_h = 96; // [40:2:220] Altura de maceta
+wall = 2.2; // [1.2:0.2:6] Espesor de pared
+floor = 2.4; // [1.2:0.2:6] Espesor de base
+drain_holes = 5; // [1:12] Cantidad de orificios de drenaje
+drain_d = 6; // [2:0.5:14] Diametro de orificios de drenaje
+tray_gap = 3.2; // [1:0.2:10] Holgura con bandeja
+tray_depth = 14; // [6:1:32] Profundidad de bandeja
+foot_h = 4; // [0:0.5:12] Altura de patas
 
 pot_outer_r_top = top_d / 2;
 pot_outer_r_bottom = bottom_d / 2;

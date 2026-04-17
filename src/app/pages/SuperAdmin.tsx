@@ -26,6 +26,13 @@ import { RegionalStatsTab } from "./RegionalStatsTab";
 import { FODAAnalysisTab } from "./FODAAnalysisTab";
 import { FinancialDashboardTab } from "./FinancialDashboardTab";
 import { WeeklyAcquisitionTab } from "./WeeklyAcquisitionTab";
+import {
+  getDefaultScadTemplates,
+  getTemplateDescription,
+  getTemplateTitle,
+  normalizeScadTemplatesConfig,
+  type ScadTemplateItem,
+} from "../services/scad-template-catalog";
 
 type Tab = "dashboard" | "users" | "plans" | "credits" | "activity" | "usage" | "finance" | "donations" | "alerts" | "emails" | "logs" | "content" | "community" | "news" | "analytics" | "feedback" | "aistudiocms" | "regional" | "foda" | "kpi-dashboard" | "acquisition";
 
@@ -2368,6 +2375,13 @@ const CONTENT_ITEMS: ContentItemDef[] = [
     icon: <LayoutDashboard className="w-6 h-6" />,
     color: "#C6E36C",
   },
+  {
+    id: "scad-templates",
+    label: "SCAD Templates",
+    description: "Templates del acoplable en Studio: titulo por idioma, codigo SCAD e imagen por item.",
+    icon: <Box className="w-6 h-6" />,
+    color: "#60A5FA",
+  },
   // Future items will be added here:
   // { id: "feature-cards",  label: "Feature Cards", ... },
   // { id: "announcement",   label: "Announcement Bar", ... },
@@ -2378,6 +2392,10 @@ function ContentTab() {
 
   if (selectedItem === "hero-banner") {
     return <HeroBannerEditor onBack={() => setSelectedItem(null)} />;
+  }
+
+  if (selectedItem === "scad-templates") {
+    return <ScadTemplatesEditor onBack={() => setSelectedItem(null)} />;
   }
 
   // ─── List View ──────────────────────────────────────────────────────
@@ -2888,6 +2906,439 @@ function HeroBannerEditor({ onBack }: { onBack: () => void }) {
               )}
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ScadTemplatesEditor({ onBack }: { onBack: () => void }) {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [previewLocale, setPreviewLocale] = useState<(typeof LOCALES)[number]>("es");
+  const [templates, setTemplates] = useState<ScadTemplateItem[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [draggedTemplateId, setDraggedTemplateId] = useState<string | null>(null);
+  const [dragOverTemplateId, setDragOverTemplateId] = useState<string | null>(null);
+
+  const selectedTemplate = templates.find((item) => item.id === selectedTemplateId) || null;
+
+  useEffect(() => {
+    let cancelled = false;
+    AdminApi.getScadTemplates()
+      .then((raw: unknown) => {
+        if (cancelled) return;
+        const normalized = normalizeScadTemplatesConfig(raw) || getDefaultScadTemplates();
+        setTemplates(normalized);
+        if (normalized[0]) {
+          setSelectedTemplateId(normalized[0].id);
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        const fallback = getDefaultScadTemplates();
+        setTemplates(fallback);
+        if (fallback[0]) {
+          setSelectedTemplateId(fallback[0].id);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const updateTemplate = useCallback((templateId: string, patch: Partial<ScadTemplateItem>) => {
+    setTemplates((prev) =>
+      prev.map((item) => {
+        if (item.id !== templateId) return item;
+        return {
+          ...item,
+          ...patch,
+          localeTitles: {
+            ...item.localeTitles,
+            ...(patch.localeTitles || {}),
+          },
+          localeDescriptions: {
+            ...item.localeDescriptions,
+            ...(patch.localeDescriptions || {}),
+          },
+        };
+      })
+    );
+    setHasChanges(true);
+  }, []);
+
+  const moveTemplate = useCallback((fromId: string, toId: string) => {
+    if (fromId === toId) return;
+    setTemplates((prev) => {
+      const fromIndex = prev.findIndex((item) => item.id === fromId);
+      const toIndex = prev.findIndex((item) => item.id === toId);
+      if (fromIndex < 0 || toIndex < 0) return prev;
+
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+    setHasChanges(true);
+  }, []);
+
+  const addTemplate = () => {
+    const baseId = `template-${Date.now().toString(36)}`;
+    const next: ScadTemplateItem = {
+      id: baseId,
+      code: "// Nuevo template SCAD\n$fn = 64;\n",
+      imageUrl: "",
+      localeTitles: {
+        es: "Nuevo template",
+        en: "New template",
+        pt: "Novo template",
+      },
+      localeDescriptions: {
+        es: "Descripcion corta del template",
+        en: "Short template description",
+        pt: "Descricao curta do template",
+      },
+    };
+    setTemplates((prev) => [...prev, next]);
+    setSelectedTemplateId(next.id);
+    setHasChanges(true);
+  };
+
+  const removeTemplate = () => {
+    if (!selectedTemplate) return;
+    if (templates.length <= 1) {
+      toast.error("Debe quedar al menos un template");
+      return;
+    }
+    const nextTemplates = templates.filter((item) => item.id !== selectedTemplate.id);
+    setTemplates(nextTemplates);
+    setSelectedTemplateId(nextTemplates[0]?.id || "");
+    setHasChanges(true);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await AdminApi.updateScadTemplates(templates);
+      toast.success("Templates SCAD actualizados");
+      setHasChanges(false);
+    } catch (e: any) {
+      toast.error(e.message || "Error al guardar templates SCAD");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <LoadingSpinner />;
+
+  const inputCls = "w-full mt-1 bg-[#0d1117] border border-[rgba(168,187,238,0.12)] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#C6E36C]/30";
+  const labelCls = "text-[10px] text-gray-500 uppercase tracking-wide font-semibold";
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors group"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-0.5 transition-transform"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver a Contenidos
+        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={addTemplate}
+            className="text-[10px] text-gray-200 bg-[#131829] border border-[rgba(168,187,238,0.12)] hover:border-[#C6E36C]/30 px-3 py-1 rounded-lg transition-colors flex items-center gap-1"
+          >
+            <Plus className="w-3 h-3" />
+            Nuevo template
+          </button>
+          {hasChanges && (
+            <>
+              <span className="text-[10px] text-[#C6E36C] animate-pulse">● Sin guardar</span>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="text-[10px] text-black bg-[#C6E36C] hover:bg-[#b5d45e] px-3 py-1 rounded-lg transition-colors flex items-center gap-1 disabled:opacity-50 font-semibold"
+              >
+                {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                Guardar
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[320px_1fr_360px] gap-4">
+        <div className="bg-[#131829] border border-[rgba(168,187,238,0.08)] rounded-xl p-4 space-y-3 max-h-[75vh] overflow-y-auto">
+          <h3 className="text-sm font-medium text-gray-300">Templates registrados</h3>
+          <div className="space-y-2">
+            {templates.map((item) => {
+              const active = item.id === selectedTemplateId;
+              const dragOver = item.id === dragOverTemplateId && draggedTemplateId !== item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setSelectedTemplateId(item.id)}
+                  draggable
+                  onDragStart={() => {
+                    setDraggedTemplateId(item.id);
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOverTemplateId(item.id);
+                  }}
+                  onDragLeave={() => {
+                    setDragOverTemplateId((prev) => (prev === item.id ? null : prev));
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (draggedTemplateId) {
+                      moveTemplate(draggedTemplateId, item.id);
+                    }
+                    setDragOverTemplateId(null);
+                    setDraggedTemplateId(null);
+                  }}
+                  onDragEnd={() => {
+                    setDragOverTemplateId(null);
+                    setDraggedTemplateId(null);
+                  }}
+                  className={`w-full text-left rounded-lg border px-3 py-2 transition-colors ${
+                    active
+                      ? "bg-[#C6E36C]/10 border-[#C6E36C]/25"
+                      : dragOver
+                        ? "bg-[#1a2138] border-[#C6E36C]/35"
+                        : "bg-[#0d1117] border-[rgba(168,187,238,0.08)] hover:border-[rgba(168,187,238,0.2)]"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={getTemplateTitle(item, previewLocale)}
+                        className="w-8 h-8 rounded-md object-cover border border-[rgba(168,187,238,0.2)]"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-md border border-[rgba(168,187,238,0.12)] bg-[#1a1f36] flex items-center justify-center text-gray-500">
+                        <Box className="w-3.5 h-3.5" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className={`text-xs font-medium truncate ${active ? "text-[#C6E36C]" : "text-gray-200"}`}>
+                        {getTemplateTitle(item, previewLocale)}
+                      </p>
+                      {getTemplateDescription(item, previewLocale) && (
+                        <p className="text-[10px] text-gray-500 truncate">
+                          {getTemplateDescription(item, previewLocale)}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-gray-600 font-mono truncate">{item.id}</p>
+                    </div>
+                    <div className="ml-auto text-gray-600 text-xs" title="Arrastrar para reordenar">
+                      <ArrowUpDown className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="bg-[#131829] border border-[rgba(168,187,238,0.08)] rounded-xl p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+          <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+            <Edit2 className="w-4 h-4 text-[#C6E36C]" />
+            SCAD Templates - Editor
+          </h3>
+
+          {!selectedTemplate ? (
+            <p className="text-xs text-gray-500">Selecciona un template para editar.</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Template ID</label>
+                  <input
+                    value={selectedTemplate.id}
+                    onChange={(e) => {
+                      const nextId = e.target.value.trim();
+                      if (!nextId) {
+                        updateTemplate(selectedTemplate.id, { id: nextId });
+                        return;
+                      }
+                      updateTemplate(selectedTemplate.id, { id: nextId });
+                      setSelectedTemplateId(nextId);
+                    }}
+                    className={inputCls + " font-mono text-[11px]"}
+                    placeholder="nombre-unico"
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Image URL</label>
+                  <input
+                    value={selectedTemplate.imageUrl}
+                    onChange={(e) => updateTemplate(selectedTemplate.id, { imageUrl: e.target.value })}
+                    className={inputCls}
+                    placeholder="/imports/template.png o URL externa"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-[rgba(168,187,238,0.06)] pt-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] text-gray-600">Titulo por idioma (base locale)</p>
+                  <div className="flex items-center gap-1 bg-[#0d1117] rounded-lg p-0.5 border border-[rgba(168,187,238,0.08)]">
+                    {LOCALES.map((loc) => (
+                      <button
+                        key={loc}
+                        type="button"
+                        onClick={() => setPreviewLocale(loc)}
+                        className={`text-[10px] px-2.5 py-1 rounded-md font-semibold transition-all ${
+                          previewLocale === loc
+                            ? "bg-[#C6E36C]/15 text-[#C6E36C] border border-[#C6E36C]/20"
+                            : "text-gray-500 hover:text-gray-300 border border-transparent"
+                        }`}
+                      >
+                        {loc.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={labelCls}>Titulo ({LOCALE_LABELS[previewLocale]})</label>
+                  <input
+                    value={selectedTemplate.localeTitles[previewLocale] || ""}
+                    onChange={(e) =>
+                      updateTemplate(selectedTemplate.id, {
+                        localeTitles: {
+                          ...selectedTemplate.localeTitles,
+                          [previewLocale]: e.target.value,
+                        },
+                      })
+                    }
+                    className={inputCls}
+                    placeholder="Titulo visible en el acoplable"
+                  />
+                </div>
+
+                <div>
+                  <label className={labelCls}>Descripcion ({LOCALE_LABELS[previewLocale]})</label>
+                  <input
+                    value={selectedTemplate.localeDescriptions[previewLocale] || ""}
+                    onChange={(e) =>
+                      updateTemplate(selectedTemplate.id, {
+                        localeDescriptions: {
+                          ...selectedTemplate.localeDescriptions,
+                          [previewLocale]: e.target.value,
+                        },
+                      })
+                    }
+                    className={inputCls}
+                    placeholder="Descripcion corta visible en la lista"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-[rgba(168,187,238,0.06)] pt-4">
+                <div className="flex items-center justify-between mb-1">
+                  <label className={labelCls}>Codigo SCAD</label>
+                  <button
+                    onClick={removeTemplate}
+                    className="text-[10px] text-red-300 hover:text-red-200 border border-red-500/20 hover:border-red-400/30 rounded-md px-2 py-1 transition-colors"
+                  >
+                    Eliminar template
+                  </button>
+                </div>
+                <textarea
+                  value={selectedTemplate.code}
+                  onChange={(e) => updateTemplate(selectedTemplate.id, { code: e.target.value })}
+                  className="w-full min-h-[360px] mt-1 bg-[#0d1117] border border-[rgba(168,187,238,0.12)] rounded-lg px-3 py-2 text-[11px] text-white font-mono leading-relaxed focus:outline-none focus:border-[#C6E36C]/30 resize-y"
+                  spellCheck={false}
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="bg-[#131829] border border-[rgba(168,187,238,0.08)] rounded-xl p-5 space-y-4">
+          <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+            <Eye className="w-4 h-4 text-[#C6E36C]" />
+            Vista previa del acoplable
+          </h3>
+          <div className="flex items-center gap-1 bg-[#0d1117] rounded-lg p-0.5 border border-[rgba(168,187,238,0.08)] w-fit">
+            {LOCALES.map((loc) => (
+              <button
+                key={loc}
+                onClick={() => setPreviewLocale(loc)}
+                className={`text-[10px] px-2.5 py-1 rounded-md font-semibold transition-all ${
+                  previewLocale === loc
+                    ? "bg-[#C6E36C]/15 text-[#C6E36C] border border-[#C6E36C]/20"
+                    : "text-gray-500 hover:text-gray-300 border border-transparent"
+                }`}
+              >
+                {loc.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
+          <div className="rounded-xl bg-[#0d1117] border border-[rgba(168,187,238,0.06)] p-4">
+            <p className="text-[10px] text-gray-600 mb-3 uppercase tracking-wide">Templates</p>
+            <div className="flex flex-wrap gap-2">
+              {templates.map((item) => {
+                const active = item.id === selectedTemplateId;
+                return (
+                  <div
+                    key={item.id}
+                    className={`flex items-center gap-2 rounded-xl px-3 py-2 border ${
+                      active
+                        ? "bg-[#C6E36C]/12 border-[#C6E36C]/30 text-[#C6E36C]"
+                        : "bg-[#1a1f36] border-[rgba(168,187,238,0.12)] text-gray-300"
+                    }`}
+                  >
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={getTemplateTitle(item, previewLocale)}
+                        className="w-6 h-6 rounded-md object-cover border border-[rgba(168,187,238,0.2)]"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <Box className="w-4 h-4" />
+                    )}
+                    <span className="min-w-0 flex flex-col">
+                      <span className="max-w-[180px] truncate text-[11px] font-medium">{getTemplateTitle(item, previewLocale)}</span>
+                      {getTemplateDescription(item, previewLocale) && (
+                        <span className="max-w-[220px] truncate text-[10px] text-gray-500">{getTemplateDescription(item, previewLocale)}</span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {selectedTemplate && (
+            <div className="rounded-xl bg-[#0d1117] border border-[rgba(168,187,238,0.06)] p-4 space-y-2">
+              <p className="text-[10px] text-gray-500 uppercase tracking-wide">Template activo</p>
+              <p className="text-sm font-medium text-white">{getTemplateTitle(selectedTemplate, previewLocale)}</p>
+              {getTemplateDescription(selectedTemplate, previewLocale) && (
+                <p className="text-[11px] text-gray-400">{getTemplateDescription(selectedTemplate, previewLocale)}</p>
+              )}
+              <p className="text-[10px] text-gray-600 font-mono">{selectedTemplate.id}</p>
+              <p className="text-[10px] text-gray-500">{selectedTemplate.code.split("\n").length} lineas de SCAD</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

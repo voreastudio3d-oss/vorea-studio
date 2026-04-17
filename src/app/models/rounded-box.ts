@@ -1,36 +1,36 @@
-/** Rounded Box with Lid – Parametric OpenSCAD model */
-export const ROUNDED_BOX_SCAD = `// Rounded Box with Snap-Fit Lid
+/** Caja redondeada con tapa - Modelo OpenSCAD parametrico */
+export const ROUNDED_BOX_SCAD = `// Caja redondeada con tapa a presion
 $fn = 24;
 
-// Box Dimensions (inner, in mm)
-box_width = 60; // [20:5:150] Inner width
-box_depth = 40; // [20:5:100] Inner depth
-box_height = 30; // [10:5:80] Inner height
+// Dimensiones de caja (interior, en mm)
+box_width = 60; // [20:5:150] Ancho interior
+box_depth = 40; // [20:5:100] Profundidad interior
+box_height = 30; // [10:5:80] Altura interior
 
-// Wall and Corner
-wall = 2; // [1:0.5:5] Wall thickness
-corner_r = 5; // [1:1:15] Corner radius
-bottom_thickness = 2; // [1:0.5:5]
+// Pared y esquinas
+wall = 2; // [1:0.5:5] Espesor de pared
+corner_r = 5; // [1:1:15] Radio de esquina
+bottom_thickness = 2; // [1:0.5:5] Espesor de base
 
-// Lid
+// Tapa
 include_lid = true;
-lid_height = 8; // [4:1:20] Lid total height
-lid_clearance = 0.3; // [0.1:0.05:0.6] Fit tolerance
+lid_height = 8; // [4:1:20] Altura total de tapa
+lid_clearance = 0.3; // [0.1:0.05:0.6] Tolerancia de ajuste
 
-// Snap Fit
+// Ajuste a presion
 include_snap = true;
 snap_height = 3; // [2:0.5:6]
 snap_depth = 1; // [0.5:0.25:2]
 
-// Dividers
-dividers_x = 1; // [0:4] Number of X dividers
-dividers_y = 0; // [0:4] Number of Y dividers
+// Divisores
+dividers_x = 1; // [0:4] Cantidad de divisores en X
+dividers_y = 0; // [0:4] Cantidad de divisores en Y
 divider_thickness = 1.5; // [1:0.5:3]
 
-// Pattern
-include_pattern = false; // Hexagonal vent pattern on sides
+// Patron
+include_pattern = false; // Patron de ventilacion hexagonal en laterales
 
-// Calculated
+// Calculado
 outer_w = box_width + wall * 2;
 outer_d = box_depth + wall * 2;
 outer_h = box_height + bottom_thickness;
@@ -44,18 +44,18 @@ module rounded_box(w, d, h, r) {
     }
 }
 
-// Main box body
+// Cuerpo principal de la caja
 module box_body() {
     difference() {
-        // Outer shell
+        // Cascara externa
         rounded_box(outer_w, outer_d, outer_h, corner_r);
 
-        // Inner cavity
+        // Cavidad interior
         translate([wall, wall, bottom_thickness])
         rounded_box(box_width, box_depth, box_height + 1, corner_r - wall / 2);
     }
 
-    // Snap-fit ridge on box (male)
+    // Nervio de encastre en caja (macho)
     if (include_snap) {
         snap_z = outer_h - snap_height;
         difference() {
@@ -67,7 +67,7 @@ module box_body() {
         }
     }
 
-    // Dividers X
+    // Divisores en X
     if (dividers_x > 0) {
         spacing_x = box_width / (dividers_x + 1);
         for (i = [1 : dividers_x]) {
@@ -76,7 +76,7 @@ module box_body() {
         }
     }
 
-    // Dividers Y
+    // Divisores en Y
     if (dividers_y > 0) {
         spacing_y = box_depth / (dividers_y + 1);
         for (i = [1 : dividers_y]) {
@@ -86,7 +86,7 @@ module box_body() {
     }
 }
 
-// Lid
+// Tapa
 module box_lid() {
     lid_w = outer_w + lid_clearance * 2;
     lid_d = outer_d + lid_clearance * 2;
@@ -95,14 +95,14 @@ module box_lid() {
         difference() {
             rounded_box(lid_w, lid_d, lid_height, corner_r + lid_clearance);
 
-            // Inner recess to sit on box
+            // Receso interior para apoyar en la caja
             translate([wall, wall, wall])
             rounded_box(lid_w - wall * 2, lid_d - wall * 2, lid_height, corner_r);
         }
     }
 }
 
-// Center the model
+// Centrar modelo
 translate([-outer_w / 2, -outer_d / 2, 0]) {
     box_body();
     if (include_lid) box_lid();

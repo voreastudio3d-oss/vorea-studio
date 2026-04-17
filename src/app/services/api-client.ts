@@ -1400,7 +1400,7 @@ export const AdminApi = {
     id?: string;
     authorId?: string;
     authorUsername?: string;
-    status?: "all" | "draft" | "published" | "archived";
+    status?: "all" | "draft" | "pendingReview" | "published" | "archived";
     modelType?: "all" | "parametric" | "relief";
     featured?: boolean;
     from?: string;
@@ -1431,6 +1431,17 @@ export const AdminApi = {
     return json;
   },
 
+  /** Approve or reject a pending community model */
+  async moderateModel(id: string, action: "approve" | "reject", rejectionReason?: string): Promise<{ model: CommunityModelResponse; action: string }> {
+    const res = await fetchApi(`/admin/community/models/${id}/moderate`, {
+      method: "PUT",
+      body: JSON.stringify({ action, rejectionReason }),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Error al moderar modelo");
+    return json;
+  },
+
   // CMS – Hero Banner
   async getHeroBanner() {
     const res = await fetchApi("/content/hero-banner");
@@ -1447,6 +1458,24 @@ export const AdminApi = {
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || "Error al actualizar hero banner");
     return json.config;
+  },
+
+  // CMS - SCAD Templates
+  async getScadTemplates() {
+    const res = await fetchApi("/content/scad-templates");
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Error al obtener templates SCAD");
+    return json.templates;
+  },
+
+  async updateScadTemplates(templates: unknown[]) {
+    const res = await fetchApi("/content/scad-templates", {
+      method: "PUT",
+      body: JSON.stringify({ templates }),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Error al actualizar templates SCAD");
+    return json.templates;
   },
 
   async listDonations(params?: {
@@ -1502,6 +1531,18 @@ export const ContentApi = {
       if (!res.ok) return null;
       const json = await res.json();
       return json.config || null;
+    } catch {
+      return null;
+    }
+  },
+
+  /** Get SCAD templates content (public, no auth) */
+  async getScadTemplates(): Promise<Record<string, any>[] | null> {
+    try {
+      const res = await fetch(`${BASE_URL}/content/scad-templates`);
+      if (!res.ok) return null;
+      const json = await res.json();
+      return Array.isArray(json.templates) ? json.templates : null;
     } catch {
       return null;
     }
@@ -1832,6 +1873,8 @@ export interface CommunityModelResponse {
   forkedFromAuthor?: string;
   forkChain?: string[];
   forkCount?: number;
+  rejectionReason?: string | null;
+  moderatedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -1885,7 +1928,7 @@ export const CommunityApi = {
     thumbnailUrl?: string;
     media?: CommunityModelMedia[];
     forkedFromId?: string;
-    status?: "draft" | "published";
+    status?: "draft" | "published" | "pendingReview";
     modelType?: "parametric" | "relief";
     reliefConfig?: ReliefConfig;
   }): Promise<CommunityModelResponse> {
@@ -1924,6 +1967,23 @@ export const CommunityApi = {
       const json = await res.json();
       throw new Error(json.error || "Error al eliminar");
     }
+  },
+
+  /** Download export pack ZIP for own model */
+  async downloadExportPack(id: string, title: string): Promise<void> {
+    const res = await fetchApi(`/community/models/${id}/export-pack`);
+    if (!res.ok) {
+      const json = await res.json();
+      throw new Error(json.error || "Error al descargar el paquete");
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = res.headers.get("Content-Disposition")?.match(/filename="([^"]+)"/)?.[1]
+      ?? `vorea_${title.replace(/[^a-z0-9]/gi, "_").slice(0, 50)}_${id.slice(0, 8)}.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
   },
 
   /** Toggle like on a model */

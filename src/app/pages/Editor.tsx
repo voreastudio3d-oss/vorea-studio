@@ -2,8 +2,7 @@
  * Editor – Full SCAD code editor with live 3D preview, parameter customizer,
  * GCode generation, and export tools. Uses the real CSG engine.
  */
-
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useHistory } from "../hooks/useHistory";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -14,12 +13,21 @@ import { GCodePanel } from "../components/GCodePanel";
 import { AuthDialog } from "../components/AuthDialog";
 import { useModel, DEFAULT_SOURCE } from "../services/model-context";
 import { useAuth } from "../services/auth-context";
+import { useI18n } from "../services/i18n-context";
 import {
   CommunityApi,
   AiQuickFixApi,
+  ContentApi,
   type CommunityModelMedia,
   type CommunityModelResponse,
 } from "../services/api-client";
+import {
+  getDefaultScadTemplates,
+  getTemplateDescription,
+  getTemplateTitle,
+  normalizeScadTemplatesConfig,
+  type ScadTemplateItem,
+} from "../services/scad-template-catalog";
 import {
   getCommunityPublishMode,
   parseCommunityRouteContext,
@@ -47,8 +55,8 @@ import {
   FolderOpen,
   Check,
   X,
-  ChevronDown,
   ChevronUp,
+  ChevronDown,
   Copy,
   Download,
   FileCode2,
@@ -62,33 +70,7 @@ import {
   Redo2,
 } from "lucide-react";
 
-// ─── Built-in templates ───────────────────────────────────────────────────────
-
-import { GRIDFINITY_BASE_SCAD } from "../models/gridfinity-base";
-import { CABLE_CLIP_SCAD } from "../models/cable-clip";
-import { ROUNDED_BOX_SCAD } from "../models/rounded-box";
-import { PHONE_STAND_SCAD } from "../models/phone-stand";
-import { DRAWER_ORGANIZER_TRAY_SCAD } from "../models/drawer-organizer-tray";
-import { PLANTER_DRIP_SYSTEM_SCAD } from "../models/planter-drip-system";
-import { LAMP_SHADE_KIT_SCAD } from "../models/lamp-shade-kit";
-import { TEXT_KEYCHAIN_TAG_SCAD } from "../models/text-keychain-tag";
-import { NAMEPLATE_PRO_SCAD } from "../models/nameplate-pro";
-import { PEG_LABEL_SYSTEM_SCAD } from "../models/peg-label-system";
-import { THREADED_JAR_SCAD } from "../models/threaded-jar";
-
-const TEMPLATES = [
-  { id: "gridfinity", name: "Gridfinity Base", source: GRIDFINITY_BASE_SCAD },
-  { id: "cable", name: "Cable Clip", source: CABLE_CLIP_SCAD },
-  { id: "box", name: "Rounded Box", source: ROUNDED_BOX_SCAD },
-  { id: "drawer-tray", name: "Drawer Organizer Tray", source: DRAWER_ORGANIZER_TRAY_SCAD },
-  { id: "planter-drip", name: "Planter Drip System", source: PLANTER_DRIP_SYSTEM_SCAD },
-  { id: "lamp-shade-kit", name: "Lamp Shade Kit", source: LAMP_SHADE_KIT_SCAD },
-  { id: "text-keychain-tag", name: "Text Keychain Tag", source: TEXT_KEYCHAIN_TAG_SCAD },
-  { id: "nameplate-pro", name: "Nameplate Pro", source: NAMEPLATE_PRO_SCAD },
-  { id: "peg-label-system", name: "Peg Label System", source: PEG_LABEL_SYSTEM_SCAD },
-  { id: "threaded-jar", name: "Threaded Jar", source: THREADED_JAR_SCAD },
-  { id: "phone", name: "Phone Stand", source: PHONE_STAND_SCAD },
-];
+const FALLBACK_TEMPLATES = getDefaultScadTemplates();
 
 // ─── Collapsible panel ────────────────────────────────────────────────────────
 
@@ -175,6 +157,7 @@ export function Editor() {
   const navigate = useNavigate();
   const model = useModel();
   const { isLoggedIn, refreshCredits } = useAuth();
+  const { locale } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [leftOpen, setLeftOpen] = useState(true);
@@ -197,8 +180,33 @@ export function Editor() {
   const [communityEditMeta, setCommunityEditMeta] = useState<CommunityEditMeta | null>(null);
   const [loadedSvgs, setLoadedSvgs] = useState<Record<string, string>>({});
   const [loadedImages, setLoadedImages] = useState<Record<string, SerializedImage>>({});
+  const [templates, setTemplates] = useState<ScadTemplateItem[]>(FALLBACK_TEMPLATES);
+  const [templatesReady, setTemplatesReady] = useState(false);
   const svgInputRef = useRef<HTMLInputElement>(null);
   const imgInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadTemplates = async () => {
+      try {
+        const config = await ContentApi.getScadTemplates();
+        if (cancelled) return;
+        const normalized = normalizeScadTemplatesConfig(config);
+        if (normalized?.length) {
+          setTemplates(normalized);
+        }
+      } catch {
+        // Keep built-in defaults when CMS templates are not available.
+      } finally {
+        if (!cancelled) setTemplatesReady(true);
+      }
+    };
+
+    void loadTemplates();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const consumeStudioAction = useCallback((actionId: string, authMessage: string, deniedMessage?: string) => {
     return consumeProtectedToolAction({
@@ -218,11 +226,16 @@ export function Editor() {
   useEffect(() => {
     const routeContext = parseCommunityRouteContext(searchParams);
     const templateId = searchParams.get("template");
+    if (templateId && !templatesReady) return;
+
+    const libId = searchParams.get("lib");
     const bootstrapKey = routeContext
       ? `${routeContext.intent}:${routeContext.modelId}`
       : templateId
         ? `template:${templateId}`
-        : "create";
+        : libId
+          ? `lib:${libId}`
+          : "create";
 
     if (initializedRef.current === bootstrapKey) return;
     initializedRef.current = bootstrapKey;
@@ -279,17 +292,63 @@ export function Editor() {
       }
 
       if (templateId) {
-        const tmpl = TEMPLATES.find((t) => t.id === templateId);
+        const tmpl = templates.find((t) => t.id === templateId);
         if (tmpl) {
+          const localizedName = getTemplateTitle(tmpl, locale);
           setPublishMode("create");
           setCommunityModelId(null);
           setCommunityEditMeta(null);
-          setLocalSource(tmpl.source);
-          setProjectTitle(tmpl.name);
-          model.setScadSource(tmpl.source, tmpl.name, null);
-          prevSourceRef.current = tmpl.source;
+          setLocalSource(tmpl.code);
+          setProjectTitle(localizedName);
+          model.setScadSource(tmpl.code, localizedName, null);
+          prevSourceRef.current = tmpl.code;
           return;
         }
+      }
+
+      // ─── lib: SCAD Library model from MakerWorld ──────────────────
+      if (libId) {
+        let scadCode: string | null = null;
+        let modelTitle = "Modelo SCAD";
+        try {
+          // Try sessionStorage cache first (set by ScadLibrary on same navigation)
+          const stored = sessionStorage.getItem("vorea_import_scad");
+          if (stored) {
+            const data = JSON.parse(stored) as { name: string; code: string; sourceId: string };
+            if (data.sourceId === libId) {
+              scadCode = data.code;
+              modelTitle = data.name;
+              sessionStorage.removeItem("vorea_import_scad");
+            }
+          }
+          // Fallback: fetch from catalog (bookmarked / shared URL)
+          if (!scadCode) {
+            const catRes = await fetch("/scad-library/catalog.json");
+            if (catRes.ok) {
+              const catalog = await catRes.json() as Array<{ id: string; title: string; hasScad: boolean; scadFile: string | null }>;
+              const entry = catalog.find((m) => m.id === libId);
+              if (entry?.hasScad && entry.scadFile) {
+                modelTitle = entry.title;
+                const scadRes = await fetch(`/scad-library/models/${entry.scadFile}`);
+                if (scadRes.ok) scadCode = await scadRes.text();
+              }
+            }
+          }
+          if (scadCode && !cancelled) {
+            setPublishMode("create");
+            setCommunityModelId(null);
+            setCommunityEditMeta(null);
+            setLocalSource(scadCode);
+            setProjectTitle(modelTitle);
+            model.setScadSource(scadCode, modelTitle, null);
+            prevSourceRef.current = scadCode;
+          } else if (!cancelled) {
+            toast.error("No se pudo cargar el modelo de la biblioteca");
+          }
+        } catch {
+          if (!cancelled) toast.error("Error al cargar el modelo de la biblioteca");
+        }
+        return;
       }
 
       if (restoredLocalStateRef.current) return;
@@ -315,7 +374,7 @@ export function Editor() {
     return () => {
       cancelled = true;
     };
-  }, [model, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [locale, model, searchParams, templates, templatesReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Auto-save editor state to localStorage ─────────────────────────
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -394,10 +453,18 @@ export function Editor() {
     prevSourceRef.current = localSource;
   }, [model, localSource, projectTitle, publishMode]);
 
+  const applyAndCompile = useCallback(() => {
+    applyCode();
+    viewportRef.current?.compile();
+  }, [applyCode]);
+
   const handleParamChange = useCallback(
     (name: string, value: number | boolean | string | number[]) => {
+      const nextParamValues = { ...model.paramValues, [name]: value };
+      const syncedSource = regenerateScad(localSource, nextParamValues);
       model.setParam(name, value);
-      history.push({ source: localSource, paramValues: { ...model.paramValues, [name]: value } }, true);
+      setLocalSource(syncedSource);
+      history.push({ source: syncedSource, paramValues: nextParamValues }, true);
     },
     [model, localSource, history]
   );
@@ -436,20 +503,21 @@ export function Editor() {
 
   // Load template
   const loadTemplate = useCallback(
-    (t: (typeof TEMPLATES)[number]) => {
+    (t: ScadTemplateItem) => {
+      const localizedName = getTemplateTitle(t, locale);
       setPublishMode("create");
       setCommunityModelId(null);
-      setLocalSource(t.source);
-      setProjectTitle(t.name);
+      setLocalSource(t.code);
+      setProjectTitle(localizedName);
       setCommunityEditMeta(null);
-      model.setScadSource(t.source, t.name, null);
-      prevSourceRef.current = t.source;
+      model.setScadSource(t.code, localizedName, null);
+      prevSourceRef.current = t.code;
       setShowTemplates(false);
       // Update URL so the template is shareable
       setSearchParams({ template: t.id, intent: null, modelId: null });
-      toast.success(`Template "${t.name}" cargado`);
+      toast.success(`Template "${localizedName}" cargado`);
     },
-    [model, setSearchParams]
+    [locale, model, setSearchParams]
   );
 
   // File upload
@@ -489,7 +557,7 @@ export function Editor() {
       // Fallback: append at end
       const newSource = localSource + "\n" + text;
       setLocalSource(newSource);
-      model.setScadSource(newSource, projectTitle, communityModelId);
+      model.setScadSource(newSource, projectTitle, publishMode === "fork" ? model.forkMeta : null);
       prevSourceRef.current = newSource;
       return;
     }
@@ -500,7 +568,7 @@ export function Editor() {
     const prefix = before.length > 0 && !before.endsWith("\n") ? "\n" : "";
     const newSource = before + prefix + text + "\n" + after;
     setLocalSource(newSource);
-    model.setScadSource(newSource, projectTitle, communityModelId);
+    model.setScadSource(newSource, projectTitle, publishMode === "fork" ? model.forkMeta : null);
     prevSourceRef.current = newSource;
     // Move cursor after inserted text
     requestAnimationFrame(() => {
@@ -508,7 +576,7 @@ export function Editor() {
       ta.focus();
       ta.setSelectionRange(pos, pos);
     });
-  }, [localSource, model, projectTitle, communityModelId]);
+  }, [localSource, model, projectTitle, publishMode]);
 
   // ─── SVG upload → register + insert import() ─────────────────────
   const handleSvgImport = useCallback(() => {
@@ -851,15 +919,32 @@ export function Editor() {
             )}
           </button>
           {showTemplates && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {TEMPLATES.map((t) => (
+            <div className="mt-2 grid grid-cols-2 gap-2 max-h-[70vh] overflow-y-auto pr-1">
+              {templates.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => loadTemplate(t)}
-                  className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] bg-[#1a1f36] text-gray-400 border border-[rgba(168,187,238,0.08)] hover:border-[#C6E36C]/30 hover:text-gray-200 transition-all"
+                  className="flex flex-col items-center text-center gap-2 p-3 rounded-2xl bg-[#1a1f36] text-gray-200 border border-[rgba(168,187,238,0.12)] hover:border-[#C6E36C]/30 hover:text-gray-100 transition-all h-[200px] w-full"
                 >
-                  <Box className="w-2.5 h-2.5" />
-                  {t.name}
+                  {t.imageUrl ? (
+                    <img
+                      src={t.imageUrl}
+                      alt={getTemplateTitle(t, locale)}
+                      className="w-36 h-28 rounded-xl object-cover overflow-hidden"
+                    />
+                  ) : (
+                    <div className="w-28 h-28 rounded-xl border border-[rgba(168,187,238,0.18)] bg-[#141a2d] flex items-center justify-center">
+                      <Box className="w-10 h-10 text-gray-500" />
+                    </div>
+                  )}
+                  <span className="w-full min-w-0 flex flex-col items-center h-[58px] justify-start">
+                    <span className="text-[13px] font-semibold leading-tight line-clamp-2 min-h-[25px] w-full">
+                      {getTemplateTitle(t, locale)}
+                    </span>
+                    <span className="text-[11px] text-gray-500 line-clamp-2 leading-snug min-h-[28px] mt-0.5 w-full">
+                      {getTemplateDescription(t, locale)}
+                    </span>
+                  </span>
                 </button>
               ))}
             </div>
@@ -901,9 +986,9 @@ export function Editor() {
           <Button
             size="sm"
             className="text-[10px] h-7 gap-1"
-            onClick={applyCode}
+            onClick={applyAndCompile}
           >
-            <Play className="w-3 h-3" /> Aplicar
+            <Play className="w-3 h-3" /> Aplicar y Compilar
           </Button>
           <span className="text-[9px] text-gray-600 ml-auto flex items-center gap-2">
             {diagSummary.errors > 0 && (

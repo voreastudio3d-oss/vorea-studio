@@ -20,6 +20,7 @@ import {
   type RenderableMesh,
 } from "../engine/mesh-data";
 import {
+  applyLightingPreset,
   initScene,
   updateMesh,
   resizeScene,
@@ -34,6 +35,7 @@ import {
   deselectMesh,
   setTransformMode,
   getTransformMode,
+  type LightingPreset,
   type ThreeSceneContext,
   type RenderMode,
   type TransformMode,
@@ -59,6 +61,8 @@ import {
   RotateCw,
   Maximize2,
   MousePointerClick,
+  Lightbulb,
+  SlidersHorizontal,
 } from "lucide-react";
 
 interface ScadViewportProps {
@@ -78,6 +82,7 @@ interface ScadViewportProps {
 
 export interface ScadViewportHandle {
   getSceneCtx(): ThreeSceneContext | null;
+  compile: () => void;
 }
 
 // ─── Worker singleton ─────────────────────────────────────────────────────────
@@ -109,6 +114,13 @@ function getWorker(): Worker | null {
 
 let compileIdCounter = 0;
 
+const LIGHTING_PRESET_OPTIONS: Array<{ value: LightingPreset; label: string }> = [
+  { value: "balanced", label: "Balanceada" },
+  { value: "detail", label: "Detalle" },
+  { value: "showroom", label: "Showroom" },
+  { value: "soft", label: "Suave" },
+];
+
 export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(function ScadViewport({
   source,
   values,
@@ -120,11 +132,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<ThreeSceneContext | null>(null);
   const meshRef = useRef<RenderableMesh | null>(null);
-
-  // Expose scene ctx to parent
-  useImperativeHandle(ref, () => ({
-    getSceneCtx: () => sceneRef.current,
-  }));
+  const [externalCompileTick, setExternalCompileTick] = useState(0);
 
   const [hasCompiled, setHasCompiled] = useState(false);
   const [compiling, setCompiling] = useState(false);
@@ -134,15 +142,21 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
   const [showGrid, setShowGrid] = useState(true);
   const [showAxes, setShowAxes] = useState(true);
   const [stale, setStale] = useState(false);
-  const [autoRecompile, setAutoRecompile] = useState(false);
+  const [autoRecompile, setAutoRecompile] = useState(true);
+  const [autoCenterOnCompile, setAutoCenterOnCompile] = useState(false);
+  const [lightingPreset, setLightingPreset] = useState<LightingPreset>("balanced");
+  const [lightingIntensity, setLightingIntensity] = useState(1.15);
+  const [lightingPanelOpen, setLightingPanelOpen] = useState(false);
   const [usedWorker, setUsedWorker] = useState(false);
   const [errorCopied, setErrorCopied] = useState(false);
   const [renderMode, setRenderMode] = useState<RenderMode>("smooth");
   const [transformMode, setTransformModeState] = useState<TransformMode | null>(null);
+  const handledExternalCompileTickRef = useRef(0);
   const autoRef = useRef(false);
   autoRef.current = autoRecompile;
   const lastFingerprintRef = useRef<string>("");
   const activeCompileId = useRef(0);
+  const hasAutoCenteredOnceRef = useRef(false);
 
   // ─── Complexity estimate ──────────────────────────────────────────
   const complexity: ComplexityEstimate = useMemo(
@@ -236,6 +250,12 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
     updateMesh(ctx, meshRef.current as any, renderMode);
   }, [renderMode]);
 
+  useEffect(() => {
+    const ctx = sceneRef.current;
+    if (!ctx) return;
+    applyLightingPreset(ctx, lightingPreset, lightingIntensity);
+  }, [lightingPreset, lightingIntensity]);
+
   // ─── Render helper (update Three.js scene with mesh) ──────────────
   const renderMeshToScene = useCallback((mesh: RenderableMesh, autoCenter: boolean = false) => {
     const ctx = sceneRef.current;
@@ -270,7 +290,9 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           meshRef.current = renderable;
           setFaceCount(e.data.faceCount);
           onMeshReady?.(e.data.mesh);
-          renderMeshToScene(renderable, !hasCompiled);
+          const shouldAutoCenter = autoCenterOnCompile || !hasAutoCenteredOnceRef.current;
+          renderMeshToScene(renderable, shouldAutoCenter);
+          hasAutoCenteredOnceRef.current = true;
         }
         setCompileTime(Math.round(e.data.time));
         setError(e.data.error || null);
@@ -302,7 +324,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
       worker.addEventListener("message", handler);
       worker.postMessage(msg);
     });
-  }, [source, values, svgs, renderMeshToScene, onMeshReady]);
+  }, [source, values, svgs, renderMeshToScene, onMeshReady, autoCenterOnCompile]);
 
   // ─── Compile fallback (main thread, setTimeout) ───────────────────
   const compileMainThread = useCallback(() => {
@@ -343,7 +365,9 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           lastFingerprintRef.current = JSON.stringify({ source, values });
 
           // Update Three.js scene
-          renderMeshToScene(result.geometry as any, !hasCompiled);
+          const shouldAutoCenter = autoCenterOnCompile || !hasAutoCenteredOnceRef.current;
+          renderMeshToScene(result.geometry as any, shouldAutoCenter);
+          hasAutoCenteredOnceRef.current = true;
 
           // Serialize for GCode panel
           if (onMeshReady) {
@@ -391,7 +415,7 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
         setCompiling(false);
       }, 20);
     });
-  }, [source, values, svgs, images, renderMeshToScene, onMeshReady]);
+  }, [source, values, svgs, images, renderMeshToScene, onMeshReady, autoCenterOnCompile]);
 
   // ─── Unified compile ──────────────────────────────────────────────
   const compile = useCallback(() => {
@@ -406,17 +430,33 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
     }
   }, [compileWithWorker, compileMainThread]);
 
+  // Expose scene ctx + compile trigger to parent
+  useImperativeHandle(ref, () => ({
+    getSceneCtx: () => sceneRef.current,
+    compile: () => setExternalCompileTick((v) => v + 1),
+  }), []);
+
+  useEffect(() => {
+    if (externalCompileTick === 0) return;
+    if (externalCompileTick === handledExternalCompileTickRef.current) return;
+    if (compiling) return;
+
+    handledExternalCompileTickRef.current = externalCompileTick;
+    compile();
+  }, [externalCompileTick, compile, compiling]);
+
   // ─── Detect staleness ─────────────────────────────────────────────
   useEffect(() => {
     const fp = JSON.stringify({ source, values });
     if (lastFingerprintRef.current && fp !== lastFingerprintRef.current) {
       setStale(true);
+      onMeshReady?.(null);
       if (autoRef.current && !compiling) {
         const timer = setTimeout(compile, 400);
         return () => clearTimeout(timer);
       }
     }
-  }, [source, values, compile, compiling]);
+  }, [source, values, compile, compiling, onMeshReady]);
 
   // ─── Auto-compile on mount (opt-in) ───────────────────────────────
   const didAutoCompile = useRef(false);
@@ -426,30 +466,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
       compile();
     }
   }, [autoCompile, compile]);
-
-  // ─── Reset when source changes completely ─────────────────────────
-  const prevSourceRef = useRef(source);
-  useEffect(() => {
-    if (source !== prevSourceRef.current) {
-      prevSourceRef.current = source;
-      meshRef.current = null;
-      setHasCompiled(false);
-      setStale(false);
-      setError(null);
-      setFaceCount(0);
-      setCompileTime(0);
-      lastFingerprintRef.current = "";
-      didAutoCompile.current = false;
-      onMeshReady?.(null);
-      // Clear Three.js mesh
-      const ctx = sceneRef.current;
-      if (ctx) {
-        while (ctx.meshGroup.children.length > 0) {
-          ctx.meshGroup.remove(ctx.meshGroup.children[0]);
-        }
-      }
-    }
-  }, [source, onMeshReady]);
 
   // ─── Cycle render mode ─────────────────────────────────────────────
   const cycleRenderMode = useCallback(() => {
@@ -524,14 +540,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
       {/* ─── Status badges ─────────────────────────────────────────────── */}
       {hasCompiled && !compiling && (
         <div className="absolute top-14 left-3 flex gap-2 flex-wrap z-10">
-          <Badge className="bg-[#1a1f36]/90 backdrop-blur text-gray-300 border-[rgba(168,187,238,0.12)]">
-            <Eye className="w-3 h-3 mr-1.5" /> WebGL Render
-          </Badge>
-          {usedWorker && (
-            <Badge className="bg-green-500/15 text-green-400/80 border-green-500/20 backdrop-blur text-[9px]">
-              Worker
-            </Badge>
-          )}
           {stale && (
             <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/25 backdrop-blur">
               <RefreshCw className="w-3 h-3 mr-1.5" /> Desactualizado
@@ -578,10 +586,65 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
         </div>
       )}
 
+      {/* ─── Lighting Controls ─────────────────────────────────────────── */}
+      {hasCompiled && !compiling && (
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10 pointer-events-auto flex flex-col items-start gap-1.5">
+          <button
+            onClick={() => setLightingPanelOpen((prev) => !prev)}
+            className={`h-8 w-8 rounded-lg border flex items-center justify-center transition-colors ${lightingPanelOpen
+                ? "bg-[#C6E36C]/18 text-[#C6E36C] border-[#C6E36C]/35"
+                : "bg-[#0f1320]/82 text-gray-400 border-[rgba(168,187,238,0.16)] hover:text-gray-200"
+              }`}
+            title={lightingPanelOpen ? "Ocultar iluminacion" : "Mostrar iluminacion"}
+          >
+            <Lightbulb className="w-4 h-4" />
+          </button>
+
+          {lightingPanelOpen && (
+            <div className="w-40 rounded-xl bg-[#0f1320]/92 backdrop-blur border border-[rgba(168,187,238,0.12)] p-2 space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] text-gray-400 uppercase tracking-wide">
+                <span>Iluminacion</span>
+                <span className="text-[9px] text-gray-500">{LIGHTING_PRESET_OPTIONS.find((p) => p.value === lightingPreset)?.label}</span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-1">
+                {LIGHTING_PRESET_OPTIONS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    onClick={() => setLightingPreset(preset.value)}
+                    className={`h-6.5 px-2 rounded-md text-[10px] border transition-colors text-left ${lightingPreset === preset.value
+                        ? "bg-[#C6E36C]/16 text-[#C6E36C] border-[#C6E36C]/30"
+                        : "bg-[#1a1f36]/80 text-gray-400 border-[rgba(168,187,238,0.12)] hover:text-gray-200"
+                      }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="pt-1 border-t border-[rgba(168,187,238,0.12)] space-y-1">
+                <div className="flex items-center justify-between text-[10px] text-gray-500">
+                  <span className="flex items-center gap-1"><SlidersHorizontal className="w-3 h-3" /> Intensidad</span>
+                  <span className="font-mono text-gray-300">{lightingIntensity.toFixed(2)}x</span>
+                </div>
+                <input
+                  type="range"
+                  min={0.35}
+                  max={2.8}
+                  step={0.05}
+                  value={lightingIntensity}
+                  onChange={(e) => setLightingIntensity(Number(e.target.value))}
+                  className="w-full accent-[#C6E36C]"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ─── Controls ──────────────────────────────────────────────────── */}
       {hasCompiled && !compiling && (
-        <div className="absolute top-14 right-3 flex flex-col gap-1.5 z-10">
-          {/* ─── Render mode cycle ───────────────────────────────────── */}
+        <div className="absolute top-14 right-3 flex flex-col items-end gap-1.5 z-10">
           <button
             onClick={cycleRenderMode}
             className="h-7 px-2 rounded-lg bg-[#C6E36C]/15 text-[#C6E36C] border border-[#C6E36C]/25 flex items-center justify-center gap-1 transition-colors hover:bg-[#C6E36C]/25 text-[9px] font-semibold min-w-[28px]"
@@ -590,24 +653,28 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
             <Box className="w-3 h-3" />
             <span className="hidden sm:inline">{renderModeLabel}</span>
           </button>
+          <div className="w-full flex items-center justify-end gap-2 text-[9px] text-gray-500">
+            <span className="h-px w-6 bg-[rgba(168,187,238,0.15)]" />
+            <span className="uppercase tracking-wide">Gismos</span>
+          </div>
+          {/* ─── Render mode cycle ───────────────────────────────────── */}
+
           <button
             onClick={() => setShowGrid(!showGrid)}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-              showGrid
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${showGrid
                 ? "bg-[#C6E36C]/20 text-[#C6E36C] border border-[#C6E36C]/30"
                 : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
-            }`}
+              }`}
             title="Grid"
           >
             <Grid3x3 className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setShowAxes(!showAxes)}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-              showAxes
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${showAxes
                 ? "bg-[#C6E36C]/20 text-[#C6E36C] border border-[#C6E36C]/30"
                 : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
-            }`}
+              }`}
             title="Ejes"
           >
             <Axis3D className="w-3.5 h-3.5" />
@@ -619,7 +686,20 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
-          <div className="w-7 h-px" />
+          <button
+            onClick={() => setAutoCenterOnCompile((prev) => !prev)}
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors text-[8px] font-bold ${autoCenterOnCompile
+                ? "bg-[#C6E36C]/20 text-[#C6E36C] border border-[#C6E36C]/30"
+                : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
+              }`}
+            title={autoCenterOnCompile ? "Auto-centrado al compilar: ON" : "Auto-centrado al compilar: OFF"}
+          >
+            AC
+          </button>
+          <div className="w-full flex items-center justify-end gap-2 text-[9px] text-gray-500 mt-1">
+            <span className="h-px w-6 bg-[rgba(168,187,238,0.15)]" />
+            <span className="uppercase tracking-wide">Vistas</span>
+          </div>
           {/* ─── View presets ─────────────────────────────────────────── */}
           <button
             onClick={() => { const ctx = sceneRef.current; if (ctx) setCameraPreset(ctx, "top"); }}
@@ -642,14 +722,16 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           >
             L
           </button>
-          <div className="w-7 h-px" />
+          <div className="w-full flex items-center justify-end gap-2 text-[9px] text-gray-500 mt-1">
+            <span className="h-px w-6 bg-[rgba(168,187,238,0.15)]" />
+            <span className="uppercase tracking-wide">Modificadores</span>
+          </div>
           <button
             onClick={toggleAutoRecompile}
-            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-              autoRecompile
+            className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${autoRecompile
                 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                 : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)]"
-            }`}
+              }`}
             title={
               autoRecompile
                 ? "Auto-recompilacion ON"
@@ -660,7 +742,6 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
           >
             <Zap className="w-3.5 h-3.5" />
           </button>
-          <div className="w-7 h-px" />
           {/* ─── Transform mode buttons ──────────────────────────────── */}
           {(["translate", "rotate", "scale"] as TransformMode[]).map((mode) => {
             const Icon = mode === "translate" ? Move : mode === "rotate" ? RotateCw : Maximize2;
@@ -690,11 +771,10 @@ export const ScadViewport = forwardRef<ScadViewportHandle, ScadViewportProps>(fu
                     }
                   }
                 }}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-                  active
+                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${active
                     ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
                     : "bg-[#1a1f36]/90 text-gray-500 border border-[rgba(168,187,238,0.12)] hover:text-gray-300"
-                }`}
+                  }`}
                 title={label}
               >
                 <Icon className="w-3.5 h-3.5" />

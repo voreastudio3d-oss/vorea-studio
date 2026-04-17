@@ -1,17 +1,17 @@
-/** Text Keychain Tag – Parametric OpenSCAD model */
-export const TEXT_KEYCHAIN_TAG_SCAD = `// Text Keychain Tag
+/** Llavero de texto - Modelo OpenSCAD parametrico */
+export const TEXT_KEYCHAIN_TAG_SCAD = `// Llavero de texto
 $fn = 48;
 
-tag_w = 72; // [40:2:120] Tag width
-tag_h = 28; // [18:1:54] Tag height
-thick = 3.2; // [2:0.2:6] Body thickness
-corner_r = 7; // [0:0.5:18] Corner radius
-hole_d = 5; // [3:0.2:10] Ring hole diameter
-hole_margin = 10; // [5:0.5:22] Hole margin from edge
-text_size = 9; // [4:0.5:18] Text size
-text_depth = 1.1; // [0.4:0.1:3] Text depth
+tag_w = 72; // [40:2:120] Ancho de etiqueta
+tag_h = 28; // [18:1:54] Alto de etiqueta
+thick = 3.2; // [2:0.2:6] Espesor del cuerpo
+corner_r = 7; // [0:0.5:18] Radio de esquina
+hole_d = 5; // [3:0.2:10] Diametro de orificio para anilla
+hole_margin = 10; // [5:0.5:22] Margen del orificio desde el borde
+text_size = 9; // [4:0.5:18] Tamano del texto
+text_depth = 1.1; // [0.4:0.1:3] Profundidad del texto
 label_text = "VOREA";
-engraved = false; // false = embossed, true = engraved
+engraved = false; // false = en relieve, true = grabado
 
 safe_corner_r = min(corner_r, min(tag_w, tag_h) / 2 - 0.6);
 text_h = max(0.2, text_depth);
